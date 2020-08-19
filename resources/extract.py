@@ -1,7 +1,6 @@
 import subprocess
 import os
 import shutil
-import plistlib
 
 tempdir_process = subprocess.Popen('/usr/bin/mktemp -d', stdout=subprocess.PIPE, shell=True)
 tmpdir = str(tempdir_process.stdout.read())
@@ -24,21 +23,15 @@ def extract_asr(ramdisk, verbose=None):
     hdiutil_process = subprocess.Popen(f'/usr/bin/hdiutil detach {ramdisk_mount}', stdout=subprocess.PIPE, shell=True)
 
 def extract_ipsw(ipsw, verbose=None):
-#    print('This may take a while and freeze your PC, please wait!')
-#    shutil.unpack_archive(ipsw, f'{tmpdir}/ipsw', 'zip')
-#    print(f"IPSW extracted at '{tmpdir}/ipsw'!")
+    print('This may take a while and freeze your PC, please wait!')
+    shutil.unpack_archive(ipsw, f'{tmpdir}/ipsw', 'zip')
+    print(f"IPSW extracted at '{tmpdir}/ipsw'!")
     ipsw_path = f'{tmpdir}/ipsw'
-#    for file in os.listdir(f'{tmpdir}/ipsw'):
-#        if 'iBSS' in file:
-#            ibss = file
-#        if 'iBEC' in file:
-#            ibec = file
-    
-    pl = plistlib.readPlist('BuildManifest.plist')
-    for x in pl.items():
-        print(x)
-        exit()
-    print(pl['BuildIdentities'])
+    for file in os.listdir(f'{tmpdir}/ipsw'):
+        if 'iBSS' in file:
+            ibss = file
+        if 'iBEC' in file:
+            ibec = file
 
 def find_ramdisk(verbose=None):
     dmg_list = []
