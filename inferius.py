@@ -74,8 +74,8 @@ if args.ipsw:
     bootchain_list = [ibss_path, ibec_path, kernelcache_path]
     for x in bootchain_list:
         if args.verbose:
-            patch.decrypt_bootchain(x, firmware_bundle, 'yes')
+            raw_ibss_path, raw_ibec_path, raw_kernelcache_path = patch.decrypt_bootchain(x, firmware_bundle, 'yes')
         else:
-            patch.decrypt_bootchain(x, firmware_bundle)
+            raw_ibss_path, raw_ibec_path, raw_kernelcache_path = patch.decrypt_bootchain(x, firmware_bundle, 'yes')
 else:
     exit(parser.print_help(sys.stderr))

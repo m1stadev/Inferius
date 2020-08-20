@@ -25,6 +25,7 @@ def decrypt_bootchain(bootchain, firm_bundle, verbose=None): # Extracts (and dec
         subprocess.Popen(f'./resources/bin/img4tool -e -o {bootchain_type}.raw {bootchain}', stdout=subprocess.PIPE, shell=True)
         if verbose:
             print(f'[VERBOSE] {bootchain} extracted to work/unpatched_files/{bootchain_type}.raw')
+    return 'work/unpatched_files/ibss.raw', 'work/unpatched_files/ibec.raw', 'work/unpatched_files/kernelcache.raw'
 
 def patch_bootchain(bootchain, firm_bundle, verbose=None):
     pass
