@@ -7,11 +7,11 @@ tmpdir = str(tempdir_process.stdout.read())
 tmpdir = tmpdir[2:-3]
 
 def extract_ipsw(ipsw, verbose=None):
-    print('This may take a while, please wait!\n')
+    print('This may take a while, please wait!')
     shutil.unpack_archive(ipsw, f'{tmpdir}/ipsw', 'zip')
     ipsw_path = f'{tmpdir}/ipsw'
     if verbose:
-        print(f"IPSW extracted at '{ipsw_path}'!\n")
+        print(f"IPSW extracted at '{ipsw_path}'!")
     return ipsw_path
     
 
@@ -40,10 +40,10 @@ def extract_asr(ramdisk, verbose=None):
     
     subprocess.Popen(f'/usr/bin/hdiutil attach {ramdisk} -mountpoint {ramdisk_mount}', stdout=subprocess.PIPE, shell=True)
     if verbose:
-        print('Attaching ramdisk with hdiutil...\n')
+        print('Attaching ramdisk with hdiutil...')
     try:
         if verbose:
-            print('Copying asr binary from ramdisk to work directory...\n')
+            print('Copying asr binary from ramdisk to work directory...')
         shutil.copyfile(f'{ramdisk_mount}/usr/sbin/asr', 'work/unpatched_files/asr')
     except FileNotFoundError:
         if verbose:
