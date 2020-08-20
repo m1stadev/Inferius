@@ -32,7 +32,7 @@ if args.ipsw:
     else:
         sys.exit('Error: You must specify an iOS version with -i!\nExiting...')
     if args.verbose:
-        print('Checking for required dependencies...')
+        print('[VERBOSE] Checking for required dependencies...')
     homebrew_check_process = subprocess.Popen('/usr/bin/which brew', stdout=subprocess.PIPE, shell=True) # Dependency checking
     output = str(homebrew_check_process.stdout.read())
     if len(output) == 3:
@@ -71,6 +71,11 @@ if args.ipsw:
     else:
         ibss_path, ibec_path, kernelcache_path = ipsw.grab_bootchain(ipsw_dir, firmware_bundle)
     print('Patching bootchain...')
-    print('not implemented yet.')
+    bootchain_list = [ibss_path, ibec_path, kernelcache_path]
+    for x in bootchain_list:
+        if args.verbose:
+            patch.decrypt_bootchain(x, firmware_bundle, 'yes')
+        else:
+            patch.decrypt_bootchain(x, firmware_bundle)
 else:
     exit(parser.print_help(sys.stderr))
