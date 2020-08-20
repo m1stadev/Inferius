@@ -8,79 +8,59 @@ import sys
 import subprocess
 import time
 import requests
+import platform
 
-print('Inferius - Create and restore custom IPSWs to your 64bit iOS device!')
+if platform.system() == 'Darwin':
+    pass
+else:
+    exit("This script can only be ran on macOS. Please run this on a macOS computer.")
 
-assert ('darwin' in sys.platform), "This script can only be ran on macOS. Please run this on a macOS computer."
-
-parser = argparse.ArgumentParser()
-parser.add_argument('-i', '--ipsw', help='specify IPSW')
-parser.add_argument('-v', '--verbose', help='print verbose output', action='store_true')
+parser = argparse.ArgumentParser(description='Inferius - Create and restore custom IPSWs to your 64bit iOS device!', usage="./inferius.py -d 'device' -i 'iOS Version' -f 'IPSW'")
+parser.add_argument('-f', '--ipsw', help='Stock IPSW to create into a custom IPSW', nargs=1)
+parser.add_argument('-d', '--device', help='Your device identifier (e.g. iPhone10,2)', nargs=1)
+parser.add_argument('-i', '--version', help='The version of your stock IPSW', nargs=1)
+parser.add_argument('-v', '--verbose', help='Print verbose output for debugging', action='store_true')
 args = parser.parse_args()
 
 if args.ipsw:
-    print('Checking for required dependencies...')
-    homebrew_check_process = subprocess.Popen('/usr/bin/which brew', stdout=subprocess.PIPE, shell=True)
+    if args.device:
+        pass
+    else:
+        sys.exit('Error: You must specify a device identifier with -d!\nExiting...')
+    if args.version:
+        pass
+    else:
+        sys.exit('Error: You must specify an iOS version with -i!\nExiting...')
+    if args.verbose:
+        print('Checking for required dependencies...')
+    homebrew_check_process = subprocess.Popen('/usr/bin/which brew', stdout=subprocess.PIPE, shell=True) # Dependency checking
     output = str(homebrew_check_process.stdout.read())
     if len(output) == 3:
         print('Homebrew not installed! Please go to https://brew.sh/ and install Homebrew.')
-        exit()
+        sys.exit()
     bsdiff_check_process = subprocess.Popen('/usr/bin/which bspatch', stdout=subprocess.PIPE, shell=True)
     output = str(bsdiff_check_process.stdout.read())
     if len(output) == 3:
         print("bsdiff not installed! Run 'brew install bsdiff'.")
-        exit()
-    ideviceinfo_check_process = subprocess.Popen('/usr/bin/which ideviceinfo', stdout=subprocess.PIPE, shell=True)
-    output = str(ideviceinfo_check_process.stdout.read())
-    if len(output) == 3:
-        print("libimobiledevice not installed! Run 'brew install libimobiledevice'.")
-        exit()
-    grep_check_process = subprocess.Popen('/usr/bin/which grep', stdout=subprocess.PIPE, shell=True)
-    output = str(ideviceinfo_check_process.stdout.read())
-    if len(output) == 3:
-        print("grep not installed! Run 'brew install grep'.")
-        exit()
-    pzb_check_process = subprocess.Popen('/usr/bin/which pzb', stdout=subprocess.PIPE, shell=True)
-    output = str(pzb_check_process.stdout.read())
-    if os.path.isfile('resources/bin/pzb'):
-        pass
-    elif len(output) == 3:
-        print('partialZipBrowser not installed! Downloading binary manually...')
-        try:
-            dl = requests.get('https://github.com/tihmstar/partialZipBrowser/releases/download/36/buildroot_macos-latest.zip', allow_redirects=True)
-        except:
-            print('Unable to download binary, make sure you are connected to the internet!\nExiting...')
-            exit()
-        os.makedirs('resources/tmp', exist_ok=True)
-        open('resources/tmp/buildroot_macos-latest.zip', 'wb').write(dl.content)
-        shutil.unpack_archive('resources/tmp/buildroot_macos-latest.zip', 'resources/tmp/buildroot_macos-latest', 'zip')
-        shutil.copyfile('resources/tmp/buildroot_macos-latest/buildroot_macos-latest/usr/local/bin/pzb', 'resources/bin/pzb')
-        shutil.rmtree('resources/tmp', ignore_errors=True)
-        
-    
-    input('Please make sure your device is connected, then press enter: ')
-    ideviceinfo_model_process = subprocess.Popen('ideviceinfo -s | grep HardwareModel', stdout=subprocess.PIPE, shell=True)
-    hardware_model = str(ideviceinfo_model_process.stdout.read())
-    if len(hardware_model) == 3:
-            print('No device detected, exiting!')
-            exit()
-    ideviceinfo_model_process = subprocess.Popen('ideviceinfo -s | grep ProductType', stdout=subprocess.PIPE, shell=True)
-    device_identifier = str(ideviceinfo_model_process.stdout.read())
-    if len(device_identifier) == 3:
-            print('No device detected, exiting!')
-            exit()
-    device_identifier = device_identifier[13:-3]
-    print(f'extracting IPSW at this -> {args.ipsw}')
+        sys.exit()
+    if os.path.exists(f'work'): # In case work directory still remains, remove it
+        shutil.rmtree(f'work')
+    print(f'Finding Firmware bundle for:\nDevice: {args.device[0]}\niOS: {args.version[0]}')
     if args.verbose:
-        print(f'extracting IPSW: {args.ipsw}')
-        ipsw_dir = ipsw.extract_ipsw(args.ipsw, 'yes')
+        firmware_bundle = ipsw.find_bundle(args.device[0], args.version[0], 'yes')
     else:
-        ipsw_dir = ipsw.extract_ipsw(args.ipsw)
+        firmware_bundle = ipsw.find_bundle(args.device[0], args.version[0])
+    print(f'extracting IPSW at this -> {args.ipsw[0]}')
+    if args.verbose:
+        print(f'extracting IPSW: {args.ipsw[0]}')
+        ipsw_dir = ipsw.extract_ipsw(args.ipsw[0], 'yes')
+    else:
+        ipsw_dir = ipsw.extract_ipsw(args.ipsw[0])
     print('IPSW extracted! Grabbing ramdisk...')
     if args.verbose:
-        ramdisk = ipsw.find_ramdisk(ipsw_dir, 'yes')
+        ramdisk = ipsw.grab_ramdisk(ipsw_dir, firmware_bundle, 'yes')
     else:
-        ramdisk = ipsw.find_ramdisk(ipsw_dir)
+        ramdisk = ipsw.grab_ramdisk(ipsw_dir, firmware_bundle)
     print('Ramdisk found! Extracting asr...')
     if args.verbose:
         ipsw.extract_asr(ramdisk, 'yes')
@@ -88,7 +68,10 @@ if args.ipsw:
         ipsw.extract_asr(ramdisk)
     print('Grabbing bootchain to patch...')
     if args.verbose:
-        ipsw.find_bootchain(ipsw_dir, hardware_model, device_identifier, 'yes')
+        ibss, ibec, kernelcache = ipsw.grab_bootchain(ipsw_dir, 'yes')
     else:
-        ibss, ibec, kernelcache = ipsw.find_bootchain(ipsw_dir, hardware_model, device_identifier)
+        ibss, ibec, kernelcache = ipsw.grab_bootchain(ipsw_dir)
+    print('Patching bootchain...')
+else:
+    exit(parser.print_help(sys.stderr))
     

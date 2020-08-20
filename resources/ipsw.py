@@ -1,10 +1,11 @@
 import subprocess
 import os
 import shutil
+import json
 
 tempdir_process = subprocess.Popen('/usr/bin/mktemp -d', stdout=subprocess.PIPE, shell=True)
-tmpdir = str(tempdir_process.stdout.read())
-tmpdir = tmpdir[2:-3]
+output = str(tempdir_process.stdout.read())
+tmpdir = output[2:-3]
 
 def extract_ipsw(ipsw, verbose=None):
     print('This may take a while, please wait!')
@@ -14,24 +15,20 @@ def extract_ipsw(ipsw, verbose=None):
         print(f"IPSW extracted at '{ipsw_path}'!")
     return ipsw_path
     
+def find_bundle(device_identifier, version, verbose=None):
+    if os.path.isdir(f'resources/FirmwareBundles/{device_identifier}_{version}_bundle'):
+        if verbose:
+            print(f'Firmware bundle exists!\nDirectory: resources/FirmwareBundles/{device_identifier}_{version}_bundle')
+        return f'resources/FirmwareBundles/{device_identifier}_{version}_bundle'
+    else:
+        print(f"Firmware bundle for\nDevice: {device_identifier}\nVersion: {version}\ndoesn't exist!\nIf you have provided your own firmware bundle,\nplease make sure it is in 'resources/FirmwareBundles'\nand named {device_identifier}_{version}_bundle")
 
-def find_ramdisk(ipsw_dir, verbose=None):
-    dmg_list = []
-    dmgs_list = []
-    if 'BuildManifest.plist' not in os.listdir(ipsw_dir):
-        print('Error, IPSW does not exist at current directory! Exiting.')
-        raise Exception('Error, IPSW does not exist at current directory! Exiting.')
-    for file in os.listdir(ipsw_dir):
-        if file.endswith('.dmg'):
-            if file.startswith('._'):
-                continue
-            dmg_list.append(str(file))
-            dmgs_list.append((os.path.getsize(f'/Volumes/My Shit/Apple/IPSWs/iPhone6,1/10.2/10.2/{file}')))
-
-    smallest_dmg = dmgs_list.index(min(dmgs_list))
-    if verbose:
-        print(f'Ramdisk found: {dmg_list[smallest_dmg]}')
-    return dmg_list[smallest_dmg]
+def grab_ramdisk(ipsw_path, firm_bundle, verbose=None):
+    with open(f'{firm_bundle}/Info.json') as f:
+        data = json.load(f)
+        shutil.copyfile(f'{ipsw_path}/{data['files']['ramdisk']['file']}', f'work/unpatched_files/{data['files']['ramdisk']['file']}')
+        if verbose:
+            print(f'Ramdisk successfully copied to: work/unpatched_files/{data['files']['ramdisk']['file']}')
 
 def extract_asr(ramdisk, verbose=None):
     ramdisk_mount = f'{tmpdir}/dmg'
@@ -52,7 +49,7 @@ def extract_asr(ramdisk, verbose=None):
         raise
     subprocess.Popen(f'/usr/bin/hdiutil detach {ramdisk_mount}', stdout=subprocess.PIPE, shell=True)
 
-def find_bootchain(ipsw_dir, hardware_model, device_identifier, verbose=None):
+def grab_bootchain(ipsw_dir, hardware_model, device_identifier, verbose=None):
     if os.path.isfile(f'{ipsw_dir}/Firmware/DFU/iBSS.{hardware_model[:-2]}.RELEASE.im4p'):
         ibss_path = f'{ipsw_dir}/Firmware/DFU/iBSS.{hardware_model[:-2]}.RELEASE.im4p'
         if verbose:
