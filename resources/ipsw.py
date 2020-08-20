@@ -47,7 +47,7 @@ def grab_ramdisk(ipsw_path, firm_bundle, verbose=None):
     ramdisk_path = f'work/unpatched_files/{ramdisk_file}'
     return ramdisk_path
 
-def extract_asr(ramdisk, verbose=None):
+def extract_asr(ramdisk, verbose=None): #TODO: make this not complete shit
     ramdisk_mount = 'work/unpatched_files/dmg'
     if verbose:
         print('[VERBOSE] Extracting ramdisk dmg...')
