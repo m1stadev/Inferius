@@ -50,7 +50,6 @@ if args.ipsw:
         firmware_bundle = ipsw.find_bundle(args.device[0], args.version[0], 'yes')
     else:
         firmware_bundle = ipsw.find_bundle(args.device[0], args.version[0])
-    print(f'Extracting IPSW')
     if args.verbose:
         print(f'extracting IPSW: {args.ipsw[0]}')
         ipsw_dir = ipsw.extract_ipsw(args.ipsw[0], 'yes')
@@ -67,11 +66,11 @@ if args.ipsw:
     else:
         ipsw.extract_asr(ramdisk)
     print('Grabbing bootchain to patch...')
-    print('not implemented yet')
-#    if args.verbose:
-#        ibss, ibec, kernelcache = ipsw.grab_bootchain(ipsw_dir, 'yes')
-#    else:
-#        ibss, ibec, kernelcache = ipsw.grab_bootchain(ipsw_dir)
-#    print('Patching bootchain...')
+    if args.verbose:
+        ibss_path, ibec_path, kernelcache_path = ipsw.grab_bootchain(ipsw_dir, firmware_bundle, 'yes')
+    else:
+        ibss_path, ibec_path, kernelcache_path = ipsw.grab_bootchain(ipsw_dir, firmware_bundle)
+    print('Patching bootchain...')
+    print('not implemented yet.')
 else:
     exit(parser.print_help(sys.stderr))

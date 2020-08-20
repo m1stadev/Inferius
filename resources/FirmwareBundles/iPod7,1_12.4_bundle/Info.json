@@ -2,14 +2,14 @@
     "version": "12.4",
     "files": {
         "ibss": {
-            "file": "iBSS.n102.RELEASE.im4p",
+            "file": "Firmware/DFU/iBSS.n102.RELEASE.im4p",
             "sha1": "47c05552272bb413d280a24b63bb6b76b3301f87",
             "key": "fec516f5dbe916544339021ed4961cb60689c7c682d0f1dee6684179c995a0db",
             "iv": "3c5271964bf610e7ebccfc5822fac1f3",
             "patch": "iBSS.n102.RELEASE.patch"
         },
         "ibec": {
-            "file": "iBEC.n102.RELEASE.im4p",
+            "file": "Firmware/DFU/iBEC.n102.RELEASE.im4p",
             "sha1": "ef412ec36fc057118b8cc133f1d172df00829897",
             "key": "63a8501cc0c5924420032906f6e65b7f8f00b72b6c9be17f1bd7a963ddd42d05",
             "iv": "79e4120bc658cb22aa1e74528086c55c",

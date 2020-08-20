@@ -67,26 +67,22 @@ def extract_asr(ramdisk, verbose=None):
         raise
     subprocess.Popen(f'/usr/bin/hdiutil detach {ramdisk_mount}', stdout=subprocess.PIPE, shell=True)
 
-def grab_bootchain(ipsw_dir, hardware_model, device_identifier, verbose=None):
-    if os.path.isfile(f'{ipsw_dir}/Firmware/DFU/iBSS.{hardware_model[:-2]}.RELEASE.im4p'):
-        ibss_path = f'{ipsw_dir}/Firmware/DFU/iBSS.{hardware_model[:-2]}.RELEASE.im4p'
+def grab_bootchain(ipsw_path, firm_bundle, verbose=None):
+    bootchain = []
+    with open(f'{firm_bundle}/Info.json') as f:
+        data = json.load(f)
+        bootchain.append(data['files']['ibss']['file'])
+        bootchain.append(data['files']['ibec']['file'])
+        bootchain.append(data['files']['kernelcache']['file'])
+        f.close()
+    for b in bootchain:
+        shutil.copy(f'{ipsw_path}/{b}', f'work/unpatched_files')
         if verbose:
-            print(f'iBSS found at: {ibss_path}')
-        shutil.copy(ibss_path, f'work/unpatched_files/iBSS.{hardware_model[:-2]}.RELEASE.im4p')
-        if verbose:
-            print(f'iBSS copied to work directory')
-    if os.path.isfile(f'{ipsw_dir}/Firmware/DFU/iBEC.{hardware_model[:-2]}.RELEASE.im4p'):
-        ibec_path = f'{ipsw_dir}/Firmware/DFU/iBEC.{hardware_model[:-2]}.RELEASE.im4p'
-        if verbose:
-            print(f'iBEC found at: {ibec_path}')
-        shutil.copy(ibec_path, f'work/unpatched_files/iBEC.{hardware_model[:-2]}.RELEASE.im4p')
-        if verbose:
-            print(f'iBEC copied to work directory')
-    if os.path.isfile(f'{ipsw_dir}/kernelcache.release.{device_identifier[:-2].lower()}'):
-        kern_path = f'{ipsw_dir}/kernelcache.release.{device_identifier[:-2].lower()}'
-        if verbose:
-            print(f'Kernelcache found at: {kern_path}')
-        shutil.copy(kern_path, f'work/unpatched_files/kernelcache.release.{device_identifier[:-2].lower()}')
-        if verbose:
-            print(f'Kernelcache copied to work directory')
-    return f'iBSS.{hardware_model[:-2]}.RELEASE.im4p', f'iBEC.{hardware_model[:-2]}.RELEASE.im4p', f'kernelcache.release.{device_identifier[:-2].lower()}'
+            print(f'{b} successfully copied to work/unpatched_files')
+    print('Bootchain successfully copied to work directory!')
+    ibss_path = bootchain[0]
+    ibss_path = f'work/unpatched_files/{ibss_path[13:]}'
+    ibec_path = bootchain[1]
+    ibec_path = f'work/unpatched_files/{ibec_path[13:]}'
+    kernelcache_path = f'work/unpatched_files/{bootchain[2]}'
+    return ibss_path, ibec_path, kernelcache_path
