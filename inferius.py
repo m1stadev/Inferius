@@ -33,16 +33,11 @@ if args.ipsw:
         sys.exit('Error: You must specify an iOS version with -i!\nExiting...')
     if args.verbose:
         print('[VERBOSE] Checking for required dependencies...')
-    homebrew_check_process = subprocess.Popen('/usr/bin/which brew', stdout=subprocess.PIPE, shell=True) # Dependency checking
-    output = str(homebrew_check_process.stdout.read())
+    ldid_check = subprocess.Popen('/usr/bin/which ldid2', stdout=subprocess.PIPE, shell=True) # Dependency checking
+    output = str(ldid_check.stdout.read())
+    time.sleep(1)
     if len(output) == 3:
-        print('Homebrew not installed! Please go to https://brew.sh/ and install Homebrew.')
-        sys.exit()
-    bsdiff_check_process = subprocess.Popen('/usr/bin/which bspatch', stdout=subprocess.PIPE, shell=True)
-    output = str(bsdiff_check_process.stdout.read())
-    if len(output) == 3:
-        print("bsdiff not installed! Run 'brew install bsdiff'.")
-        sys.exit()
+        sys.exit('ldid not installed! Please install ldid from Homebrew, then run this script again.')
     if os.path.exists(f'work'): # In case work directory still remains, remove it
         shutil.rmtree(f'work')
     print(f'Finding Firmware bundle for:\nDevice: {args.device[0]}\niOS: {args.version[0]}')
@@ -70,13 +65,19 @@ if args.ipsw:
         ibss_path, ibec_path, kernelcache_path = ipsw.grab_bootchain(ipsw_dir, firmware_bundle, 'yes')
     else:
         ibss_path, ibec_path, kernelcache_path = ipsw.grab_bootchain(ipsw_dir, firmware_bundle)
-    print('Patching bootchain...')
+    print('Unpacking bootchain...')
     bootchain_list = [ibss_path, ibec_path, kernelcache_path]
     if args.verbose:
-        raw_ibss_path, raw_ibec_path, raw_kernelcache_path = patch.decrypt_bootchain(bootchain_list, firmware_bundle, 'yes')
+        raw_ibss_path, raw_ibec_path, raw_kernelcache_path = patch.unpack_bootchain(bootchain_list, firmware_bundle, 'yes')
     else:
-        raw_ibss_path, raw_ibec_path, raw_kernelcache_path = patch.decrypt_bootchain(bootchain_list, firmware_bundle)
-    
+        raw_ibss_path, raw_ibec_path, raw_kernelcache_path = patch.unpack_bootchain(bootchain_list, firmware_bundle)
+    print('Patching bootchain...')
+    raw_bootchain = [raw_ibss_path, raw_ibec_path, raw_kernelcache_path, 'work/unpatched_files/asr']
+    if args.verbose:
+        patched_ibss_path, patched_ibec_path, patched_kernelcache_path, patched_asr_path = patch.patch_bootchain(raw_bootchain, firmware_bundle, 'yes')
+    else:
+        patched_ibss_path, patched_ibec_path, patched_kernelcache_path, patched_asr_path = patch.patch_bootchain(raw_bootchain, firmware_bundle, 'yes')
+    print('bootchain patched! exiting...')
     
 else:
     exit(parser.print_help(sys.stderr))

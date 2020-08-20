@@ -8,6 +8,7 @@ import zipfile
 
 tempdir_process = subprocess.Popen('/usr/bin/mktemp -d', stdout=subprocess.PIPE, shell=True)
 output = str(tempdir_process.stdout.read())
+time.sleep(1)
 tmpdir = output[2:-3]
 
 def extract_ipsw(ipsw, verbose=None):
@@ -52,6 +53,7 @@ def extract_asr(ramdisk, verbose=None): #TODO: make this not complete shit
     if verbose:
         print('[VERBOSE] Extracting ramdisk dmg...')
     subprocess.Popen(f'./resources/bin/img4tool -e -o work/unpatched_files/ramdisk.dmg {ramdisk}', stdout=subprocess.PIPE, shell=True)
+    time.sleep(10)
     if verbose:
         print('[VERBOSE] Mounting ramdisk...')
     subprocess.Popen(f'/usr/bin/hdiutil attach work/unpatched_files/ramdisk.dmg -mountpoint work/unpatched_files/dmg', stdout=subprocess.PIPE, shell=True)
@@ -62,10 +64,7 @@ def extract_asr(ramdisk, verbose=None): #TODO: make this not complete shit
         shutil.copy(f'{ramdisk_mount}/usr/sbin/asr', 'work/unpatched_files/asr')
     except FileNotFoundError:
         if verbose:
-            print("[VERBOSE] asr binary not found, dmg must not be mounted! Make sure you don't have any other DMGs mounted, then run the script again\nExiting...")
-        subprocess.Popen(f'/usr/bin/hdiutil detach {ramdisk_mount}', stdout=subprocess.PIPE, shell=True)
-        raise
-    subprocess.Popen(f'/usr/bin/hdiutil detach {ramdisk_mount}', stdout=subprocess.PIPE, shell=True)
+            sys.exit("[VERBOSE] asr binary not found, dmg must not be mounted! Make sure you don't have any other DMGs mounted, then run the script again\nExiting...")
 
 def grab_bootchain(ipsw_path, firm_bundle, verbose=None):
     bootchain = []
