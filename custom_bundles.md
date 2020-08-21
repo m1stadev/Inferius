@@ -81,7 +81,8 @@
 
 ### `<*_KEY>`
 - Replace `<*_KEY>` with the decryption key for the file. 
-- This is only needed for the `ibss` and `ibec` entries. (e.g. The decryption key for the iOS 12.4 iBSS for the iPod7,1 is `fec516f5dbe916544339021ed4961cb60689c7c682d0f1dee6684179c995a0db`)
+- This is only needed for the `ibss` and `ibec` entries.
+- (e.g. The decryption key for the iOS 12.4 iBSS for the iPod7,1 is `fec516f5dbe916544339021ed4961cb60689c7c682d0f1dee6684179c995a0db`)
 
 ### `<*_IV>`
 - Replace `<*_IV>` with the decryption IV for the file. 
