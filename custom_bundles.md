@@ -25,6 +25,7 @@
 {
     "version": "<VERSION>",
     "boardconfig": "<BOARDCONFIG>",
+    "processor": "<PROCESSOR>",
     "files": {
         "ibss": {
             "file": "<IBSS_PATH>",
@@ -65,6 +66,10 @@
 - Replace `<BOARDCONFIG>` with the shortened board config of the device the bundle is for.
 - This can be found from the name of a component that contains the shortened board config in the IPSW.
 - (e.g. you can get the board config `n102` from the file `Firmware/DFU/iBSS.n102.RELEASE.im4p`)
+
+### `<PROCESSOR>`
+- Replace `<VERSION>` with the processor that the device the bundle is for has.
+- (e.g. iPhone 7 = `T8010`, iPhone 5S = `S5L8960`)
 
 ### `<*_PATH>`
 - Replace `<*_PATH>` with the path to where the file is on the IPSW.

@@ -1,6 +1,7 @@
 {
     "version": "12.4",
     "boardconfig": "n102",
+    "processor": "T7000",
     "files": {
         "ibss": {
             "file": "Firmware/DFU/iBSS.n102.RELEASE.im4p",

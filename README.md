@@ -2,6 +2,7 @@
 - Inferius is a tool to create custom IPSWs for 64-bit devices using Firmware Bundles, similarly to xpwn for 32-bit devices.
 
 ## Usage
+
 ```
 usage: ./inferius.py -d 'device' -i 'iOS Version' -f 'IPSW'
 
