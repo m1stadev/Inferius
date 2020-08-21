@@ -97,10 +97,17 @@
 ## Patches
 
 ### iBSS, iBEC
-- Using [img4tool](https://github.com/tihmstar/img4tool) or [img4lib](https://github.com/xerub/img4lib), decrypt and extract the iBSS from its im4p file.
-- Use [iBoot64Patcher](https://github.com/tihmstar/iBoot64Patcher), compiled with [Ralph0045's](https://twitter.com/Ralph0045) [liboffsetfinder64](https://github.com/Ralph0045/iBoot64Patcher) to patch iBSS.
-- Repack the patched iBSS files into an im4p file with img4tool or img4lib.
-- Create a patch file using `bspatch <stock iBSS im4p> <patched iBSS im4p> <iBSS.patch>`, replacing `<stock iBSS im4p>`, `<patched iBSS im4p>`, and `<iBSS.patch>` with their respective names.
+- Using [img4tool](https://github.com/tihmstar/img4tool) or [img4lib](https://github.com/xerub/img4lib), decrypt and extract the iBSS from its im4p file:
+    - img4tool: `img4tool -e --iv <IV> --key <KEY> -o ibss.raw <stock iBSS im4p>`.
+    - img4lib: `img4 -i <stock iBSS im4p> -o ibss.raw -k <IV + KEY>`.
+        - Replace `<stock iBSS im4p>` with the stock iBSS `.im4p` in your IPSW.
+        - Replace `<IV>` with the IV to decrypt your iBSS, `<KEY>` with the key to decrypt your iBSS, and `<IV + KEY>` with the IV and key combined together.
+- Use [iBoot64Patcher](https://github.com/tihmstar/iBoot64Patcher), compiled with [Ralph0045's](https://twitter.com/Ralph0045) [liboffsetfinder64](https://github.com/Ralph0045/iBoot64Patcher) to patch iBSS:
+    - `iBoot64Patcher ibss.raw ibss.pwn`
+- Repack the patched iBSS file into an im4p file with img4tool or img4lib:
+    - img4tool: `img4tool -c patched_ibss.im4p -t ibss ibss.pwn`.
+    - img4lib: `img4 -i ibss.pwn -o patched_ibss.im4p -A -T ibss`.
+- Create a patch file using `bspatch <stock iBSS im4p> patched_ibss.im4p <iBSS.patch>`, replacing `<stock iBSS im4p>` and `<iBSS.patch>` with their respective names.
 - Repeat with iBEC.
 
 ### Kernelcache
