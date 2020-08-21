@@ -1,13 +1,6 @@
 # Inferius
 - Inferius is a tool to create custom IPSWs for 64-bit devices using Firmware Bundles, similarly to xpwn for 32-bit devices.
 
-## How do I create my own Firmware Bundles?
-- There is a guide for creating your own Firmware Bundles in the [wiki](https://github.com/marijuanARM/Inferius/wiki/Creating-your-own-Firmware-Bundles).
-
-## How can I contribute my own Firmware Bundles?
-- Make a [Pull Request](https://github.com/marijuanARM/Inferius/compare)!
-- Please make sure that the custom IPSW that your Firmware Bundle creates is usable before PRing.
-
 ## Usage
 ```
 usage: ./inferius.py -d 'device' -i 'iOS Version' -f 'IPSW'
@@ -23,3 +16,12 @@ optional arguments:
                         The version of your stock IPSW
   -v, --verbose         Print verbose output for debugging
   ```
+
+## FAQ
+
+### How do I create my own Firmware Bundles?
+- There is a guide for creating your own Firmware Bundles in the [wiki](https://github.com/marijuanARM/Inferius/wiki/Creating-your-own-Firmware-Bundles).
+
+### How can I contribute my own Firmware Bundles?
+- Make a [Pull Request](https://github.com/marijuanARM/Inferius/compare)!
+- Please make sure that the custom IPSW that your Firmware Bundle creates is usable before PRing.
