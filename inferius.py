@@ -55,7 +55,7 @@ if args.ipsw:
         ramdisk = ipsw.grab_ramdisk(ipsw_dir, firmware_bundle, 'yes')
     else:
         ramdisk = ipsw.grab_ramdisk(ipsw_dir, firmware_bundle)
-    print('Ramdisk found! Extracting asr...')
+    print('Ramdisk found! Extracting ASR...')
     if args.verbose:
         ipsw.extract_asr(ramdisk, 'yes')
     else:
@@ -77,7 +77,21 @@ if args.ipsw:
         patched_ibss_path, patched_ibec_path, patched_kernelcache_path, patched_asr_path = patch.patch_bootchain(raw_bootchain, firmware_bundle, 'yes')
     else:
         patched_ibss_path, patched_ibec_path, patched_kernelcache_path, patched_asr_path = patch.patch_bootchain(raw_bootchain, firmware_bundle, 'yes')
-    print('bootchain patched! exiting...')
+    print('Bootchain patched!\nPacking ASR into ramdisk')
+    if args.verbose:
+        patched_ramdisk = patch.repack_asr(patched_asr_path, ramdisk, 'yes')
+        print('ASR packed into ramdisk!')
+    else:
+        patched_ramdisk = patch.repack_asr(patched_asr_path, ramdisk)
+    print('Repacking bootchain...')
+    patched_bootchain = [patched_ibss_path, patched_ibec_path, patched_kernelcache_path, patched_ramdisk]
+    patch.repack_bootchain(patched_bootchain, firmware_bundle, ipsw_dir, verbose=None)
+    print('Grabbing latest LLB and iBoot to put into custom IPSW...')
+    ipsw.grab_latest_llb_iboot(args.device[0], ipsw_dir, firmware_bundle)
+    print('Packing everything into custom IPSW...')
+    ipsw_name = ipsw.make_ipsw(ipsw_dir, firmware_bundle)
+    print(f'Done!\nCustom IPSW at: {ipsw_name}')
+
     
 else:
     exit(parser.print_help(sys.stderr))

@@ -3,4 +3,5 @@ work/
 tmp/
 .vscode/
 .DS_Store
-ipsw/
+Firmware/
+.ipsw

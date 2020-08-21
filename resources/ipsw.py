@@ -5,6 +5,8 @@ import json
 import sys
 import time
 import zipfile
+import requests
+from remotezip import RemoteZip
 
 tempdir_process = subprocess.Popen('/usr/bin/mktemp -d', stdout=subprocess.PIPE, shell=True)
 output = str(tempdir_process.stdout.read())
@@ -48,7 +50,7 @@ def grab_ramdisk(ipsw_path, firm_bundle, verbose=None):
     ramdisk_path = f'work/unpatched_files/{ramdisk_file}'
     return ramdisk_path
 
-def extract_asr(ramdisk, verbose=None): #TODO: make this not complete shit
+def extract_asr(ramdisk, verbose=None):
     ramdisk_mount = 'work/unpatched_files/dmg'
     if verbose:
         print('[VERBOSE] Extracting ramdisk dmg...')
@@ -85,3 +87,24 @@ def grab_bootchain(ipsw_path, firm_bundle, verbose=None):
     ibec_path = f'work/unpatched_files/{ibec_path[13:]}'
     kernelcache_path = f'work/unpatched_files/{bootchain[2]}'
     return ibss_path, ibec_path, kernelcache_path
+
+def grab_latest_llb_iboot(device_identifier, ipsw_dir, firm_bundle):
+    with open(f'{firm_bundle}/Info.json') as f:
+        data = json.load(f)
+        hardware_model = data['boardconfig']
+    ipswme_device_info = requests.get(f'https://api.ipsw.me/v4/device/{device_identifier}?type=ipsw')
+    device_info = ipswme_device_info.json()
+    for x in range(0, len(device_info['firmwares'])):
+        if device_info['firmwares'][x]['signed'] == True:
+            ipsw_download = device_info['firmwares'][x]['url']
+    with RemoteZip(ipsw_download) as zip:
+        zip.extract(f'Firmware/all_flash/LLB.{hardware_model}.RELEASE.im4p')
+        zip.extract(f'Firmware/all_flash/iBoot.{hardware_model}.RELEASE.im4p')
+    shutil.copy(f'Firmware/all_flash/LLB.{hardware_model}.RELEASE.im4p', f'{ipsw_dir}/Firmware/all_flash/')
+    shutil.copy(f'Firmware/all_flash/iBoot.{hardware_model}.RELEASE.im4p', f'{ipsw_dir}/Firmware/all_flash/')
+    shutil.rmtree('Firmware')
+
+def make_ipsw(ipsw_dir, firm_bundle):
+    shutil.make_archive(f'{firm_bundle[26:-7]}', 'zip', ipsw_dir)
+    os.rename(f'{firm_bundle[26:-7]}.zip', f'{firm_bundle[26:-7]}.ipsw')
+    return f'{firm_bundle[26:-7]}.ipsw'
