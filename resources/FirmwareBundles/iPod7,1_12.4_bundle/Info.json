@@ -1,5 +1,6 @@
 {
     "version": "12.4",
+    "boardconfig": "n102",
     "files": {
         "ibss": {
             "file": "Firmware/DFU/iBSS.n102.RELEASE.im4p",
@@ -30,4 +31,4 @@
             "patch": "kernelcache.release.n102.patch"
         }
     }
-}
+    }
