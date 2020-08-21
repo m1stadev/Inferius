@@ -97,13 +97,61 @@
 ## Patches
 
 ### iBSS, iBEC
-- Use [iBoot64Patcher](https://github.com/tihmstar/iBoot64Patcher), compiled with [Ralph0045's](https://twitter.com/Ralph0045) [liboffsetfinder64](https://github.com/Ralph0045/iBoot64Patcher) to patch iBSS and iBEC.
-- Create a patch file using `bspatch <unpatched iBSS> <patched iBSS> <iBSS.patch>`, replacing `<unpatched iBSS>`, `<patched iBSS>`, and `<iBSS.patch>` with their respective names.
+- Using [img4tool](https://github.com/tihmstar/img4tool) or [img4lib](https://github.com/xerub/img4lib), decrypt and extract the iBSS from its im4p file.
+- Use [iBoot64Patcher](https://github.com/tihmstar/iBoot64Patcher), compiled with [Ralph0045's](https://twitter.com/Ralph0045) [liboffsetfinder64](https://github.com/Ralph0045/iBoot64Patcher) to patch iBSS.
+- Repack the patched iBSS files into an im4p file with img4tool or img4lib.
+- Create a patch file using `bspatch <stock iBSS im4p> <patched iBSS im4p> <iBSS.patch>`, replacing `<stock iBSS im4p>`, `<patched iBSS im4p>`, and `<iBSS.patch>` with their respective names.
+- Repeat with iBEC.
 
 ### Kernelcache
-- Use [Ralph0045's](https://twitter.com/Ralph0045) [Kernel64Patcher](https://github.com/Ralph0045/Kernel64Patcher) to patch the kernel.
-- Create a patch file using `bspatch <unpatched kernelcache> <patched kernelcache> <kernelcache.patch>`, replacing `<unpatched kernelcache>`, `<patched kernelcache>`, and `<kernelcache.patch>` with their respective names.
+- Use [img4tool](https://github.com/tihmstar/img4tool) or [img4lib](https://github.com/xerub/img4lib) to extract the kernelcache from its im4p file:
+    - img4tool: `img4tool -e -o kernel.raw <stock kernelcache im4p>`.
+    - img4lib: `img4 -i <stock kernelcache im4p> -o kernel.raw`.
+        - Replace `<stock kernelcache im4p>` with the stock kernelcache `.im4p`.
+- Use [Ralph0045's](https://twitter.com/Ralph0045) [Kernel64Patcher](https://github.com/Ralph0045/Kernel64Patcher) to patch the kernel:
+    - `Kernel64Patcher kernel.raw kernel.patched -a`.
+- Use [this](https://raw.githubusercontent.com/dualbootfun/dualbootfun.github.io/master/source/compareFiles.py) Python 3 script (credits: [mcg29](https://twitter.com/mcg29_)) to create a diff file between the unpatched and patched kernels:
+    - `python3 compareFiles.py kernel.raw kernel.patched`.
+- Use img4lib to apply the patch onto the stock kernelcache im4p:
+    - `img4 -i <stock kernelcache image> -o kernelcache.release.*.patched -P kc.bpatch`.
+- Create a patch file using `bspatch`:
+    - `bspatch <stock kernelcache im4p> <patched kernelcache im4p> <kernelcache.patch>`
+        - Replace `<stock kernelcache im4p>`, `<patched kernelcache im4p>`, and `<kernelcache.patch>` with their respective names.
 
 ### ASR
-- There is no tool to patch ASR automatically, so it must be done in a disassembler.
-- Once you have patched ASR, create a patch file using `bspatch <unpatched ASR> <patched ASR> <ASR.patch>`, replacing `<unpatched ASR>`, `<patched ASR>`, and `<ASR.patch>` with their respective names.
+#### Extracting
+- (Note: This currently requires a computer running macOS).
+- Find the restore ramdisk in your IPSW. It is the smallest `.dmg` file.
+- The restore ramdisk is inside of an im4p container. Extract the ramdisk from the im4p with [img4tool](https://github.com/tihmstar/img4tool) or [img4lib](https://github.com/xerub/img4lib):
+    - img4tool: `img4tool -e -o stock_ramdisk.dmg <stock ramdisk dmg>`.
+    - img4lib: `img4 -i <stock ramdisk dmg> -o stock_ramdisk.dmg`.
+        - Replace `<stock ramdisk dmg>` with the restore ramdisk `.dmg` in your IPSW.
+- Mount the ramdisk with `hdiutil`:
+    - `hdiutil attach stock_ramdisk.dmg -mountpoint ramdisk`
+- Copy the ASR binary to your working directory:
+    - `cp ramdisk/usr/sbin/asr .`
+- Unmount the ramdisk:
+    - `hdiutil detach ramdisk`
+#### Patching
+- There is no tool to patch ASR automatically, so it must be done in a disassembler. Instructions to patch ASR will not be given here.
+- After patching ASR, extract entitlements with `ldid` and resign the binary:
+    - `ldid -e asr > entitlements.xml`
+    - `ldid -Sentitlements.xml <patched ASR binary>`
+        - Replace `<patched ASR binary>` with your patched ASR binary.
+- Once you have patched ASR, extract a new ramdisk using img4tool or img4lib. This is what we will be using to create the patch between the stock and patched ramdisks:
+    - img4tool: `img4tool -e -o patched_ramdisk.dmg <stock ramdisk dmg>`.
+    - img4lib: `img4 -i <stock ramdisk dmg> -o patched_ramdisk.dmg`.
+        - Replace `<stock ramdisk dmg>` with the restore ramdisk `.dmg` in your IPSW.
+- Mount the ramdisk with `hdiutil`:
+    - `hdiutil attach patched_ramdisk.dmg -mountpoint ramdisk`
+- Copy the ASR binary into the ramdisk:
+    - `cp <patched_asr> ramdisk/usr/sbin/asr`
+- Unmount the ramdisk:
+    - `hdiutil detach ramdisk`
+- Repack the patched ramdisk into an im4p container:
+    - img4tool: `img4tool -c patched_ramdisk.im4p -t rdsk patched_ramdisk.dmg`.
+    - img4lib: `img4 -i patched_ramdisk.dmg -o patched_ramdisk.im4p -A -T rdsk`.
+        - Replace `<stock ramdisk dmg>` with the restore ramdisk `.dmg` in your IPSW.
+- Create a patch file using `bspatch`:
+    - `bspatch <stock ramdisk dmg> patched_ramdisk.dmg <ASR.patch>`.
+        - Replace `<stock ramdisk dmg>` and `<ASR.patch>` with their respective names.
