@@ -4,4 +4,5 @@ tmp/
 .vscode/
 .DS_Store
 Firmware/
+ipsw/
 .ipsw

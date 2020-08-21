@@ -1,5 +1,5 @@
 # Inferius
-- Inferius is a tool to create custom IPSWs for 64-bit devices using Firmware Bundles, similarly to xpwn for 32-bit devices.
+Inferius is a tool to create custom IPSWs for 64-bit devices using Firmware Bundles, similarly to xpwn for 32-bit devices.
 
 ## Usage
 
@@ -17,6 +17,9 @@ optional arguments:
                         The version of your stock IPSW
   -v, --verbose         Print verbose output for debugging
   ```
+
+## Dependencies
+- `ldid` from [Homebrew](https://brew.sh/)
 
 ## FAQ
 
