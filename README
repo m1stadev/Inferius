@@ -1,3 +1,0 @@
-very early WIP xpwn-like tool written in Python for creating & restoring custom IPSWs to an iOS device with firmware bundles.
-
-macOS only, don't see Linux support ever happening due to ramdisk stuff
