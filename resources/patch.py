@@ -66,6 +66,8 @@ def repack_bootchain(bootchain, firm_bundle, ipsw_path, verbose=None): # Repacks
         ibec = data['files']['ibec']['file']
         kernelcache = data['files']['kernelcache']['file']
         ramdisk = data['files']['ramdisk']['file']
+        processor = data['processor']
+        processor = processor.lower()
     subprocess.Popen(f'./resources/bin/img4tool -c {ipsw_path}/{ibss} -t ibss {bootchain[0]}', stdout=subprocess.PIPE, shell=True)
     time.sleep(5)
     if verbose:
@@ -74,10 +76,14 @@ def repack_bootchain(bootchain, firm_bundle, ipsw_path, verbose=None): # Repacks
     time.sleep(5)
     if verbose:
         print('[VERBOSE] Repacked patched iBEC into IM4P')
-    subprocess.Popen(f'./resources/bin/img4tool -c {ipsw_path}/{kernelcache} -t krnl {bootchain[2]}', stdout=subprocess.PIPE, shell=True)
+    if processor.startswith('t') and int(processor[1:]) >= 8010:
+        compression = 'bvx2'
+    else:
+        compression = 'complzss'
+    subprocess.Popen(f'./resources/bin/img4tool -c {ipsw_path}/{kernelcache} -t krnl {bootchain[2]} --compression {compression}', stdout=subprocess.PIPE, shell=True)
     time.sleep(5)
     if verbose:
-        print('[VERBOSE] Repacked patched Kernelcache into IM4P')
+        print(f'[VERBOSE] Repacked patched Kernelcache into IM4P with {compression} compression')
     subprocess.Popen(f'./resources/bin/img4tool -c {ipsw_path}/{ramdisk} -t rdsk {bootchain[3]}', stdout=subprocess.PIPE, shell=True)
     time.sleep(5)
     if verbose:
