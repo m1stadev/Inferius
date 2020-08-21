@@ -18,8 +18,9 @@ optional arguments:
   -v, --verbose         Print verbose output for debugging
   ```
 
-## Dependencies
-- `ldid` from [Homebrew](https://brew.sh/)
+## Requirements
+- A macOS system (Linux support may come in a future update).
+- `ldid` from [Homebrew](https://brew.sh/).
 
 ## FAQ
 
