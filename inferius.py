@@ -15,10 +15,10 @@ if platform.system() == 'Darwin':
 else:
     exit("This script can only be ran on macOS. Please run this on a macOS computer.")
 
-parser = argparse.ArgumentParser(description='Inferius - Create and restore custom IPSWs to your 64bit iOS device!', usage="./inferius.py -d 'device' -i 'iOS Version' -f 'IPSW'")
-parser.add_argument('-f', '--ipsw', help='Stock IPSW to create into a custom IPSW', nargs=1)
+parser = argparse.ArgumentParser(description='Inferius - Create and restore custom IPSWs to your 64bit iOS device!', usage="./inferius.py -d 'device' -i 'iOS Version' -f 'IPSW' [-v]")
 parser.add_argument('-d', '--device', help='Your device identifier (e.g. iPhone10,2)', nargs=1)
 parser.add_argument('-i', '--version', help='The version of your stock IPSW', nargs=1)
+parser.add_argument('-f', '--ipsw', help='Stock IPSW to create into a custom IPSW', nargs=1)
 parser.add_argument('-v', '--verbose', help='Print verbose output for debugging', action='store_true')
 args = parser.parse_args()
 
