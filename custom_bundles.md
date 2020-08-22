@@ -162,3 +162,4 @@
 - Create a patch file using `bspatch`:
     - `bspatch <stock ramdisk dmg> patched_ramdisk.dmg <ASR.patch>`.
         - Replace `<stock ramdisk dmg>` and `<ASR.patch>` with their respective names.
+        - Note: This will take quite a while (took 10-20mins for me), so just give it time until it finishes!
