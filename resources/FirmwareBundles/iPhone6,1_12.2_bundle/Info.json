@@ -6,19 +6,11 @@
         "ibss": {
             "file": "Firmware/dfu/iBSS.iphone6.RELEASE.im4p",
             "sha1":"5d957769c57e23d47cc121961fdb9d2cd8ae0714",
-            "kbag": {
-                "key": "abd136df248907826f508b0d61f578a3195d8471f511ad4baaafba81ff25e230",
-                "iv": "428bfd3dfa26dc8afea4faac2135a19b"
-                },
             "patch": "iBSS.iphone6.RELEASE.patch"
         },
         "ibec": {
             "file": "Firmware/dfu/iBEC.iphone6.RELEASE.im4p",
             "sha1": "5b483e485ae6571ea4c3051bf62be3b70baba5b0",
-            "kbag": {
-            "key": "d6e615ba7bb82f5a6caa4b868aaf26b01c512cde138045bc48a75e6d95c27df0",
-            "iv": "be140ae1c0971e41660d6bca43f97ed6"
-            },
             "patch": "iBEC.iphone6.RELEASE.patch"
         },
         "ramdisk": {

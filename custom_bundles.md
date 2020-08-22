@@ -31,19 +31,11 @@
         "ibss": {
             "file": "<IBSS_PATH>",
             "sha1": "<IBSS_SHA1>",
-            "kbag": {
-                "key": "<IBSS_KEY>",
-                "iv": "<IBSS_IV>"
-            },
             "patch": "<IBSS_PATCH>"
         },
         "ibec": {
             "file": "<IBEC_PATH>",
             "sha1": "<IBEC_SHA1>",
-            "kbag": {
-                "key": "<IBEC_KEY>",
-                "iv": "<IBEC_IV>"
-            },
             "patch": "<IBEC_PATCH>"
         },
         "ramdisk": {
@@ -79,16 +71,6 @@
 ### `<*_SHA1>`
 - Replace `<*_SHA1>` with the sha1 hash of the unmodified file from the IPSW.
 - (e.g. The sha1 hash of the iOS 12.4 iBSS for the iPod7,1 is `47c05552272bb413d280a24b63bb6b76b3301f87`)
-
-### `<*_KEY>`
-- Replace `<*_KEY>` with the decryption key for the file. 
-- This is only needed for the `ibss` and `ibec` entries.
-- (e.g. The decryption key for the iOS 12.4 iBSS for the iPod7,1 is `fec516f5dbe916544339021ed4961cb60689c7c682d0f1dee6684179c995a0db`)
-
-### `<*_IV>`
-- Replace `<*_IV>` with the decryption IV for the file. 
-- Like `<*_KEY>`, this is only needed for the `ibss` and `ibec` entries.
-- (e.g. The decryption IV for the iOS 12.4 iBSS for the iPod7,1 is `3c5271964bf610e7ebccfc5822fac1f3`)
 
 ### `<*_PATCH>`
 - Replace `<*_PATCH>` with a patch created by [bsdiff](https://github.com/mendsley/bsdiff) between the unpatched and patched components.
