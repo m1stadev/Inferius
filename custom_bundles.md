@@ -156,8 +156,8 @@
 - Unmount the ramdisk:
     - `hdiutil detach ramdisk`
 - Repack the patched ramdisk into an im4p container:
-    - img4tool: `img4tool -c patched_ramdisk.im4p -t rdsk patched_ramdisk.dmg`.
-    - img4lib: `img4 -i patched_ramdisk.dmg -o patched_ramdisk.im4p -A -T rdsk`.
+    - img4tool: `img4tool -c patched_ramdisk.im4p -t rdsk -d "0" patched_ramdisk.dmg`.
+    - img4lib: `img4 -i patched_ramdisk.dmg -o patched_ramdisk.im4p -A -T rdsk -V "0"`.
         - Replace `<stock ramdisk dmg>` with the restore ramdisk `.dmg` in your IPSW.
 - Create a patch file using `bspatch`:
     - `bspatch <stock ramdisk dmg> patched_ramdisk.dmg <ASR.patch>`.
