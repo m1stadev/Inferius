@@ -1,4 +1,5 @@
 # Creating your own Firmware Bundles
+- Make sure to read through this whole page!
 
 ## Directory Structure
 ```
@@ -149,10 +150,22 @@
     - img4tool: `img4tool -e -o patched_ramdisk.dmg <stock ramdisk dmg>`.
     - img4lib: `img4 -i <stock ramdisk dmg> -o patched_ramdisk.dmg`.
         - Replace `<stock ramdisk dmg>` with the restore ramdisk `.dmg` in your IPSW.
-- Mount the ramdisk with `hdiutil`:
+- Mount the ramdisk:
     - `hdiutil attach patched_ramdisk.dmg -mountpoint ramdisk`
 - Copy the ASR binary into the ramdisk:
     - `cp <patched_asr> ramdisk/usr/sbin/asr`
+        - If you get a `No space left on device` error, follow these steps:
+            - Unmount the ramdisk:
+                - `hdiutil detach ramdisk`
+            - Find the size of the ramdisk in megabytes (If the size is a decimal number, round up to the nearest whole number).
+            - Resize the ramdisk:
+                - `hdiutil resize -size <SIZE>M patched_ramdisk.dmg`
+                    - Replace `<SIZE>` with the size of your ramdisk in megabytes + 1
+                        - Example: If the size of your ramdisk is 98 megabytes, run this command:
+                            - `hdiutil resize -size 99M patched_ramdisk.dmg`
+            - Mount the ramdisk again:
+                - `hdiutil attach patched_ramdisk.dmg -mountpoint ramdisk`
+            - Copy the ASR binary into the ramdisk, it should work now.
 - Unmount the ramdisk:
     - `hdiutil detach ramdisk`
 - Repack the patched ramdisk into an im4p container:
