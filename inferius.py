@@ -27,9 +27,9 @@ if args.ipsw:
     else:
         sys.exit('Error: You must specify a device identifier with -d!\nExiting...')
     if args.version:
-        pass
-    elif args.version.startswith('10.'):
-        sys.exit('Error: iOS 10.x IPSWs are not currently supported!\nExiting...')
+        version_str = args.version[0]
+        if version_str.startswith('10.'):
+            sys.exit('Error: iOS 10.x IPSWs are not currently supported!\nExiting...')
     else:
         sys.exit('Error: You must specify an iOS version with -i!\nExiting...')
     if args.verbose:

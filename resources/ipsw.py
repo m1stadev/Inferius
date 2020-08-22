@@ -36,6 +36,8 @@ def grab_latest_llb_iboot(device_identifier, ipsw_dir, firm_bundle):
     with open(f'{firm_bundle}/Info.json') as f:
         data = json.load(f)
         hardware_model = data['boardconfig']
+    if device_identifier.startswith('iPhone6'):
+        hardware_model = 'iphone6'
     ipswme_device_info = requests.get(f'https://api.ipsw.me/v4/device/{device_identifier}?type=ipsw')
     device_info = ipswme_device_info.json()
     for x in range(0, len(device_info['firmwares'])):
