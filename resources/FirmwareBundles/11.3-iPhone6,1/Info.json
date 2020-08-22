@@ -1,0 +1,30 @@
+{
+    "version": "11.3",
+    "boardconfig": "n51",
+    "processor": "S5L8960",
+        "ibss": {
+            "file": "iBSS.iphone6.RELEASE.im4p",
+            "sha1":"8847f23db4e56a16f872d67e06594681f249946b",
+            "key": "284fcfac5318b6a33750fa6424173493d087d11d846ffc2f1cf3ab26af40c9ad",
+            "iv": "17cc4ae9c6f47d232e484fe0dae76327",
+            "patch": "iBSS.iphone6.RELEASE.patch"
+        },
+        "ibec": {
+            "file": "iBEC.iphone6.RELEASE.im4p",
+            "sha1": "e168f16e56c8d3e1bc8e7cb74e803c61ef20ff79",
+            "key": "65010cc91a25271d67a5d8df9dc4eb9a825265cf3775414838fbf4836b0f22bf",
+            "iv": "ff4f11b83513bfaffb53a0ce43071466",
+            "patch": "iBEC.iphone6.RELEASE.patch"
+        },
+        "ramdisk": {
+            "file": "058-97541-133.dmg",
+            "sha1": "5a79d5de8c63806bb8aaf04c906bcba4efbe7ad2",
+            "patch": "058-97541-133.asr.patch"
+        },
+        "kernelcache": {
+            "file": "kernelcache.release.iphone6",
+            "sha1": "b99618093862716a3580fce0150d7a5d41639f9b",
+            "patch": "kernelcache.release.iphone6.patch"
+        }
+    }
+}
