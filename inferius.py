@@ -61,6 +61,8 @@ if args.ipsw:
     print('Packing everything into custom IPSW...')
     ipsw_name = ipsw.make_ipsw(ipsw_dir, firmware_bundle)
     print(f'Done!\nCustom IPSW at: {ipsw_name}')
+    print('Cleaning up...')
+    shutil.rmtree('work')
 
     
 else:
