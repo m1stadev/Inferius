@@ -24,6 +24,6 @@ def restore(ipsw_path, verbose=None):
     os.chdir('work/ipsw')
     if verbose:
         print('[VERBOSE] Beginning restore!')
-        subprocess.Popen(f'../../resources/bin/futurerestore -t blob.shsh2 --latest-sep --latest-baseband {ipsw_path}', stdout=open('../../restituere_log.txt','w'), shell=True)
+        subprocess.Popen(f'../../resources/bin/futurerestore -t blob.shsh2 --latest-sep --latest-baseband {ipsw_path}', stdout=open('../../resources/restituere_log.txt','w'), shell=True)
     else:
         subprocess.Popen(f'../../resources/bin/futurerestore -t blob.shsh2 --latest-sep --latest-baseband {ipsw_path}', stdout=subprocess.PIPE, shell=True)

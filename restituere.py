@@ -61,14 +61,12 @@ if args.ipsw:
         print(f'[VERBOSE] apnonce: {apnonce}')
     if os.path.exists(f'work'): # In case work directory is still here from a previous run, remove it
         shutil.rmtree(f'work')
-    if os.path.isfile('restituere_log.txt'):
-        os.remove('restituere_log.txt')
     os.makedirs('work/ipsw', exist_ok = True)
     print('Saving SHSH blobs for restore...')
     if len(glob.glob('work/ipsw/*.shsh2')) != 0:
         for shsh in glob.glob('work/ipsw/*.shsh2'):
             os.remove(shsh)
-    subprocess.run(f'./resources/bin/tsschecker -d {device_identifier} -l -e 0x{ecid} -s --apnonce {apnonce} --save-path work/ipsw/', stdout=open('restituere_log.txt','w'), shell=True)
+    subprocess.run(f'./resources/bin/tsschecker -d {device_identifier} -l -e 0x{ecid} -s --apnonce {apnonce} --save-path work/ipsw/', stdout=open('resources/restituere_log.txt','w'), shell=True)
     if len(glob.glob('work/ipsw/*.shsh2')) == 0:
         sys.exit("SHSH Blobs didn't save! Make sure you're connected to the internet, then try again.\nExiting...")
     for shsh in glob.glob('work/ipsw/*.shsh2'):
