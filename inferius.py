@@ -8,13 +8,14 @@ import sys
 import subprocess
 import requests
 import platform
+import time
 
 if platform.system() == 'Darwin':
     pass
 else:
-    exit("This script can only be ran on macOS. Please run this on a macOS computer.")
+    sys.exit('This script can only be ran on macOS. Please run this on a macOS computer.')
 
-parser = argparse.ArgumentParser(description='Inferius - Create and restore custom IPSWs to your 64bit iOS device!', usage="./inferius.py -d 'device' -i 'iOS Version' -f 'IPSW' [-v]")
+parser = argparse.ArgumentParser(description='Inferius - Create custom IPSWs for your 64bit iOS device!', usage="./inferius.py -d 'device' -i 'iOS Version' -f 'IPSW' [-v]")
 parser.add_argument('-d', '--device', help='Your device identifier (e.g. iPhone10,2)', nargs=1)
 parser.add_argument('-i', '--version', help='The version of your stock IPSW', nargs=1)
 parser.add_argument('-f', '--ipsw', help='Stock IPSW to create into a custom IPSW', nargs=1)
@@ -24,7 +25,7 @@ args = parser.parse_args()
 if args.ipsw:
     device_identifier = args.device[0]
     if device_identifier.startswith('iPhone8,') or device_identifier == 'iPad6,11' or 'iPad6,12':
-        sys.exit('Error: A9 devices are currently not supported!\nExiting...')
+        sys.exit('Error: A9 devices are currently not supported!\nExiting...') #TODO: Implement A9 support
     if args.device:
         pass
     else:
@@ -34,11 +35,11 @@ if args.ipsw:
         if version_str.startswith('10.'):
             sys.exit('Error: iOS 10.x IPSWs are not currently supported!\nExiting...')
     else:
-        sys.exit('Error: You must specify an iOS version with!\nExiting...')
+        sys.exit('Error: You must specify an iOS version!\nExiting...')
     if args.verbose:
         print('[VERBOSE] Checking for required dependencies...')
     ldid_check = subprocess.Popen('/usr/bin/which ldid2', stdout=subprocess.PIPE, shell=True) # Dependency checking
-    ldid_check.wait()
+    time.sleep(5)
     output = str(ldid_check.stdout.read())
     if len(output) == 3:
         sys.exit('Error: ldid not installed! Please install ldid from Homebrew, then run this script again.')

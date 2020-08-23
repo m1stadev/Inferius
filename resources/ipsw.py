@@ -22,8 +22,8 @@ def extract_ipsw(ipsw, verbose=None):
             print(f'Extracting IPSW at {ipsw}. This may take a while, please wait...')
         else:
             print('Extracting IPSW. This may take a while, please wait...')
-        with zipfile.ZipFile(ipsw, 'r') as zip_ref:
-            zip_ref.extractall('work/ipsw')
+        with zipfile.ZipFile(ipsw, 'r') as ipsw:
+            ipsw.extractall('work/ipsw')
     if verbose:
         print(f'[VERBOSE] IPSW extracted to: work/ipsw')
     return 'work/ipsw'
@@ -47,12 +47,38 @@ def grab_latest_llb_iboot(device_identifier, ipsw_dir, firm_bundle, verbose=None
     for x in range(0, len(device_info['firmwares'])):
         if device_info['firmwares'][x]['signed'] == True:
             ipsw_download = device_info['firmwares'][x]['url']
-    with RemoteZip(ipsw_download) as zip:
-        zip.extract(f'Firmware/all_flash/LLB.{hardware_model}.RELEASE.im4p')
-        zip.extract(f'Firmware/all_flash/iBoot.{hardware_model}.RELEASE.im4p')
+    with RemoteZip(ipsw_download) as ipsw:
+        ipsw.extract(f'Firmware/all_flash/LLB.{hardware_model}.RELEASE.im4p')
+        ipsw.extract(f'Firmware/all_flash/iBoot.{hardware_model}.RELEASE.im4p')
     shutil.copy(f'Firmware/all_flash/LLB.{hardware_model}.RELEASE.im4p', f'{ipsw_dir}/Firmware/all_flash/')
     shutil.copy(f'Firmware/all_flash/iBoot.{hardware_model}.RELEASE.im4p', f'{ipsw_dir}/Firmware/all_flash/')
     shutil.rmtree('Firmware')
+
+def extract_ibss_ibec(ipsw, firm_bundle, verbose=None):
+    if os.path.isfile(ipsw):
+        pass
+    else:
+        sys.exit(f'IPSW {ipsw} does not exist!\nExiting...')
+    if zipfile.is_zipfile(ipsw):
+        pass
+        if verbose:
+            print(f'[VERBOSE] {ipsw} is a zip archive!')
+    else:
+        sys.exit(f'IPSW {ipsw} is not a valid IPSW!\nExiting...')
+    with open(f'{firm_bundle}/Info.json') as f:
+        data = json.load(f)
+        ibss_path = data['files']['ibss']['file']
+        ibec_path = data['files']['ibec']['file']
+    with zipfile.ZipFile(ipsw, 'r') as ipsw:
+        ipsw.extract(ibss_path, path='work/ipsw')
+        if verbose:
+            print(f'[VERBOSE] Extracted {ibss_path} from IPSW to work/ipsw/')
+        ipsw.extract(ibec_path, path='work/ipsw')
+        if verbose:
+            print(f'[VERBOSE] Extracted {ibec_path} from IPSW to work/ipsw/')
+        ipsw.close()
+    return ibss_path, ibec_path
+
 
 def make_ipsw(ipsw_dir, firm_bundle, verbose=None):
     if os.path.isfile(f'{firm_bundle[26:-7]}_custom.ipsw'):

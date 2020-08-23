@@ -1,6 +1,8 @@
 import json
 import os
 import bsdiff4
+import subprocess
+import time
 
 def patch_bootchain(firm_bundle, ipsw_path, verbose=None): # Applies patches from firmware bundle onto bootchain
     os.makedirs('work/patched_files', exist_ok = True)
@@ -22,3 +24,13 @@ def patch_bootchain(firm_bundle, ipsw_path, verbose=None): # Applies patches fro
     bsdiff4.file_patch_inplace(f'work/ipsw/{ramdisk[0]}', f'{firm_bundle}/{ramdisk[1]}')
     if verbose:
         print(f'[VERBOSE] Ramdisk patched and put in work/ipsw/{ramdisk[0]}')
+
+def sign_ibss_ibec(ibss_path, ibec_path, shsh, verbose=None):
+    subprocess.Popen(f'./resources/bin/img4tool -c work/ipsw/ibss.img4 -p work/ipsw/{ibss_path} -s {shsh}', stdout=subprocess.PIPE, shell=True)
+    time.sleep(5)
+    if verbose:
+        print('[VERBOSE] iBSS packed into img4')
+    subprocess.Popen(f'./resources/bin/img4tool -c work/ipsw/ibec.img4 -p work/ipsw/{ibec_path} -s {shsh}', stdout=subprocess.PIPE, shell=True)
+    time.sleep(5)
+    if verbose:
+        print('[VERBOSE] iBEC packed into img4')

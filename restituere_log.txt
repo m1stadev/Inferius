@@ -1,0 +1,15 @@
+Version: 81b98e0425e17250cc83d5badaf9a8cc6399f481 - 245
+Libipatcher version: 3159a387584e352f690cca859e013c3a4683f3e8 - 69
+Odysseus support: yes
+INFO: device serial number is CCQT818LGGNL
+[INFO] 64-bit device detected
+futurerestore init done
+reading signing ticket blob.shsh2 is done
+Found device iPod7,1 n102ap
+user specified to use latest signed SEP (WARNING, THIS CAN CAUSE A NON-WORKING RESTORE)
+[TSSC] opening firmware.json
+[DOWN] downloading file https://api.ipsw.me/v2.1/firmwares.json/condensed
+[Error] failed to download file from=https://api.ipsw.me/v2.1/firmwares.json/condensed to=/tmp/firmware.json CURLcode=60
+[Error] [TSSC] parsing firmware.json failed
+[Error] Fail code=-2
+Failed with errorcode=-2

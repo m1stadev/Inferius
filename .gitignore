@@ -1,9 +1,10 @@
 __pycache__/
 Firmware/
-ipsw/
 tmp/
 work/
 .vscode/
 .DS_Store
-.ipsw
-.zip
+*.ipsw
+*.zip
+.restituere_log.txt
+.irecovery
