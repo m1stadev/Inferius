@@ -6,5 +6,5 @@ work/
 .DS_Store
 *.ipsw
 *.zip
-.restituere_log.txt
+restituere_log.txt
 .irecovery
