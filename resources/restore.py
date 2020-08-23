@@ -24,6 +24,6 @@ def restore(ipsw_path, verbose=None):
     os.chdir('work/ipsw')
     if verbose:
         print('[VERBOSE] Beginning restore!')
-        subprocess.Popen(f'../../resources/bin/futurerestore -t blob.shsh2 --latest-sep --latest-baseband {ipsw_path}', stdout=open('../../resources/restituere_log.txt','w'), shell=True) # TODO: Implement check for if device is cellular or not.
+        subprocess.Popen(f'../../resources/bin/futurerestore -t blob.shsh2 --latest-sep --latest-baseband {ipsw_path}', stdout=open('../../resources/restituere.log','w'), shell=True) # TODO: Implement check for if device is cellular or not.
     else:
         subprocess.Popen(f'../../resources/bin/futurerestore -t blob.shsh2 --latest-sep --latest-baseband {ipsw_path}', stdout=subprocess.PIPE, shell=True)

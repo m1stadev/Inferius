@@ -67,7 +67,7 @@ if args.ipsw:
     if len(glob.glob('work/ipsw/*.shsh2')) != 0:
         for shsh in glob.glob('work/ipsw/*.shsh2'):
             os.remove(shsh)
-    subprocess.run(f'./resources/bin/tsschecker -d {device_identifier} -l -e 0x{ecid} -s --apnonce {apnonce} --save-path work/ipsw/', stdout=open('resources/restituere_log.txt','w'), shell=True)
+    subprocess.run(f'./resources/bin/tsschecker -d {device_identifier} -l -e 0x{ecid} -s --apnonce {apnonce} --save-path work/ipsw/', stdout=open('resources/restituere.log','w'), shell=True)
     if len(glob.glob('work/ipsw/*.shsh2')) == 0:
         sys.exit("SHSH Blobs didn't save! Make sure you're connected to the internet, then try again.\nExiting...")
     for shsh in glob.glob('work/ipsw/*.shsh2'):
