@@ -18,7 +18,10 @@ def extract_ipsw(ipsw, verbose=None):
     else:
         sys.exit(f'{ipsw} is not a valid IPSW!\nExiting...')
     if ipsw.endswith('.ipsw'):
-        print('Extracting IPSW. This may take a while, please wait...')
+        if verbose:
+            print(f'Extracting IPSW at {ipsw}. This may take a while, please wait...')
+        else:
+            print('Extracting IPSW. This may take a while, please wait...')
         with zipfile.ZipFile(ipsw, 'r') as zip_ref:
             zip_ref.extractall('work/ipsw')
     if verbose:

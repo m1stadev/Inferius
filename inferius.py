@@ -22,16 +22,19 @@ parser.add_argument('-v', '--verbose', help='Print verbose output for debugging'
 args = parser.parse_args()
 
 if args.ipsw:
+    device_identifier = args.device[0]
+    if device_identifier.startswith('iPhone8,') or device_identifier == 'iPad6,11' or 'iPad6,12':
+        sys.exit('Error: A9 devices are currently not supported!\nExiting...')
     if args.device:
         pass
     else:
-        sys.exit('Error: You must specify a device identifier with -d!\nExiting...')
+        sys.exit('Error: You must specify a device identifier!\nExiting...')
     if args.version:
         version_str = args.version[0]
         if version_str.startswith('10.'):
             sys.exit('Error: iOS 10.x IPSWs are not currently supported!\nExiting...')
     else:
-        sys.exit('Error: You must specify an iOS version with -i!\nExiting...')
+        sys.exit('Error: You must specify an iOS version with!\nExiting...')
     if args.verbose:
         print('[VERBOSE] Checking for required dependencies...')
     ldid_check = subprocess.Popen('/usr/bin/which ldid2', stdout=subprocess.PIPE, shell=True) # Dependency checking
@@ -47,7 +50,6 @@ if args.ipsw:
     else:
         firmware_bundle = ipsw.find_bundle(args.device[0], args.version[0])
     if args.verbose:
-        print(f'extracting IPSW: {args.ipsw[0]}')
         ipsw_dir = ipsw.extract_ipsw(args.ipsw[0], 'yes')
     else:
         ipsw_dir = ipsw.extract_ipsw(args.ipsw[0])
@@ -58,7 +60,7 @@ if args.ipsw:
         patch.patch_bootchain(firmware_bundle, ipsw_dir)
     print('Grabbing latest LLB and iBoot to put into custom IPSW...')
     ipsw.grab_latest_llb_iboot(args.device[0], ipsw_dir, firmware_bundle)
-    print('Packing everything into custom IPSW...')
+    print('Packing everything into custom IPSW. This may take a while, please wait...')
     if args.verbose:
        ipsw_name = ipsw.make_ipsw(ipsw_dir, firmware_bundle, 'yes')
     else:
