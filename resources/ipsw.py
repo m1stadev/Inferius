@@ -31,7 +31,7 @@ def find_bundle(device_identifier, version, verbose=None):
             print(f'[VERBOSE] Firmware bundle exists at: resources/FirmwareBundles/{device_identifier}_{version}_bundle')
         return f'resources/FirmwareBundles/{device_identifier}_{version}_bundle'
     else:
-        sys.exit(f"Firmware bundle for\nDevice: {device_identifier}\nVersion: {version}\ndoesn't exist!\nIf you have provided your own firmware bundle,\nplease make sure it is in 'resources/FirmwareBundles'\nand named {device_identifier}_{version}_bundle")
+        sys.exit(f"Firmware bundle for {device_identifier}, {version} doesn't exist!\nIf you have provided your own firmware bundle,\nplease make sure it is in 'resources/FirmwareBundles'\nand named {device_identifier}_{version}_bundle")
 
 def grab_latest_llb_iboot(device_identifier, ipsw_dir, firm_bundle, verbose=None):
     with open(f'{firm_bundle}/Info.json') as f:

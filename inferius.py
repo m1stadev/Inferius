@@ -38,10 +38,10 @@ if args.ipsw:
     ldid_check.wait()
     output = str(ldid_check.stdout.read())
     if len(output) == 3:
-        sys.exit('ldid not installed! Please install ldid from Homebrew, then run this script again.')
+        sys.exit('Error: ldid not installed! Please install ldid from Homebrew, then run this script again.')
     if os.path.exists(f'work'): # In case work directory is still here from a previous run, remove it
         shutil.rmtree(f'work')
-    print(f'Finding Firmware bundle for:\nDevice: {args.device[0]}\niOS: {args.version[0]}')
+    print(f'Finding Firmware bundle for {args.device[0]}, {args.version[0]}...')
     if args.verbose:
         firmware_bundle = ipsw.find_bundle(args.device[0], args.version[0], 'yes')
     else:
@@ -59,7 +59,10 @@ if args.ipsw:
     print('Grabbing latest LLB and iBoot to put into custom IPSW...')
     ipsw.grab_latest_llb_iboot(args.device[0], ipsw_dir, firmware_bundle)
     print('Packing everything into custom IPSW...')
-    ipsw_name = ipsw.make_ipsw(ipsw_dir, firmware_bundle)
+    if args.verbose:
+       ipsw_name = ipsw.make_ipsw(ipsw_dir, firmware_bundle, 'yes')
+    else:
+        ipsw_name = ipsw.make_ipsw(ipsw_dir, firmware_bundle)
     print(f'Done!\nCustom IPSW at: {ipsw_name}')
     print('Cleaning up...')
     shutil.rmtree('work')
