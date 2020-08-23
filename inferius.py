@@ -39,7 +39,7 @@ if args.ipsw:
     output = str(ldid_check.stdout.read())
     if len(output) == 3:
         sys.exit('ldid not installed! Please install ldid from Homebrew, then run this script again.')
-    if os.path.exists(f'work'): # In case work directory is here from a previous run, remove it
+    if os.path.exists(f'work'): # In case work directory is still here from a previous run, remove it
         shutil.rmtree(f'work')
     print(f'Finding Firmware bundle for:\nDevice: {args.device[0]}\niOS: {args.version[0]}')
     if args.verbose:
@@ -63,7 +63,5 @@ if args.ipsw:
     print(f'Done!\nCustom IPSW at: {ipsw_name}')
     print('Cleaning up...')
     shutil.rmtree('work')
-
-    
 else:
     exit(parser.print_help(sys.stderr))
