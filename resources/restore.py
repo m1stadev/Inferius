@@ -20,10 +20,10 @@ def send_ibss_ibec(verbose=None):
     else:
         sys.exit('Device did not enter recovery mode successfully! Make sure your device is in Pwned DFU mode with signature checks removed, then run this script again.\nExiting...')
 
-def restore(ipsw_path, shsh, verbose=None):
+def restore(ipsw_path, verbose=None):
     os.chdir('work/ipsw')
     if verbose:
         print('[VERBOSE] Beginning restore!')
-        subprocess.Popen(f'../../resources/bin/futurerestore -t {shsh} --latest-sep --latest-baseband {ipsw_path}', stdout=open('../../restituere_log.txt','w'), shell=True)
+        subprocess.Popen(f'../../resources/bin/futurerestore -t blob.shsh2 --latest-sep --latest-baseband {ipsw_path}', stdout=open('../../restituere_log.txt','w'), shell=True)
     else:
-        subprocess.Popen(f'../../resources/bin/futurerestore -t {shsh} --latest-sep --latest-baseband {ipsw_path}', stdout=subprocess.PIPE, shell=True)
+        subprocess.Popen(f'../../resources/bin/futurerestore -t blob.shsh2 --latest-sep --latest-baseband {ipsw_path}', stdout=subprocess.PIPE, shell=True)

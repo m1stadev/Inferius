@@ -88,17 +88,17 @@ if args.ipsw:
         ibss_path, ibec_path = ipsw.extract_ibss_ibec(args.ipsw[0], firmware_bundle)
     print('Signing iBSS and iBEC with SHSH blob...')
     if args.verbose:
-        patch.sign_ibss_ibec(ibss_path, ibec_path, 'work/ipsw/blob.shsh2', 'yes')
+        patch.sign_ibss_ibec(ibss_path, ibec_path, 'yes')
     else:
-        patch.sign_ibss_ibec(ibss_path, ibec_path, 'work/ipsw/blob.shsh2')
+        patch.sign_ibss_ibec(ibss_path, ibec_path)
     print('Preparations done! Beginning restore...')
     if args.verbose:
         restore.send_ibss_ibec('yes')
     else:
         restore.send_ibss_ibec()
     if args.verbose:
-        restore.restore(args.ipsw[0], 'blob.shsh2', 'yes')
+        restore.restore(args.ipsw[0], 'yes')
     else:
-        restore.restore(args.ipsw[0], 'blob.shsh2')
+        restore.restore(args.ipsw[0])
 else:
     exit(parser.print_help(sys.stderr))
