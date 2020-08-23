@@ -24,8 +24,11 @@ args = parser.parse_args()
 
 if args.ipsw:
     device_identifier = args.device[0]
-    if device_identifier.startswith('iPhone8,') or device_identifier == 'iPad6,11' or 'iPad6,12':
+    device_identifier = device_identifier.lower()
+    if device_identifier.startswith('iphone8') or device_identifier == 'ipad6,11' or device_identifier == 'ipad6,12':
         sys.exit('Error: A9 devices are currently not supported!\nExiting...') #TODO: Implement A9 support
+    else:
+        pass
     if args.device:
         pass
     else:
