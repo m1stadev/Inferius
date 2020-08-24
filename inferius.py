@@ -9,6 +9,7 @@ import subprocess
 import requests
 import platform
 import time
+import json
 
 if platform.system() == 'Darwin':
     pass
@@ -23,12 +24,6 @@ parser.add_argument('-v', '--verbose', help='Print verbose output for debugging'
 args = parser.parse_args()
 
 if args.ipsw:
-    device_identifier = args.device[0]
-    device_identifier = device_identifier.lower()
-    if device_identifier.startswith('iphone8') or device_identifier == 'ipad6,11' or device_identifier == 'ipad6,12':
-        sys.exit('Error: A9 devices are currently not supported!\nExiting...') #TODO: Implement A9 support
-    else:
-        pass
     if args.device:
         pass
     else:
@@ -54,6 +49,24 @@ if args.ipsw:
     else:
         firmware_bundle = ipsw.find_bundle(args.device[0], args.version[0])
     if args.verbose:
+        print('Checking if device is A9...')
+    is_a9 = ipsw.a9_check(firmware_bundle)
+    if is_a9:
+        board_configs = ipsw.fetch_a9_boardconfigs(firmware_bundle)
+        if len(board_configs) != 2:
+            sys.exit('Firmware Bundle for A9 is invalid.\nExiting...')
+        firm_bundle_number = input(f'A9 device detected, please choose the correct board config for your device:\n[1] {board_configs[0]}\n[2] {board_configs[1]}\nChoice: ')
+        try:
+            int(firm_bundle_number)
+        except ValueError:
+            sys.exit('Input not a number!.\nExiting...')
+        firm_bundle_number = int(firm_bundle_number)
+        if 0 < firm_bundle_number < 3:
+            pass
+        else:
+            sys.exit('Invalid input given.\nExiting...')
+        
+    if args.verbose:
         ipsw_dir = ipsw.extract_ipsw(args.ipsw[0], 'yes')
     else:
         ipsw_dir = ipsw.extract_ipsw(args.ipsw[0])
@@ -63,7 +76,7 @@ if args.ipsw:
     else:
         patch.patch_bootchain(firmware_bundle, ipsw_dir)
     print('Grabbing latest LLB and iBoot to put into custom IPSW...')
-    ipsw.grab_latest_llb_iboot(args.device[0], ipsw_dir, firmware_bundle)
+    ipsw.grab_latest_llb_iboot(args.device[0], ipsw_dir, firmware_bundle, firm_bundle_number)
     print('Packing everything into custom IPSW. This may take a while, please wait...')
     if args.verbose:
        ipsw_name = ipsw.make_ipsw(ipsw_dir, firmware_bundle, 'yes')

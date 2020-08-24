@@ -15,7 +15,7 @@ if platform.system() == 'Darwin':
 else:
     sys.exit('This script can only be ran on macOS. Please run this on a macOS computer.')
 
-parser = argparse.ArgumentParser(description='Restituere - Restore custom IPSWs to your 64bit iOS device!', usage="./restituere.py -d 'DEVICE' -i 'VERSION' -f 'IPSW'")
+parser = argparse.ArgumentParser(description='Restituere - Restore custom IPSWs to your 64bit iOS device!', usage="./restituere.py -d 'device' -i 'iOS version' -f 'IPSW' [-v]")
 parser.add_argument('-d', '--device', help='Your device identifier (e.g. iPhone10,2)', nargs=1)
 parser.add_argument('-i', '--version', help='The version of your custom IPSW', nargs=1)
 parser.add_argument('-f', '--ipsw', help='Custom IPSW to restore onto your device', nargs=1)

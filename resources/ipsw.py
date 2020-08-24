@@ -7,6 +7,22 @@ import requests
 from remotezip import RemoteZip
 import glob
 
+def a9_check(firm_bundle):
+    with open(f'{firm_bundle}/Info.json') as f:
+        data = json.load(f)
+    if 'devices' in data:
+        return True
+    else:
+        return False
+
+def fetch_a9_boardconfigs(firm_bundle):
+    board_configs = []
+    with open(f'{firm_bundle}/Info.json') as f:
+        data = json.load(f)
+    for x in range(0, len(data['devices'])):
+        board_configs.append(data['devices'][x]['boardconfig'])
+    return board_configs
+
 def extract_ipsw(ipsw, verbose=None):
     os.makedirs('work/ipsw', exist_ok = True)
     if not os.path.exists(ipsw):
@@ -36,12 +52,15 @@ def find_bundle(device_identifier, version, verbose=None):
     else:
         sys.exit(f"Firmware bundle for {device_identifier}, {version} doesn't exist!\nIf you have provided your own firmware bundle,\nplease make sure it is in 'resources/FirmwareBundles'\nand named {device_identifier}_{version}_bundle")
 
-def grab_latest_llb_iboot(device_identifier, ipsw_dir, firm_bundle, verbose=None):
+def grab_latest_llb_iboot(device_identifier, ipsw_dir, firm_bundle, firm_bundle_number: int=None, verbose: str=None):
     with open(f'{firm_bundle}/Info.json') as f:
         data = json.load(f)
-        hardware_model = data['boardconfig']
-    if device_identifier.startswith('iPhone6'):
-        hardware_model = 'iphone6'
+        if firm_bundle_number:
+            hardware_model = data['devices'][firm_bundle_number]['boardconfig']
+        elif device_identifier.startswith('iPhone6'):
+            hardware_model = 'iphone6'
+        else:
+            hardware_model = data['boardconfig']
     ipswme_device_info = requests.get(f'https://api.ipsw.me/v4/device/{device_identifier}?type=ipsw')
     device_info = ipswme_device_info.json()
     for x in range(0, len(device_info['firmwares'])):
@@ -54,7 +73,7 @@ def grab_latest_llb_iboot(device_identifier, ipsw_dir, firm_bundle, verbose=None
     shutil.copy(f'Firmware/all_flash/iBoot.{hardware_model}.RELEASE.im4p', f'{ipsw_dir}/Firmware/all_flash/')
     shutil.rmtree('Firmware')
 
-def extract_ibss_ibec(ipsw, firm_bundle, verbose=None):
+def extract_ibss_ibec(ipsw, firm_bundle, firm_bundle_number: int=None, verbose: str=None):
     if os.path.isfile(ipsw):
         pass
     else:
@@ -67,8 +86,12 @@ def extract_ibss_ibec(ipsw, firm_bundle, verbose=None):
         sys.exit(f'IPSW {ipsw} is not a valid IPSW!\nExiting...')
     with open(f'{firm_bundle}/Info.json') as f:
         data = json.load(f)
-        ibss_path = data['files']['ibss']['file']
-        ibec_path = data['files']['ibec']['file']
+        if firm_bundle_number:
+            ibss_path = data['files']['ibss']['file']
+            ibec_path = data['files']['ibec']['file']
+        else:
+            ibss_path = data['devices'][firm_bundle_number]['files']['ibss']['file']
+            ibec_path = data['devices'][firm_bundle_number]['files']['ibec']['file']
     with zipfile.ZipFile(ipsw, 'r') as ipsw:
         ipsw.extract(ibss_path, path='work/ipsw')
         if verbose:

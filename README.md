@@ -6,7 +6,7 @@ Inferius is a tool to create custom IPSWs for 64-bit devices using Firmware Bund
 ```
 usage: ./inferius.py -d 'device' -i 'iOS Version' -f 'IPSW' [-v]
 
-Inferius - Create and restore custom IPSWs to your 64bit iOS device!
+Inferius - Create custom IPSWs for your 64bit iOS device!
 
 optional arguments:
   -h, --help            show this help message and exit
@@ -17,6 +17,21 @@ optional arguments:
   -f IPSW, --ipsw IPSW  Stock IPSW to create into a custom IPSW
   -v, --verbose         Print verbose output for debugging
   ```
+
+```
+usage: ./restituere.py -d 'device' -i 'iOS Version' -f 'IPSW' [-v]
+
+Restituere - Restore custom IPSWs to your 64bit iOS device!
+
+optional arguments:
+  -h, --help            show this help message and exit
+  -d DEVICE, --device DEVICE
+                        Your device identifier (e.g. iPhone10,2)
+  -i VERSION, --version VERSION
+                        The version of your custom IPSW
+  -f IPSW, --ipsw IPSW  Custom IPSW to restore onto your device
+  -v, --verbose         Print verbose output for debugging
+```
 
 ## Requirements
 - A macOS system (Linux support may come in a future update).

@@ -4,14 +4,20 @@ import bsdiff4
 import subprocess
 import time
 
-def patch_bootchain(firm_bundle, ipsw_path, verbose=None): # Applies patches from firmware bundle onto bootchain
+def patch_bootchain(firm_bundle, ipsw_path, firm_bundle_number: int=None, verbose: str=None): # Applies patches from firmware bundle onto bootchain
     os.makedirs('work/patched_files', exist_ok = True)
     with open(f'{firm_bundle}/Info.json') as f:
         data = json.load(f)
-        ibss = [data['files']['ibss']['file'], data['files']['ibss']['patch']]
-        ibec = [data['files']['ibec']['file'], data['files']['ibec']['patch']]
-        kernelcache = [data['files']['kernelcache']['file'], data['files']['kernelcache']['patch']]
-        ramdisk = [data['files']['ramdisk']['file'], data['files']['ramdisk']['patch']]
+        if firm_bundle_number:
+            ibss = [data['devices'][firm_bundle_number]['files']['ibss']['file'], data['devices'][firm_bundle_number]['files']['ibss']['patch']]
+            ibec = [data['devices'][firm_bundle_number]['files']['ibec']['file'], data['devices'][firm_bundle_number]['files']['ibec']['patch']]
+            kernelcache = [data['devices'][firm_bundle_number]['files']['kernelcache']['file'], data['devices'][firm_bundle_number]['files']['kernelcache']['patch']]
+            ramdisk = [data['devices'][firm_bundle_number]['files']['ramdisk']['file'], data['devices'][firm_bundle_number]['files']['ramdisk']['patch']]
+        else:
+            ibss = [data['files']['ibss']['file'], data['files']['ibss']['patch']]
+            ibec = [data['files']['ibec']['file'], data['files']['ibec']['patch']]
+            kernelcache = [data['files']['kernelcache']['file'], data['files']['kernelcache']['patch']]
+            ramdisk = [data['files']['ramdisk']['file'], data['files']['ramdisk']['patch']]
     bsdiff4.file_patch_inplace(f'work/ipsw/{ibss[0]}', f'{firm_bundle}/{ibss[1]}')
     if verbose:
         print(f'[VERBOSE] iBSS patched and put in work/ipsw/{ibss[0]}')
