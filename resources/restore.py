@@ -20,6 +20,17 @@ def send_ibss_ibec(verbose=None):
     else:
         sys.exit('Device did not enter recovery mode successfully! Make sure your device is in Pwned DFU mode with signature checks removed, then run this script again.\nExiting...')
 
-def restore(ipsw_path, verbose=None):
+def is_cellular(device_identifier):
+    non_cellular_devices = ['ipad6,11', 'ipad7,5', 'ipad7,11', 'ipod7,1', 'ipod9,1', 'ipad4,1', 'ipad5,3', 'ipad6,7', 'ipad6,3', 'ipad7,1', 'ipad7,3', 'ipad4,4', 'ipad4,7', 'ipad5,1']
+    device_identifier = device_identifier.lower()
+    if device_identifier in non_cellular_devices:
+        return False
+    else:
+        return True
+
+def restore(ipsw_path, is_cellular, verbose=None):
     os.chdir('work/ipsw')
-    subprocess.run(f'../../resources/bin/futurerestore -t blob.shsh2 --latest-sep --latest-baseband {ipsw_path}', shell=True) # TODO: Implement check for if device is cellular or not.
+    if is_cellular:
+        subprocess.run(f'../../resources/bin/futurerestore -t blob.shsh2 --latest-sep --latest-baseband {ipsw_path}', shell=True)
+    else:
+        subprocess.run(f'../../resources/bin/futurerestore -t blob.shsh2 --latest-sep --no-baseband {ipsw_path}', shell=True)

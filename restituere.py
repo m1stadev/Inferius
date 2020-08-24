@@ -38,6 +38,13 @@ if args.ipsw:
         pass
     else:
         sys.exit('Exiting...')
+    lsusb = subprocess.Popen('./resources/bin/lsusb', stdout=subprocess.PIPE, shell=True)
+    time.sleep(10)
+    lsusb_output = str(lsusb.stdout.read())
+    if 'Apple Mobile Device (DFU)' in lsusb_output:
+        pass
+    else:
+        sys.exit('Device not found!\nExiting...')
     device_identifier = args.device[0]
     device_identifier = device_identifier.lower()
     if device_identifier.startswith('iphone8') or device_identifier == 'ipad6,11' or device_identifier == 'ipad6,12':
@@ -98,8 +105,8 @@ if args.ipsw:
     else:
         restore.send_ibss_ibec()
     if args.verbose:
-        restore.restore(args.ipsw[0], 'yes')
+        restore.restore(args.ipsw[0], restore.is_cellular(device_identifier), 'yes')
     else:
-        restore.restore(args.ipsw[0])
+        restore.restore(args.ipsw[0], restore.is_cellular(device_identifier))
 else:
     exit(parser.print_help(sys.stderr))
