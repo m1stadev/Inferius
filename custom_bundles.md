@@ -90,7 +90,9 @@
 - Repack the patched iBSS file into an im4p file with img4tool or img4lib:
     - img4tool: `img4tool -c patched_ibss.im4p -t ibss ibss.pwn`.
     - img4lib: `img4 -i ibss.pwn -o patched_ibss.im4p -A -T ibss`.
-- Create a patch file using `bspatch <stock iBSS im4p> patched_ibss.im4p <iBSS.patch>`, replacing `<stock iBSS im4p>` and `<iBSS.patch>` with their respective names.
+- Create a patch file with [bsdiff](https://github.com/mendsley/bsdiff):
+    - `bsdiff <stock iBSS im4p> patched_ibss.im4p <iBSS.patch>`.
+        - Replace `<stock iBSS im4p>` and `<iBSS.patch>` with their respective names.
 - Repeat with iBEC.
 
 ### Kernelcache
@@ -104,8 +106,8 @@
     - `python3 compareFiles.py kernel.raw kernel.patched`.
 - Use img4lib to apply the patch onto the stock kernelcache im4p:
     - `img4 -i <stock kernelcache image> -o kernelcache.release.*.patched -P kc.bpatch`.
-- Create a patch file using `bspatch`:
-    - `bspatch <stock kernelcache im4p> <patched kernelcache im4p> <kernelcache.patch>`
+- Create a patch file using [bsdiff](https://github.com/mendsley/bsdiff):
+    - `bsdiff <stock kernelcache im4p> <patched kernelcache im4p> <kernelcache.patch>`
         - Replace `<stock kernelcache im4p>`, `<patched kernelcache im4p>`, and `<kernelcache.patch>` with their respective names.
 
 ### ASR
@@ -154,7 +156,7 @@
     - img4tool: `img4tool -c patched_ramdisk.im4p -t rdsk -d "0" patched_ramdisk.dmg`.
     - img4lib: `img4 -i patched_ramdisk.dmg -o patched_ramdisk.im4p -A -T rdsk -V "0"`.
         - Replace `<stock ramdisk dmg>` with the restore ramdisk `.dmg` in your IPSW.
-- Create a patch file using `bspatch`:
-    - `bspatch <stock ramdisk dmg> patched_ramdisk.dmg <ASR.patch>`.
+- Create a patch file using [bsdiff](https://github.com/mendsley/bsdiff):
+    - `bsdiff <stock ramdisk dmg> patched_ramdisk.dmg <ASR.patch>`.
         - Replace `<stock ramdisk dmg>` and `<ASR.patch>` with their respective names.
         - Note: This will take quite a while (took 10-20mins for me), so just give it time until it finishes!
