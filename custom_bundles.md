@@ -102,7 +102,7 @@
         - Replace `<stock kernelcache im4p>` with the stock kernelcache `.im4p`.
 - Use [Ralph0045's](https://twitter.com/Ralph0045) [Kernel64Patcher](https://github.com/Ralph0045/Kernel64Patcher) to patch the kernel:
     - `Kernel64Patcher kernel.raw kernel.patched -a`.
-- Use [this](https://raw.githubusercontent.com/dualbootfun/dualbootfun.github.io/master/source/compareFiles.py) Python 3 script (credits: [mcg29](https://twitter.com/mcg29_)) to create a diff file between the unpatched and patched kernels:
+- Use [this](https://raw.githubusercontent.com/dualbootfun/dualbootfun.github.io/d947e2c9b6090a1e65a46ea6a58cd840986ff9d9/source/compareFiles.py) Python 3 script (credits: [mcg29](https://twitter.com/mcg29_)) to create a diff file between the unpatched and patched kernels:
     - `python3 compareFiles.py kernel.raw kernel.patched`.
 - Use img4lib to apply the patch onto the stock kernelcache im4p:
     - `img4 -i <stock kernelcache image> -o kernelcache.release.*.patched -P kc.bpatch`.

@@ -52,6 +52,8 @@ if args.ipsw:
         print('Checking if device is A9...')
     is_a9 = ipsw.a9_check(firmware_bundle)
     if is_a9:
+        if args.verbose:
+            print('Device is A9, fetching correct board config...')
         board_configs = ipsw.fetch_a9_boardconfigs(firmware_bundle)
         if len(board_configs) != 2:
             sys.exit('Firmware Bundle for A9 is invalid.\nExiting...')
@@ -65,6 +67,10 @@ if args.ipsw:
             pass
         else:
             sys.exit('Invalid input given.\nExiting...')
+    else:
+        firm_bundle_number = 0
+        if args.verbose:
+            print('Device is not A9, continuing...')
         
     if args.verbose:
         ipsw_dir = ipsw.extract_ipsw(args.ipsw[0], 'yes')
@@ -72,14 +78,14 @@ if args.ipsw:
         ipsw_dir = ipsw.extract_ipsw(args.ipsw[0])
     print('IPSW extracted! Applying patches to bootchain...')
     if args.verbose:
-        patch.patch_bootchain(firmware_bundle, ipsw_dir, 'yes')
+        patch.patch_bootchain(firmware_bundle, ipsw_dir, firm_bundle_number, 'yes')
     else:
-        patch.patch_bootchain(firmware_bundle, ipsw_dir)
+        patch.patch_bootchain(firmware_bundle, ipsw_dir, firm_bundle_number)
     print('Grabbing latest LLB and iBoot to put into custom IPSW...')
     ipsw.grab_latest_llb_iboot(args.device[0], ipsw_dir, firmware_bundle, firm_bundle_number)
     print('Packing everything into custom IPSW. This may take a while, please wait...')
     if args.verbose:
-       ipsw_name = ipsw.make_ipsw(ipsw_dir, firmware_bundle, 'yes')
+        ipsw_name = ipsw.make_ipsw(ipsw_dir, firmware_bundle, 'yes')
     else:
         ipsw_name = ipsw.make_ipsw(ipsw_dir, firmware_bundle)
     print(f'Done!\nCustom IPSW at: {ipsw_name}')
