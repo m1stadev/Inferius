@@ -71,7 +71,7 @@ if args.ipsw:
         firm_bundle_number = 0
         if args.verbose:
             print('Device is not A9, continuing...')
-        
+
     if args.verbose:
         ipsw_dir = ipsw.extract_ipsw(args.ipsw[0], 'yes')
     else:

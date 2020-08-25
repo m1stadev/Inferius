@@ -204,15 +204,17 @@
             }
         }
     ],
-    "ramdisk": {
-        "file": "<RAMDISK_PATH>",
-        "sha1": "<RAMDISK_SHA1>",
-        "patch": "<RAMDISK_PATCH>"
-    },
-    "kernelcache": {
-        "file": "<KERNELCACHE_PATH>",
-        "sha1": "<KERNELCACHE_SHA1>",
-        "patch": "<KERNELCACHE_PATCH>"
+    "files": {
+        "ramdisk": {
+            "file": "<RAMDISK_PATH>",
+            "sha1": "<RAMDISK_SHA1>",
+            "patch": "<RAMDISK_PATCH>"
+        },
+        "kernelcache": {
+            "file": "<KERNELCACHE_PATH>",
+            "sha1": "<KERNELCACHE_SHA1>",
+            "patch": "<KERNELCACHE_PATCH>"
+        }
     }
 }
 ```
