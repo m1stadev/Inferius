@@ -8,7 +8,7 @@ def patch_bootchain(firm_bundle, ipsw_path, firm_bundle_number, verbose=None): #
     os.makedirs('work/patched_files', exist_ok = True)
     with open(f'{firm_bundle}/Info.json') as f:
         data = json.load(f)
-        if firm_bundle_number != 0:
+        if firm_bundle_number != 1337:
             ibss = [data['devices'][firm_bundle_number]['files']['ibss']['file'], data['devices'][firm_bundle_number]['files']['ibss']['patch']]
             ibec = [data['devices'][firm_bundle_number]['files']['ibec']['file'], data['devices'][firm_bundle_number]['files']['ibec']['patch']]
             kernelcache = [data['files']['kernelcache']['file'], data['files']['kernelcache']['patch']]

@@ -56,7 +56,7 @@ def grab_latest_llb_iboot(device_identifier, ipsw_dir, firm_bundle, firm_bundle_
     l_device_identifier = device_identifier.lower()
     with open(f'{firm_bundle}/Info.json') as f:
         data = json.load(f)
-        if firm_bundle_number != 0:
+        if firm_bundle_number != 1337:
             hardware_model = data['devices'][firm_bundle_number]['boardconfig']
         elif l_device_identifier.startswith('iphone6'):
             hardware_model = 'iphone6'
@@ -87,7 +87,7 @@ def extract_ibss_ibec(ipsw, firm_bundle, firm_bundle_number, verbose=None):
         sys.exit(f'IPSW {ipsw} is not a valid IPSW!\nExiting...')
     with open(f'{firm_bundle}/Info.json') as f:
         data = json.load(f)
-        if firm_bundle_number == 0:
+        if firm_bundle_number == 1337:
             ibss_path = data['files']['ibss']['file']
             ibec_path = data['files']['ibec']['file']
         else:

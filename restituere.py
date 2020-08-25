@@ -96,11 +96,12 @@ if args.ipsw:
             sys.exit('Input not a number!.\nExiting...')
         firm_bundle_number = int(firm_bundle_number)
         if 0 < firm_bundle_number < 3:
+            firm_bundle_number = firm_bundle_number - 1
             pass
         else:
             sys.exit('Invalid input given.\nExiting...')
     else:
-        firm_bundle_number = 0
+        firm_bundle_number = 1337
         if args.verbose:
             print('Device is not A9, continuing...')
     if args.verbose:
