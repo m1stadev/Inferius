@@ -19,7 +19,7 @@ else:
 parser = argparse.ArgumentParser(description='Inferius - Create custom IPSWs for your 64bit iOS device!', usage="./inferius.py -d 'device' -i 'iOS Version' -f 'IPSW' [-v]")
 parser.add_argument('-d', '--device', help='Your device identifier (e.g. iPhone10,2)', nargs=1)
 parser.add_argument('-i', '--version', help='The version of your stock IPSW', nargs=1)
-parser.add_argument('-f', '--ipsw', help='Stock IPSW to create into a custom IPSW', nargs=1)
+parser.add_argument('-f', '--ipsw', help='Path to custom IPSW', nargs=1)
 parser.add_argument('-v', '--verbose', help='Print verbose output for debugging', action='store_true')
 args = parser.parse_args()
 

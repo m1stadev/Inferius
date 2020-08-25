@@ -3,25 +3,25 @@
     "boardconfig": "n51",
     "processor": "S5L8960",
         "files": {
-        "ibss": {
-            "file": "Firmware/dfu/iBSS.iphone6.RELEASE.im4p",
-            "sha1":"8847f23db4e56a16f872d67e06594681f249946b",
-            "patch": "iBSS.iphone6.RELEASE.patch"
-        },
-        "ibec": {
-            "file": "Firmware/dfu/iBEC.iphone6.RELEASE.im4p",
-            "sha1": "e168f16e56c8d3e1bc8e7cb74e803c61ef20ff79",
-            "patch": "iBEC.iphone6.RELEASE.patch"
-        },
-        "ramdisk": {
-            "file": "058-97541-133.dmg",
-            "sha1": "5a79d5de8c63806bb8aaf04c906bcba4efbe7ad2",
-            "patch": "058-97541-133.asr.patch"
-        },
-        "kernelcache": {
-            "file": "kernelcache.release.iphone6",
-            "sha1": "b99618093862716a3580fce0150d7a5d41639f9b",
-            "patch": "kernelcache.release.iphone6.patch"
+            "ibss": {
+                "file": "Firmware/dfu/iBSS.iphone6.RELEASE.im4p",
+                "sha1":"8847f23db4e56a16f872d67e06594681f249946b",
+                "patch": "iBSS.iphone6.RELEASE.patch"
+            },
+            "ibec": {
+                "file": "Firmware/dfu/iBEC.iphone6.RELEASE.im4p",
+                "sha1": "e168f16e56c8d3e1bc8e7cb74e803c61ef20ff79",
+                "patch": "iBEC.iphone6.RELEASE.patch"
+            },
+            "ramdisk": {
+                "file": "058-97541-133.dmg",
+                "sha1": "5a79d5de8c63806bb8aaf04c906bcba4efbe7ad2",
+                "patch": "058-97541-133.asr.patch"
+            },
+            "kernelcache": {
+                "file": "kernelcache.release.iphone6",
+                "sha1": "b99618093862716a3580fce0150d7a5d41639f9b",
+                "patch": "kernelcache.release.iphone6.patch"
+            }
         }
-    }
 }
