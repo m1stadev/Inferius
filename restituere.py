@@ -41,16 +41,10 @@ if args.ipsw:
     lsusb = subprocess.Popen('./resources/bin/lsusb', stdout=subprocess.PIPE, shell=True)
     time.sleep(10)
     lsusb_output = str(lsusb.stdout.read())
-    if 'Apple Mobile Device (DFU)' in lsusb_output:
+    if 'Apple Mobile Device (DFU Mode)' in lsusb_output:
         pass
     else:
-        sys.exit('Device not found!\nExiting...')
-    device_identifier = args.device[0]
-    device_identifier = device_identifier.lower()
-    if device_identifier.startswith('iphone8') or device_identifier == 'ipad6,11' or device_identifier == 'ipad6,12':
-        sys.exit('Error: A9 devices are currently not supported!\nExiting...') #TODO: Implement A9 support
-    else:
-        pass
+        sys.exit('DFU device not found!\nExiting...')
     print('Fetching some required info...')
     if args.verbose:
         print('[VERBOSE] Fetching ECID...')
@@ -88,25 +82,47 @@ if args.ipsw:
         firmware_bundle = ipsw.find_bundle(args.device[0], args.version[0], 'yes')
     else:
         firmware_bundle = ipsw.find_bundle(args.device[0], args.version[0])
+    is_a9 = ipsw.a9_check(firmware_bundle)
+    if is_a9:
+        if args.verbose:
+            print('Device is A9, fetching correct board config...')
+        board_configs = ipsw.fetch_a9_boardconfigs(firmware_bundle)
+        if len(board_configs) != 2:
+            sys.exit('Firmware Bundle for A9 is invalid.\nExiting...')
+        firm_bundle_number = input(f'A9 device detected, please choose the correct board config for your device:\n[1] {board_configs[0]}\n[2] {board_configs[1]}\nChoice: ')
+        try:
+            int(firm_bundle_number)
+        except ValueError:
+            sys.exit('Input not a number!.\nExiting...')
+        firm_bundle_number = int(firm_bundle_number)
+        if 0 < firm_bundle_number < 3:
+            pass
+        else:
+            sys.exit('Invalid input given.\nExiting...')
+    else:
+        firm_bundle_number = 0
+        if args.verbose:
+            print('Device is not A9, continuing...')
     if args.verbose:
         print('Extracting iBSS and iBEC from custom IPSW...')
     if args.verbose:
-        ibss_path, ibec_path = ipsw.extract_ibss_ibec(args.ipsw[0], firmware_bundle, 'yes')
+        ibss_path, ibec_path = ipsw.extract_ibss_ibec(args.ipsw[0], firmware_bundle, firm_bundle_number, 'yes')
     else:
-        ibss_path, ibec_path = ipsw.extract_ibss_ibec(args.ipsw[0], firmware_bundle)
+        ibss_path, ibec_path = ipsw.extract_ibss_ibec(args.ipsw[0], firmware_bundle, firm_bundle_number)
     print('Signing iBSS and iBEC with SHSH blob...')
     if args.verbose:
         patch.sign_ibss_ibec(ibss_path, ibec_path, 'yes')
     else:
         patch.sign_ibss_ibec(ibss_path, ibec_path)
+    processor = ipsw.fetch_processor(firmware_bundle)
     print('Preparations done! Beginning restore...')
     if args.verbose:
-        restore.send_ibss_ibec('yes')
+        restore.send_ibss_ibec(processor, 'yes')
     else:
-        restore.send_ibss_ibec()
+        restore.send_ibss_ibec(processor)
     if args.verbose:
-        restore.restore(args.ipsw[0], restore.is_cellular(device_identifier), 'yes')
+        restore.restore(args.ipsw[0], restore.is_cellular(args.device[0]), 'yes')
     else:
-        restore.restore(args.ipsw[0], restore.is_cellular(device_identifier))
+        restore.restore(args.ipsw[0], restore.is_cellular(args.device[0]))
 else:
     exit(parser.print_help(sys.stderr))

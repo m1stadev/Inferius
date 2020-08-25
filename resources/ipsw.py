@@ -52,12 +52,13 @@ def find_bundle(device_identifier, version, verbose=None):
     else:
         sys.exit(f"Firmware bundle for {device_identifier}, {version} doesn't exist!\nIf you have provided your own firmware bundle,\nplease make sure it is in 'resources/FirmwareBundles'\nand named {device_identifier}_{version}_bundle")
 
-def grab_latest_llb_iboot(device_identifier, ipsw_dir, firm_bundle, firm_bundle_number: int=None, verbose: str=None):
+def grab_latest_llb_iboot(device_identifier, ipsw_dir, firm_bundle, firm_bundle_number):
+    l_device_identifier = device_identifier.lower()
     with open(f'{firm_bundle}/Info.json') as f:
         data = json.load(f)
-        if firm_bundle_number:
+        if firm_bundle_number != 0:
             hardware_model = data['devices'][firm_bundle_number]['boardconfig']
-        elif device_identifier.startswith('iPhone6'):
+        elif l_device_identifier.startswith('iphone6'):
             hardware_model = 'iphone6'
         else:
             hardware_model = data['boardconfig']
@@ -73,7 +74,7 @@ def grab_latest_llb_iboot(device_identifier, ipsw_dir, firm_bundle, firm_bundle_
     shutil.copy(f'Firmware/all_flash/iBoot.{hardware_model}.RELEASE.im4p', f'{ipsw_dir}/Firmware/all_flash/')
     shutil.rmtree('Firmware')
 
-def extract_ibss_ibec(ipsw, firm_bundle, firm_bundle_number: int=None, verbose: str=None):
+def extract_ibss_ibec(ipsw, firm_bundle, firm_bundle_number, verbose=None):
     if os.path.isfile(ipsw):
         pass
     else:
@@ -86,7 +87,7 @@ def extract_ibss_ibec(ipsw, firm_bundle, firm_bundle_number: int=None, verbose: 
         sys.exit(f'IPSW {ipsw} is not a valid IPSW!\nExiting...')
     with open(f'{firm_bundle}/Info.json') as f:
         data = json.load(f)
-        if firm_bundle_number:
+        if firm_bundle_number == 0:
             ibss_path = data['files']['ibss']['file']
             ibec_path = data['files']['ibec']['file']
         else:
@@ -102,6 +103,10 @@ def extract_ibss_ibec(ipsw, firm_bundle, firm_bundle_number: int=None, verbose: 
         ipsw.close()
     return ibss_path, ibec_path
 
+def fetch_processor(firm_bundle):
+    with open(f'{firm_bundle}/Info.json') as f:
+        data = json.load(f)
+        return data['processor']
 
 def make_ipsw(ipsw_dir, firm_bundle, verbose=None):
     if os.path.isfile(f'{firm_bundle[26:-7]}_custom.ipsw'):
