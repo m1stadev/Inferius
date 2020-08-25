@@ -37,8 +37,7 @@ def is_cellular(device_identifier):
         return True
 
 def restore(ipsw_path, is_cellular, verbose=None):
-    os.chdir('work/ipsw')
     if is_cellular:
-        subprocess.run(f'../../resources/bin/futurerestore -t blob.shsh2 --latest-sep --latest-baseband {ipsw_path}', shell=True)
+        subprocess.run(f'../../resources/bin/futurerestore -t work/ipsw/blob.shsh2 --latest-sep --latest-baseband {ipsw_path}', shell=True)
     else:
-        subprocess.run(f'../../resources/bin/futurerestore -t blob.shsh2 --latest-sep --no-baseband {ipsw_path}', shell=True)
+        subprocess.run(f'../../resources/bin/futurerestore -t work/ipsw/blob.shsh2 --latest-sep --no-baseband {ipsw_path}', shell=True)
