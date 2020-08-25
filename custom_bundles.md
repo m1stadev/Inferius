@@ -160,3 +160,66 @@
     - `bsdiff <stock ramdisk dmg> patched_ramdisk.dmg <ASR.patch>`.
         - Replace `<stock ramdisk dmg>` and `<ASR.patch>` with their respective names.
         - Note: This will take quite a while (took 10-20mins for me), so just give it time until it finishes!
+
+## Note
+- Due to the fact that A9 devices with the same device identifier can have different bootchain components, they must be created differently.
+    - This does not apply to any other devices, including the A9X.
+- For A9 devices, read the changes to the instructions below, and keep those in mind while creating your Firmware Bundle:
+
+### `Info.json`
+
+```json
+{
+    "version": "<VERSION>",
+    "processor": "<PROCESSOR>",
+    "devices": [
+        {
+            "boardconfig": "<BOARDCONFIG_1>",
+            "files": {
+                "ibss": {
+                    "file": "<IBSS_PATH>",
+                    "sha1": "<IBSS_SHA1>",
+                    "patch": "<IBSS_PATCH>"
+                },
+                "ibec": {
+                    "file": "<IBEC_PATH>",
+                    "sha1": "<IBEC_SHA1>",
+                    "patch": "<IBEC_PATCH>"
+                }
+            }
+        },
+        {
+            "boardconfig": "<BOARDCONFIG_2>",
+            "files": {
+                "ibss": {
+                    "file": "<IBSS_PATH>",
+                    "sha1": "<IBSS_SHA1>",
+                    "patch": "<IBSS_PATCH>"
+                },
+                "ibec": {
+                    "file": "<IBEC_PATH>",
+                    "sha1": "<IBEC_SHA1>",
+                    "patch": "<IBEC_PATCH>"
+                }
+            }
+        }
+    ],
+    "ramdisk": {
+        "file": "<RAMDISK_PATH>",
+        "sha1": "<RAMDISK_SHA1>",
+        "patch": "<RAMDISK_PATCH>"
+    },
+    "kernelcache": {
+        "file": "<KERNELCACHE_PATH>",
+        "sha1": "<KERNELCACHE_SHA1>",
+        "patch": "<KERNELCACHE_PATCH>"
+    }
+}
+```
+#### `<BOARDCONFIG_1>` and `<BOARDCONFIG_2>`
+- With A9 devices, the `Info.json` is doubled, for each device with a seperate board config that shares a device identifier, but still have seperate bootchain components.
+    - Example: `N71AP` and `N71mAP` both belong to the `iPhone8,1`, but they both have seperate iBSS files (`iBSS.n71.RELEASE.im4p` and `iBSS.n71m.RELEASE.im4p`) and iBEC files (`iBEC.n71.RELEASE.im4p` and `iBEC.n71m.RELEASE.im4p`).
+        - In this example, `<BOARDCONFIG_1> = n71` and `<BOARDCONFIG_2> = n71m`. They do not need to be in any specific order, however
+
+### Patches
+- You will need to create patch files for the iBSS and iBEC of both devices.

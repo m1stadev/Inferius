@@ -11,8 +11,8 @@ def patch_bootchain(firm_bundle, ipsw_path, firm_bundle_number: int=None, verbos
         if firm_bundle_number:
             ibss = [data['devices'][firm_bundle_number]['files']['ibss']['file'], data['devices'][firm_bundle_number]['files']['ibss']['patch']]
             ibec = [data['devices'][firm_bundle_number]['files']['ibec']['file'], data['devices'][firm_bundle_number]['files']['ibec']['patch']]
-            kernelcache = [data['devices'][firm_bundle_number]['files']['kernelcache']['file'], data['devices'][firm_bundle_number]['files']['kernelcache']['patch']]
-            ramdisk = [data['devices'][firm_bundle_number]['files']['ramdisk']['file'], data['devices'][firm_bundle_number]['files']['ramdisk']['patch']]
+            kernelcache = [data['files']['kernelcache']['file'], data['files']['kernelcache']['patch']]
+            ramdisk = [data['files']['ramdisk']['file'], data['files']['ramdisk']['patch']]
         else:
             ibss = [data['files']['ibss']['file'], data['files']['ibss']['patch']]
             ibec = [data['files']['ibec']['file'], data['files']['ibec']['patch']]
