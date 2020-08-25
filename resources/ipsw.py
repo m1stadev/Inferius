@@ -6,6 +6,7 @@ import zipfile
 import requests
 from remotezip import RemoteZip
 import glob
+import hashlib
 
 def a9_check(firm_bundle):
     with open(f'{firm_bundle}/Info.json') as f:
@@ -52,7 +53,7 @@ def find_bundle(device_identifier, version, verbose=None):
     else:
         sys.exit(f"Firmware bundle for {device_identifier}, {version} doesn't exist!\nIf you have provided your own firmware bundle,\nplease make sure it is in 'resources/FirmwareBundles'\nand named {device_identifier}_{version}_bundle")
 
-def grab_latest_llb_iboot(ipsw_dir, firm_bundle, firm_bundle_number):
+def grab_latest_llb_iboot(device_identifier, ipsw_dir, firm_bundle, firm_bundle_number):
     with open(f'{firm_bundle}/Info.json') as f:
         data = json.load(f)
         if firm_bundle_number != 1337:
@@ -70,6 +71,27 @@ def grab_latest_llb_iboot(ipsw_dir, firm_bundle, firm_bundle_number):
     shutil.copy(f'Firmware/all_flash/LLB.{hardware_model}.RELEASE.im4p', f'{ipsw_dir}/Firmware/all_flash/')
     shutil.copy(f'Firmware/all_flash/iBoot.{hardware_model}.RELEASE.im4p', f'{ipsw_dir}/Firmware/all_flash/')
     shutil.rmtree('Firmware')
+
+def verify_bootchain(firm_bundle, firm_bundle_number, verbose=None):
+    with open(f'{firm_bundle}/Info.json') as f:
+        data = json.load(f)
+        if firm_bundle_number == 1337:
+            bootchain_path = [data['files']['ibss']['file'], data['files']['ibec']['file'], data['files']['ramdisk']['file'], data['files']['kernelcache']['file']]
+            bootchain_sha1 = [data['files']['ibss']['sha1'], data['files']['ibec']['sha1'], data['files']['ramdisk']['sha1'], data['files']['kernelcache']['sha1']]
+        else:
+            bootchain_path = [data['devices'][firm_bundle_number]['ibss']['file'], data['devices'][firm_bundle_number]['ibec']['file'], data['ramdisk']['file'], data['kernelcache']['file']]
+            bootchain_sha1 = [data['devices'][firm_bundle_number]['ibss']['sha1'], data['devices'][firm_bundle_number]['ibec']['sha1'], data['ramdisk']['sha1'], data['kernelcache']['sha1']]
+
+    for x in range(0, len(bootchain_path)):
+        with open(f'work/ipsw/{bootchain_path[x]}', 'rb') as f:
+            # read contents of the file
+            file_data = f.read()    
+            sha1_hash = str(hashlib.sha1(file_data).hexdigest())
+        if sha1_hash == bootchain_sha1[x]:
+            if verbose:
+                print(f'[VERBOSE] {bootchain_path[x]} verified!')
+        else:
+            sys.exit(f'work/ipsw/{bootchain_path[x]} is not verified! Redownload your IPSW, and try again.\nExiting...')
 
 def extract_ibss_ibec(ipsw, firm_bundle, firm_bundle_number, verbose=None):
     if os.path.isfile(ipsw):
@@ -108,7 +130,7 @@ def fetch_processor(firm_bundle):
 def make_ipsw(ipsw_dir, firm_bundle, verbose=None):
     if os.path.isfile(f'{firm_bundle[26:-7]}_custom.ipsw'):
         if verbose:
-            print(f'Found custom IPSW from previous run: {firm_bundle[26:-7]}_custom.ipsw, deleting...')
+            print(f'[VERBOSE] Found custom IPSW from previous run: {firm_bundle[26:-7]}_custom.ipsw, deleting...')
         os.remove(f'{firm_bundle[26:-7]}_custom.ipsw')
     shutil.make_archive(f'{firm_bundle[26:-7]}', 'zip', ipsw_dir)
     os.rename(f'{firm_bundle[26:-7]}.zip', f'{firm_bundle[26:-7]}_custom.ipsw')

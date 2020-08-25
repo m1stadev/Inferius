@@ -1,7 +1,7 @@
 # Inferius
 - Inferius (and it's sister tool, Restituere), is a tool to create and restore custom IPSWs for 64-bit devices using Firmware Bundles, similarly to xpwn for 32-bit devices.
 - Due to how the tool is built, this could be used for many different applications, but currently it's main use is for downgrading devices to previous iOS versions.
-- *Note: All custom IPSWs restored with Inferius will require you to boot your device VIA a computer, using either [PyBoot](https://github.com/MatthewPierson/PyBoot) or [ra1nsn0w](https://github.com/tihmstar/ra1nsn0w) every time your device is turned off.*
+- *Note: All custom IPSWs restored with Inferius will require you to boot your device via a computer every time your device is turned off.*
 
 Inferius is Latin for 'below', and Restituere is Latin for 'restore'.
 
@@ -58,3 +58,6 @@ optional arguments:
 
 ### I have an issue with this tool/Need help creating a Firmware Bundle, where can I go for help?
 - Join my [discord](https://discord.gg/fAngssA), and I'll be happy to help in `#inferius-help`!
+
+### How do I boot my device after restoring?
+- Use either [PyBoot](https://github.com/MatthewPierson/PyBoot) or [ra1nsn0w](https://github.com/tihmstar/ra1nsn0w).
