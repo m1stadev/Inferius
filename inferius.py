@@ -83,7 +83,7 @@ if args.ipsw:
     else:
         patch.patch_bootchain(firmware_bundle, ipsw_dir, firm_bundle_number)
     print('Grabbing latest LLB and iBoot to put into custom IPSW...')
-    ipsw.grab_latest_llb_iboot(args.device[0], ipsw_dir, firmware_bundle, firm_bundle_number)
+    ipsw.grab_latest_llb_iboot(ipsw_dir, firmware_bundle, firm_bundle_number)
     print('Packing everything into custom IPSW. This may take a while, please wait...')
     if args.verbose:
         ipsw_name = ipsw.make_ipsw(ipsw_dir, firmware_bundle, 'yes')

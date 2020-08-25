@@ -52,14 +52,11 @@ def find_bundle(device_identifier, version, verbose=None):
     else:
         sys.exit(f"Firmware bundle for {device_identifier}, {version} doesn't exist!\nIf you have provided your own firmware bundle,\nplease make sure it is in 'resources/FirmwareBundles'\nand named {device_identifier}_{version}_bundle")
 
-def grab_latest_llb_iboot(device_identifier, ipsw_dir, firm_bundle, firm_bundle_number):
-    l_device_identifier = device_identifier.lower()
+def grab_latest_llb_iboot(ipsw_dir, firm_bundle, firm_bundle_number):
     with open(f'{firm_bundle}/Info.json') as f:
         data = json.load(f)
         if firm_bundle_number != 1337:
             hardware_model = data['devices'][firm_bundle_number]['boardconfig']
-        elif l_device_identifier.startswith('iphone6'):
-            hardware_model = 'iphone6'
         else:
             hardware_model = data['boardconfig']
     ipswme_device_info = requests.get(f'https://api.ipsw.me/v4/device/{device_identifier}?type=ipsw')
