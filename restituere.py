@@ -125,5 +125,8 @@ if args.ipsw:
         restore.restore(args.ipsw[0], restore.is_cellular(args.device[0]), 'yes')
     else:
         restore.restore(args.ipsw[0], restore.is_cellular(args.device[0]))
+    print('Restore finished! Cleaning up...')
+    shutil.rmtree('work')
+    print('Done.')
 else:
     exit(parser.print_help(sys.stderr))
