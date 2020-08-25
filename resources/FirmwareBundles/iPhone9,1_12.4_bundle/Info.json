@@ -1,0 +1,24 @@
+{
+    "version": "12.4",
+    "boardconfig": "d10",
+    "processor": "T8010",
+        "files": {
+        "ibss": {
+            "file": "Firmware/dfu/iBSS.d10.RELEASE.im4p",
+            "sha1": "9b759b03cfec3d35062c6b14ee62f71dd22a21b0",
+            "patch": "iBSS.d10.RELEASE.patch"},
+        "ibec": {
+            "file": "Firmware/dfu/iBEC.d10.RELEASE.im4p",
+            "sha1": "019b0b22eba02fdaaa148304ed480d174fb0c4c3",
+            "patch": "iBEC.d10.RELEASE.patch"},
+        "ramdisk": {
+            "file": "048-78047-092.dmg",
+            "sha1": "6ae11e445bcbbb1c8c9fb9adde5666512495de51",
+            "patch": "048-78047-092.asr.patch"},
+        "kernelcache": {
+            "file": "kernelcache.release.iphone9",
+            "sha1": "3e0a62cf43c2fdda7639a549e25c0107ad708e30",
+            "patch": "kernelcache.release.iphone9.patch"
+        }
+    }
+}
