@@ -13,7 +13,7 @@ Inferius is Latin for 'below', and Restituere is Latin for 'restore'.
 - A brain.
 
 ## Disclaimer
-- I take **NO** reponsibility for any loss of data, issues with your device, or anything else if you use Inferius. You accept those risks when you use this tool, on your own accord.
+- I take **NO** reponsibility for any loss of data, issues with your device, or anything else if you use Inferius. You accept those risks when you use this tool.
 
 ## Usage
 
@@ -61,3 +61,10 @@ optional arguments:
 
 ### How do I boot my device after restoring?
 - Use either [PyBoot](https://github.com/MatthewPierson/PyBoot) or [ra1nsn0w](https://github.com/tihmstar/ra1nsn0w).
+
+## Credits
+- [NotHereForTheDong](https://github.com/NotHereForTheDong) for beta testing & contributing bundles.
+- [Renaitare](https://twitter.com/Renaitare) for beta testing.
+- [Chibibowa](https://twitter.com/Chibibowa) for beta testing.
+- [Moses](https://twitter.com/MosesBuckwalter) for beta testing.
+- [Matty](https://twitter.com/mosk_i) for his special build of futurerestore that allows restoring of custom IPSWs.

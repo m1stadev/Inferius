@@ -160,6 +160,7 @@
     - `bsdiff <stock ramdisk dmg> patched_ramdisk.dmg <ASR.patch>`.
         - Replace `<stock ramdisk dmg>` and `<ASR.patch>` with their respective names.
         - Note: This will take quite a while (took 10-20mins for me), so just give it time until it finishes!
+            - If you get a segmentation fault while running `bsdiff`, then there's nothing you can do to fix it at the moment, as it's an issue with `bsdiff` itself.
 
 ## Note
 - Due to the fact that A9 devices with the same device identifier can have different bootchain components, they must be created differently.
