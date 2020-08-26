@@ -5,7 +5,7 @@
         "files": {
             "ibss": {
                 "file": "Firmware/dfu/iBSS.iphone6.RELEASE.im4p",
-                "sha1":"8847f23db4e56a16f872d67e06594681f249946b",
+                "sha1": "8847f23db4e56a16f872d67e06594681f249946b",
                 "patch": "iBSS.iphone6.RELEASE.patch"
             },
             "ibec": {
