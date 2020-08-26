@@ -1,7 +1,7 @@
 # Inferius
-- Inferius (and it's sister tool, Restituere), is a tool to create and restore custom IPSWs for 64-bit devices using Firmware Bundles, similarly to xpwn for 32-bit devices.
-- Due to how the tool is built, this could be used for many different applications, but currently it's main use is for downgrading devices to previous iOS versions.
-- *Note: All custom IPSWs restored with Inferius will require you to boot your device via a computer every time your device is turned off.*
+Inferius (and it's sister tool, Restituere), is a tool to create and restore custom IPSWs for 64-bit devices using Firmware Bundles, similarly to xpwn for 32-bit devices.
+Due to how the tool is built, this could be used for many different applications, but currently it's main use is for downgrading devices to previous iOS versions.
+*Note: All custom IPSWs restored with Inferius will require you to boot your device via a computer every time your device is turned off.*
 
 Inferius is Latin for 'below', and Restituere is Latin for 'restore'.
 
