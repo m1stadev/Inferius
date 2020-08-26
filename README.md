@@ -15,6 +15,9 @@ Inferius is Latin for 'below', and Restituere is Latin for 'restore'.
 ## Disclaimer
 - I take **NO** reponsibility for any loss of data, issues with your device, or anything else if you use Inferius. You accept those risks when you use this tool.
 
+## IMPORTANT NOTE
+- When restoring custom IPSWs, **please** use custom IPSWs that were freshly created with Inferius. Older IPSWs made with Inferius can cause a brick, due to Inferius needing to download the LLB and iBoot from a signed firmware, and place them into the custom IPSW.
+
 ## Usage
 
 ```
@@ -46,8 +49,12 @@ optional arguments:
   -f IPSW, --ipsw IPSW  Path to custom IPSW
   -v, --verbose         Print verbose output for debugging
 ```
-
+- Inferius is used to create a custom IPSW, and Restituere is used for restoring a custom IPSW.
 ## FAQ
+
+### What's the use for this?
+- The main use is for downgrading to older iOS versions.
+
 
 ### How do I create my own Firmware Bundles?
 - There is a guide for creating your own Firmware Bundles in the [wiki](https://github.com/marijuanARM/Inferius/wiki/Creating-your-own-Firmware-Bundles).
@@ -56,11 +63,20 @@ optional arguments:
 - Make a [Pull Request](https://github.com/marijuanARM/Inferius/compare)!
 - Please make sure that the custom IPSW that your Firmware Bundle creates is usable before PRing.
 
-### I have an issue with this tool/Need help creating a Firmware Bundle, where can I go for help?
+### I have an issue with this tool or need help creating a Firmware Bundle, where can I go for help?
 - Join my [discord](https://discord.gg/fAngssA), and I'll be happy to help in `#inferius-help`!
 
 ### How do I boot my device after restoring?
 - Use either [PyBoot](https://github.com/MatthewPierson/PyBoot) or [ra1nsn0w](https://github.com/tihmstar/ra1nsn0w).
+
+## Can I request Firmware Bundles to be made?
+- Absolutely! Just ask in `#inferius-help` in my [discord](https://discord.gg/fAngssA), and I or someone else will get to it whenever I can.
+
+## Can you downgrade to any version, regardless of SEP compatibility?
+-  No, you are still limited to versions compatible with your current installed SEP version, unfortunately. Hopefully that may change in the future with the amazing work the checkra1n team is doing.
+
+## Is this an untethered restore?
+- No, any custom IPSWs restored will still require you to boot manually with a computer, using either PyBoot or ra1nsn0w.
 
 ## Credits
 - [NotHereForTheDong](https://github.com/NotHereForTheDong) for beta testing & contributing bundles.
