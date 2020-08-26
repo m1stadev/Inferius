@@ -6,12 +6,12 @@
             "ibss": {
                 "file": "Firmware/dfu/iBSS.n61.RELEASE.im4p",
                 "sha1": "794556a2570b1c5803022e80f6342ad13f43e017",
-                "patch": "iBSS.iphone6.RELEASE.patch"
+                "patch": "iBSS.n61.RELEASE.patch"
             },
             "ibec": {
                 "file": "Firmware/dfu/iBEC.n61.RELEASE.im4p",
                 "sha1": "5bd7249516652ff95d03cb1b2def5bf66d1c1219",
-                "patch": "iBEC.iphone6.RELEASE.patch"
+                "patch": "iBEC.n61.RELEASE.patch"
             },
             "ramdisk": {
                 "file": "048-78047-092.dmg",
