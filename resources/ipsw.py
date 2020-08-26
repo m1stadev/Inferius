@@ -79,8 +79,8 @@ def verify_bootchain(firm_bundle, firm_bundle_number, verbose=None):
             bootchain_path = [data['files']['ibss']['file'], data['files']['ibec']['file'], data['files']['ramdisk']['file'], data['files']['kernelcache']['file']]
             bootchain_sha1 = [data['files']['ibss']['sha1'], data['files']['ibec']['sha1'], data['files']['ramdisk']['sha1'], data['files']['kernelcache']['sha1']]
         else:
-            bootchain_path = [data['devices'][firm_bundle_number]['files']['ibss']['file'], data['devices'][firm_bundle_number]['files']['ibec']['file'], data['ramdisk']['file'], data['kernelcache']['file']]
-            bootchain_sha1 = [data['devices'][firm_bundle_number]['files']['ibss']['sha1'], data['devices'][firm_bundle_number]['files']['ibec']['sha1'], data['ramdisk']['sha1'], data['kernelcache']['sha1']]
+            bootchain_path = [data['devices'][firm_bundle_number]['files']['ibss']['file'], data['devices'][firm_bundle_number]['files']['ibec']['file'], data['files']['ramdisk']['file'], data['files']['kernelcache']['file']]
+            bootchain_sha1 = [data['devices'][firm_bundle_number]['files']['ibss']['sha1'], data['devices'][firm_bundle_number]['files']['ibec']['sha1'], data['files']['ramdisk']['sha1'], data['files']['kernelcache']['sha1']]
 
     for x in range(0, len(bootchain_path)):
         with open(f'work/ipsw/{bootchain_path[x]}', 'rb') as f:
