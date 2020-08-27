@@ -5,9 +5,9 @@ import time
 import sys
 
 def send_ibss_ibec(processor, verbose=None):
-    with open('work/empty_file', 'w') as f:
-        f.close()
-    if processor.lower() == 's5l8960':
+    if processor.lower() == 's5l8960' or 't8015':
+        with open('work/empty_file', 'w') as f:
+            f.close()
         subprocess.Popen(f'./resources/bin/irecovery -f work/empty_file', stdout=subprocess.PIPE, shell=True)
         time.sleep(5)
     subprocess.Popen(f'./resources/bin/irecovery -f work/ipsw/ibss.img4', stdout=subprocess.PIPE, shell=True)
