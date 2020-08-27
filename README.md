@@ -70,14 +70,14 @@ optional arguments:
 ### How do I boot my device after restoring?
 - Use either [PyBoot](https://github.com/MatthewPierson/PyBoot) or [ra1nsn0w](https://github.com/tihmstar/ra1nsn0w).
 
-## Can I request Firmware Bundles to be made?
+### Can I request Firmware Bundles to be made?
 - Absolutely! Just ask in `#inferius-help` in my [discord](https://discord.gg/fAngssA), and I or someone else will get to it whenever we can.
 
-## Can you downgrade to any version, regardless of SEP compatibility?
+### Can you downgrade to any version, regardless of SEP compatibility?
 -  No, you are still limited to versions compatible with your current installed SEP version, unfortunately. Hopefully that may change in the future with the amazing work the checkra1n team is doing.
 
-## Is this an untethered restore?
-- No, any custom IPSWs restored will still require you to boot manually with a computer, using either PyBoot or ra1nsn0w.
+### Is this an untethered restore?
+- No, any custom IPSWs restored will still require you to boot manually with a computer, using either [PyBoot](https://github.com/MatthewPierson/PyBoot) or [ra1nsn0w](https://github.com/tihmstar/ra1nsn0w).
 
 ## Credits
 - [NotHereForTheDong](https://github.com/NotHereForTheDong) for beta testing & contributing bundles.
