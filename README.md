@@ -36,7 +36,7 @@ optional arguments:
   ```
 
 ```
-usage: ./restituere.py -d 'device' -i 'iOS Version' -f 'IPSW' [-v]
+usage: ./restituere.py -d 'device' -i 'iOS version' -f 'IPSW' [-v]
 
 Restituere - Restore custom IPSWs onto your 64bit iOS device!
 
@@ -48,6 +48,7 @@ optional arguments:
                         The version of your custom IPSW
   -f IPSW, --ipsw IPSW  Path to custom IPSW
   -v, --verbose         Print verbose output for debugging
+  -u, --update          Keep data while restoring (EXPERIMENTAL)  
 ```
 - Inferius is used to create a custom IPSW, and Restituere is used for restoring a custom IPSW.
 ## FAQ

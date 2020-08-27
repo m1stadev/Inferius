@@ -20,7 +20,7 @@ parser.add_argument('-d', '--device', help='Your device identifier (e.g. iPhone1
 parser.add_argument('-i', '--version', help='The version of your custom IPSW', nargs=1)
 parser.add_argument('-f', '--ipsw', help='Path to custom IPSW', nargs=1)
 parser.add_argument('-v', '--verbose', help='Print verbose output for debugging', action='store_true')
-parser.add_argument('-u', '--verbose', help='Keep data while restoring (EXPERIMENTAL)')
+parser.add_argument('-u', '--update', help='Keep data while restoring (EXPERIMENTAL)', action='store_true')
 args = parser.parse_args()
 
 if args.ipsw:
