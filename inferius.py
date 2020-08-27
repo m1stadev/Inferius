@@ -57,7 +57,7 @@ if args.ipsw:
         board_configs = ipsw.fetch_a9_boardconfigs(firmware_bundle)
         if len(board_configs) != 2:
             sys.exit('Firmware Bundle for A9 is invalid.\nExiting...')
-        firm_bundle_number = input(f'A9 device detected, please choose the correct board config for your device:\n[1] {board_configs[0]}\n[2] {board_configs[1]}\nChoice: ')
+        firm_bundle_number = input(f'A9 device detected, please choose the correct board config for your device:\n[1] {board_configs[0]}ap\n[2] {board_configs[1]}ap\nChoice: ')
         try:
             int(firm_bundle_number)
         except ValueError:

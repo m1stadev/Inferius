@@ -71,16 +71,6 @@ if args.ipsw:
     if os.path.exists(f'work'): # In case work directory is still here from a previous run, remove it
         shutil.rmtree(f'work')
     os.makedirs('work/ipsw', exist_ok = True)
-    print('Saving SHSH blobs for restore...')
-    if len(glob.glob('work/ipsw/*.shsh2')) != 0:
-        for shsh in glob.glob('work/ipsw/*.shsh2'):
-            os.remove(shsh)
-    subprocess.run(f'./resources/bin/tsschecker -d {args.device[0]} -l -e 0x{ecid} -s --apnonce {apnonce} --save-path work/ipsw/', stdout=open('resources/restituere.log','w'), shell=True)
-    if len(glob.glob('work/ipsw/*.shsh2')) == 0:
-        sys.exit("SHSH Blobs didn't save! Make sure you're connected to the internet, then try again.\nExiting...")
-    for shsh in glob.glob('work/ipsw/*.shsh2'):
-        os.rename(shsh, 'work/ipsw/blob.shsh2')
-    print('SHSH blobs saved!')
     if args.verbose:
         print(f'Finding Firmware bundle for {args.device[0]}, {args.version[0]}...')
     if args.verbose:
@@ -109,6 +99,19 @@ if args.ipsw:
         firm_bundle_number = 1337
         if args.verbose:
             print('Device is not A9, continuing...')
+    print('Saving SHSH blobs for restore...')
+    if len(glob.glob('work/ipsw/*.shsh2')) != 0:
+        for shsh in glob.glob('work/ipsw/*.shsh2'):
+            os.remove(shsh)
+    if firm_bundle_number != 1337:
+        subprocess.run(f'./resources/bin/tsschecker -d {args.device[0]} -l -B {board_configs[firm_bundle_number]} -e 0x{ecid} -s --apnonce {apnonce} --save-path work/ipsw/', stdout=open('resources/restituere.log','w'), shell=True)
+    else:
+        subprocess.run(f'./resources/bin/tsschecker -d {args.device[0]} -l -e 0x{ecid} -s --apnonce {apnonce} --save-path work/ipsw/', stdout=open('resources/restituere.log','w'), shell=True)
+    if len(glob.glob('work/ipsw/*.shsh2')) == 0:
+        sys.exit("SHSH Blobs didn't save! Make sure you're connected to the internet, then try again.\nExiting...")
+    for shsh in glob.glob('work/ipsw/*.shsh2'):
+        os.rename(shsh, 'work/ipsw/blob.shsh2')
+    print('SHSH blobs saved!')
     if args.verbose:
         print('Extracting iBSS and iBEC from custom IPSW...')
     if args.verbose:
