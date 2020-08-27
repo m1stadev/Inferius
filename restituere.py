@@ -20,6 +20,7 @@ parser.add_argument('-d', '--device', help='Your device identifier (e.g. iPhone1
 parser.add_argument('-i', '--version', help='The version of your custom IPSW', nargs=1)
 parser.add_argument('-f', '--ipsw', help='Path to custom IPSW', nargs=1)
 parser.add_argument('-v', '--verbose', help='Print verbose output for debugging', action='store_true')
+parser.add_argument('-u', '--verbose', help='Keep data while restoring (EXPERIMENTAL)')
 args = parser.parse_args()
 
 if args.ipsw:
@@ -33,6 +34,10 @@ if args.ipsw:
             sys.exit('Error: iOS 10.x IPSWs are not currently supported!\nExiting...')
     else:
         sys.exit('Error: You must specify an iOS version!\nExiting...')
+    if args.update:
+        keep_data = True
+    else:
+        keep_data = False
     device_check = input('Is your device is connected in Pwned DFU mode with signature checks removed? [Y/N]: ')
     if 'Y' or 'y' in device_check.lower():
         pass
@@ -122,9 +127,9 @@ if args.ipsw:
     else:
         restore.send_ibss_ibec(processor)
     if args.verbose:
-        restore.restore(args.ipsw[0], restore.is_cellular(args.device[0]), 'yes')
+        restore.restore(args.ipsw[0], restore.is_cellular(args.device[0]), keep_data, 'yes')
     else:
-        restore.restore(args.ipsw[0], restore.is_cellular(args.device[0]))
+        restore.restore(args.ipsw[0], restore.is_cellular(args.device[0]), keep_data)
     print('Restore finished! Cleaning up...')
     shutil.rmtree('work')
     print('Done.')

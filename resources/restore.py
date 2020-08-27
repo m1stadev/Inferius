@@ -36,8 +36,16 @@ def is_cellular(device_identifier):
     else:
         return True
 
-def restore(ipsw_path, is_cellular, verbose=None):
+def restore(ipsw_path, is_cellular, keep_data, verbose=None):
     if is_cellular:
-        subprocess.run(f'./resources/bin/futurerestore -t work/ipsw/blob.shsh2 --latest-sep --latest-baseband {ipsw_path}', shell=True)
+        if keep_data:
+            print('Requested to keep data, please note this is experimental!')
+            subprocess.run(f'./resources/bin/futurerestore -t work/ipsw/blob.shsh2 -u --latest-sep --latest-baseband {ipsw_path}', shell=True)
+        else:
+            subprocess.run(f'./resources/bin/futurerestore -t work/ipsw/blob.shsh2 --latest-sep --latest-baseband {ipsw_path}', shell=True)
     else:
-        subprocess.run(f'./resources/bin/futurerestore -t work/ipsw/blob.shsh2 --latest-sep --no-baseband {ipsw_path}', shell=True)
+        if keep_data:
+            print('Requested to keep data, please note this is experimental!')
+            subprocess.run(f'./resources/bin/futurerestore -t work/ipsw/blob.shsh2 -u --latest-sep --latest-baseband {ipsw_path}', shell=True)
+        else:
+            subprocess.run(f'./resources/bin/futurerestore -t work/ipsw/blob.shsh2 --latest-sep --no-baseband {ipsw_path}', shell=True)
