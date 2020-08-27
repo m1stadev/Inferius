@@ -6,9 +6,9 @@ Its current purpose is to downgrade devices (vulnerable to [checkm8](https://git
 ## Notes and Caveats
 Before using Inferius, keep in mind that
 - **No one but YOU** is fully responsible for any data loss or damage caused to your device
-- Creating new IPSW when attempting to restore is a good practice when using Inferius. Previously created IPSWs can brick your device, depending on which LLB and iBoot files were used from a signed firmware
+- Creating a new IPSW when attempting to restore is a good practice when using Inferius. Previously created IPSWs can brick your device, depending on which LLB and iBoot files were used from a signed firmware
 - Restores are **not** untethered. This means that in order to boot your device, you're always required to use [PyBoot](https://github.com/MatthewPierson/PyBoot) or [ra1nsn0w](https://github.com/tihmstar/ra1nsn0w) to do just that
-- Downgrades are still limited to versions compatible with your current installed SEP version. This will change when [checkra1n](https://checkra.in/) recieves an SEP bypass
+- Downgrades are still limited to versions compatible with the latest signed SEP version. This will change when [checkra1n](https://checkra.in/) recieves an SEP bypass
 
 Inferius may not come with a firmware bundle compatible with your device. If you need to create your own firmware bundle, you can follow [this guide](https://github.com/marijuanARM/Inferius/wiki/Creating-your-own-Firmware-Bundles).
 
@@ -23,6 +23,10 @@ Currently, to use Inferius, you'll need
 - A brain (Not completely necessary, but YMMV)
 
 To create a custom IPSW with Inferius
+```py
+pip3 install -r requirements.txt
+```
+
 ```py
 ./inferius.py -d 'device' -i 'iOS Version' -f 'IPSW' [-v]
 ```
