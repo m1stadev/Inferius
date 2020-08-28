@@ -104,7 +104,7 @@ if args.ipsw:
         for shsh in glob.glob('work/ipsw/*.shsh2'):
             os.remove(shsh)
     if firm_bundle_number != 1337:
-        subprocess.run(f'./resources/bin/tsschecker -d {args.device[0]} -l -B {board_configs[firm_bundle_number]} -e 0x{ecid} -s --apnonce {apnonce} --save-path work/ipsw/', stdout=open('resources/restituere.log','w'), shell=True)
+        subprocess.run(f'./resources/bin/tsschecker -d {args.device[0]} -l -B {board_configs[firm_bundle_number]}ap -e 0x{ecid} -s --apnonce {apnonce} --save-path work/ipsw/', stdout=open('resources/restituere.log','w'), shell=True)
     else:
         subprocess.run(f'./resources/bin/tsschecker -d {args.device[0]} -l -e 0x{ecid} -s --apnonce {apnonce} --save-path work/ipsw/', stdout=open('resources/restituere.log','w'), shell=True)
     if len(glob.glob('work/ipsw/*.shsh2')) == 0:
