@@ -21,7 +21,7 @@
             "kernelcache": {
                 "file": "kernelcache.release.ipad4b",
                 "sha1": "dd49e73405341f981b3d3c55fca21dd2db2c360e",
-                "patch": "kernelcache.ipad4b.iphone6.patch"
+                "patch": "kernelcache.ipad4b.patch"
             }
         }
 }
