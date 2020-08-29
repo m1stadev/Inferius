@@ -3,7 +3,7 @@
     "processor": "S8000",
     "devices": [
         {
-            "boardconfig": "n71ap",
+            "boardconfig": "n71",
             "files": {
                 "ibss": {
                     "file": "Firmware/dfu/iBSS.n71.RELEASE.im4p",
