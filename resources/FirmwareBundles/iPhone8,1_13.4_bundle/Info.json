@@ -21,7 +21,7 @@
             "boardconfig": "n71m",
             "files": {
                 "ibss": {
-                    "file": "Firmware/dfu/iBSS.n71m.RELEASE.im4p"
+                    "file": "Firmware/dfu/iBSS.n71m.RELEASE.im4p",
                     "sha1": "9079ace40230aeec6513e8ae550ee1965e21fd85",
                     "patch": "iBEC.n71m.RELEASE.patch"
                 },
