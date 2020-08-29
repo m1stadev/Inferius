@@ -33,14 +33,16 @@
             }
         }
     ],
-    "ramdisk": {
-        "file": "048-78047-092.dmg",
-        "sha1": "6ae11e445bcbbb1c8c9fb9adde5666512495de51",
-        "patch": "048-78047-092.asr.patch"
-    },
-    "kernelcache": {
-        "file": "kernelcache.release.n71",
-        "sha1": "7f72ecb519ad170a74d31bd824a1432fc3c58fa0",
-        "patch": "kernelcache.release.n71.patch"
+    "files": {
+        "ramdisk": {
+            "file": "048-78047-092.dmg",
+            "sha1": "6ae11e445bcbbb1c8c9fb9adde5666512495de51",
+            "patch": "048-78047-092.asr.patch"
+        },
+        "kernelcache": {
+            "file": "kernelcache.release.n71",
+            "sha1": "7f72ecb519ad170a74d31bd824a1432fc3c58fa0",
+            "patch": "kernelcache.release.n71.patch"
+        }
     }
 }
