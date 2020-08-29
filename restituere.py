@@ -38,18 +38,6 @@ if args.ipsw:
         keep_data = True
     else:
         keep_data = False
-    if args.verbose:
-        print('[VERBOSE] Checking for required dependencies...')
-    irecovery_check = subprocess.Popen('/usr/bin/which irecovery', stdout=subprocess.PIPE, shell=True) # Dependency checking
-    time.sleep(5)
-    output = str(irecovery_check.stdout.read())
-    if len(output) == 3:
-        sys.exit('Error: libirecovery not installed! Please install libirecovery from my tap on Homebrew (marijuanarm/ios), then run this script again.')
-    libimobiledevice_check = subprocess.Popen('/usr/bin/which ideviceinfo', stdout=subprocess.PIPE, shell=True) # Dependency checking
-    time.sleep(5)
-    output = str(libimobiledevice_check.stdout.read())
-    if len(output) == 3:
-        sys.exit('Error: libimobiledevice not installed! Please install libimobiledevice from Homebrew, then run this script again.')
     device_check = input('Is your device is connected in Pwned DFU mode with signature checks removed? [Y/N]: ')
     if 'Y' or 'y' in device_check.lower():
         pass
@@ -72,6 +60,14 @@ if args.ipsw:
     dec_ecid = str(int(ecid, 16))
     if args.verbose:
         print(f'[VERBOSE] ECID: {ecid}')
+    if args.verbose:
+        print('[VERBOSE] Fetching apnonce...')
+    fetch_apnonce = subprocess.Popen('./resources/bin/igetnonce | grep ApNonce', stdout=subprocess.PIPE, shell=True)
+    time.sleep(3)
+    apnonce = str(fetch_apnonce.stdout.read())
+    apnonce = apnonce[10:-3]
+    if args.verbose:
+        print(f'[VERBOSE] apnonce: {apnonce}')
     if os.path.exists(f'work'): # In case work directory is still here from a previous run, remove it
         shutil.rmtree(f'work')
     os.makedirs('work/ipsw', exist_ok = True)
@@ -108,16 +104,31 @@ if args.ipsw:
         for shsh in glob.glob('work/ipsw/*.shsh2'):
             os.remove(shsh)
     if firm_bundle_number != 1337:
-        subprocess.run(f'./resources/bin/tsschecker -d {args.device[0]} -l -B {board_configs[firm_bundle_number]}ap -e 0x{ecid} -s --save-path work/ipsw/', stdout=open('resources/restituere.log','w'), shell=True)
+        subprocess.run(f'./resources/bin/tsschecker -d {args.device[0]} -l -B {board_configs[firm_bundle_number]}ap -e 0x{ecid} -s --apnonce {apnonce} --save-path work/ipsw/', stdout=open('resources/restituere.log','w'), shell=True)
     else:
-        subprocess.run(f'./resources/bin/tsschecker -d {args.device[0]} -l -e 0x{ecid} -s --save-path work/ipsw/', stdout=open('resources/restituere.log','w'), shell=True)
+        subprocess.run(f'./resources/bin/tsschecker -d {args.device[0]} -l -e 0x{ecid} -s --apnonce {apnonce} --save-path work/ipsw/', stdout=open('resources/restituere.log','w'), shell=True)
     if len(glob.glob('work/ipsw/*.shsh2')) == 0:
         sys.exit("SHSH Blobs didn't save! Make sure you're connected to the internet, then try again.\nExiting...")
     for shsh in glob.glob('work/ipsw/*.shsh2'):
         os.rename(shsh, 'work/ipsw/blob.shsh2')
     print('SHSH blobs saved!')
+    if args.verbose:
+        print('Extracting iBSS and iBEC from custom IPSW...')
+    if args.verbose:
+        ibss_path, ibec_path = ipsw.extract_ibss_ibec(args.ipsw[0], firmware_bundle, firm_bundle_number, 'yes')
+    else:
+        ibss_path, ibec_path = ipsw.extract_ibss_ibec(args.ipsw[0], firmware_bundle, firm_bundle_number)
+    print('Signing iBSS and iBEC with SHSH blob...')
+    if args.verbose:
+        patch.sign_ibss_ibec(ibss_path, ibec_path, 'yes')
+    else:
+        patch.sign_ibss_ibec(ibss_path, ibec_path)
     processor = ipsw.fetch_processor(firmware_bundle)
     print('Preparations done! Beginning restore...')
+    if args.verbose:
+        restore.send_ibss_ibec(processor, 'yes')
+    else:
+        restore.send_ibss_ibec(processor)
     if args.verbose:
         restore.restore(args.ipsw[0], restore.is_cellular(args.device[0]), keep_data, 'yes')
     else:

@@ -19,9 +19,7 @@ Currently, to use Inferius, you'll need
 - A computer running macOS (Linux support may come in the future)
 - A 64-bit device (vulnerable to [checkm8](https://github.com/axi0mX/ipwndfu))
 - A firmware bundle for the device you are wanting to restore and the version you are wanting to downgrade to
-- `ldid` installed from [Homebrew](https://brew.sh)
-- `libirecovery` installed from [Homebrew](https://brew.sh) (run `brew tap marijuanarm/ios` before attempting to install)
-- `libimobiledevice` installed from [Homebrew](https://brew.sh)
+- `ldid` (You can install it from [Homebrew](https://brew.sh/))
 - A brain (Not completely necessary, but YMMV)
 
 To create a custom IPSW with Inferius
