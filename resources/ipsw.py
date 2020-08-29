@@ -93,35 +93,6 @@ def verify_bootchain(firm_bundle, firm_bundle_number, verbose=None):
         else:
             sys.exit(f'work/ipsw/{bootchain_path[x]} is not verified! Redownload your IPSW, and try again.\nExiting...')
 
-def extract_ibss_ibec(ipsw, firm_bundle, firm_bundle_number, verbose=None):
-    if os.path.isfile(ipsw):
-        pass
-    else:
-        sys.exit(f'IPSW {ipsw} does not exist!\nExiting...')
-    if zipfile.is_zipfile(ipsw):
-        pass
-        if verbose:
-            print(f'[VERBOSE] {ipsw} is a zip archive!')
-    else:
-        sys.exit(f'IPSW {ipsw} is not a valid IPSW!\nExiting...')
-    with open(f'{firm_bundle}/Info.json') as f:
-        data = json.load(f)
-        if firm_bundle_number == 1337:
-            ibss_path = data['files']['ibss']['file']
-            ibec_path = data['files']['ibec']['file']
-        else:
-            ibss_path = data['devices'][firm_bundle_number]['files']['ibss']['file']
-            ibec_path = data['devices'][firm_bundle_number]['files']['ibec']['file']
-    with zipfile.ZipFile(ipsw, 'r') as ipsw:
-        ipsw.extract(ibss_path, path='work/ipsw')
-        if verbose:
-            print(f'[VERBOSE] Extracted {ibss_path} from IPSW to work/ipsw/')
-        ipsw.extract(ibec_path, path='work/ipsw')
-        if verbose:
-            print(f'[VERBOSE] Extracted {ibec_path} from IPSW to work/ipsw/')
-        ipsw.close()
-    return ibss_path, ibec_path
-
 def fetch_processor(firm_bundle):
     with open(f'{firm_bundle}/Info.json') as f:
         data = json.load(f)
