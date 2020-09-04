@@ -1,0 +1,49 @@
+{
+    "version": "13.5",
+    "processor": "s8000",
+    "devices": [
+        {
+            "boardconfig": "n69u",
+            "files": {
+                "ibss": {
+                    "file": "Firmware/dfu/iBSS.n69u.RELEASE.im4p",
+                    "sha1": "469cce8edc2521d51bb4118af17141d896fb3f5c",
+                    "patch": "iBSS.n69u.RELEASE.patch"
+                },
+                "ibec": {
+                    "file": "Firmware/dfu/iBEC.n69u.RELEASE.im4p",
+                    "sha1": "c873bf6ba581af870a931e7893092b4fbac5f8f2",
+                    "patch": "iBEC.n69u.RELEASE.patch"
+                }
+            }
+        },
+        {
+            "boardconfig": "n69",
+            "files": {
+                "ibss": {
+                    "file": "Firmware/dfu/iBSS.n69.RELEASE.im4p",
+                    "sha1": "378feae1fc1d737e8809d949f3757fcbd4f9a13a",
+                    "patch": "iBSS.n69.RELEASE.patch"
+                },
+                "ibec": {
+                    "file": "Firmware/dfu/iBEC.n69.RELEASE.im4p",
+                    "sha1": "61e65d2e15bbc9b66d4455c007ea2448b880d4f4",
+                    "patch": "iBEC.n69.RELEASE.patch"
+                }
+            }
+        }
+    ],
+    "files": {
+        "ramdisk": {
+            "file": "038-35648-088.dmg",
+            "sha1": "76f8d67eff5f2930d1b6c60df8cca0dc6a82ef69",
+            "patch": "038-35648-088.asr.patch"
+        },
+        "kernelcache": {
+            "file": "kernelcache.release.iphone8b",
+            "sha1": "45cabaafc8211a4ffac5755d8e94ed4b4f2c1a47",
+            "patch": "kernelcache.release.iphone8b.patch"
+        }
+    }
+}
+
