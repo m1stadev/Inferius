@@ -1,0 +1,48 @@
+{
+    "version": "12.4",
+    "processor": "S8000",
+    "devices": [
+        {
+            "boardconfig": "n71",
+            "files": {
+                "ibss": {
+                    "file": "Firmware/dfu/iBSS.n71.RELEASE.im4p",
+                    "sha1": "6c8b63753d88d10866ba5f9c04702272570a276a",
+                    "patch": "iBSS.n71.RELEASE.patch"
+                },
+                "ibec": {
+                    "file": "Firmware/dfu/iBEC.n71.RELEASE.im4p",
+                    "sha1": "f0487735b0b168519060853313ede42914236803",
+                    "patch": "iBEC.n71.RELEASE.patch"
+                }
+            }
+        },
+        {
+            "boardconfig": "n71m",
+            "files": {
+                "ibss": {
+                    "file": "Firmware/dfu/iBEC.n71m.RELEASE.im4p",
+                    "sha1": "3e3496caa520ab4ec1431230d98202d15ec91e00",
+                    "patch": "iBSS.n71m.RELEASE.patch"
+                },
+                "ibec": {
+                    "file": "Firmware/dfu/iBEC.n71m.RELEASE.im4p",
+                    "sha1": "9b5d7bedba493692b99da4a2065cc8a353b196f0",
+                    "patch": "iBEC.n71m.RELEASE.patch"
+                }
+            }
+        }
+    ],
+    "files": {
+        "ramdisk": {
+            "file": "048-78047-092.dmg",
+            "sha1": "6ae11e445bcbbb1c8c9fb9adde5666512495de51",
+            "patch": "048-78047-092.asr.patch"
+        },
+        "kernelcache": {
+            "file": "kernelcache.release.n71",
+            "sha1": "7f72ecb519ad170a74d31bd824a1432fc3c58fa0",
+            "patch": "kernelcache.release.n71.patch"
+        }
+    }
+}
