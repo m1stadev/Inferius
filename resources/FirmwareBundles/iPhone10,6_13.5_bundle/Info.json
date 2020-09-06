@@ -9,7 +9,7 @@
                 "patch": "iBSS.d22.RELEASE.patch"
             },
             "ibec": {
-                "file": "Firmware/dfu/iBEC.iphone6.RELEASE.im4p",
+                "file": "Firmware/dfu/iBEC.d22.RELEASE.im4p",
                 "sha1": "03de9f64115a6e885388b6f83c40feec9145a74a",
                 "patch": "iBEC.d22.RELEASE.patch"
             },
