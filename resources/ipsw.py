@@ -13,66 +13,95 @@ def a9_check(firm_bundle):
         data = json.load(f)
 
     if 'devices' in data:
-        a9_device = True
+        is_a9_device = True
     else:
-        a9_device = False
-    return a9_device
+        is_a9_device = False
+    return is_a9_device
 
 def fetch_a9_boardconfigs(firm_bundle):
     board_configs = []
+
     with open(f'{firm_bundle}/Info.json') as f:
         data = json.load(f)
+
     for x in range(0, len(data['devices'])):
+
         board_configs.append(data['devices'][x]['boardconfig'])
+
     return board_configs
 
 def extract_ipsw(ipsw, verbose=None):
+
     os.makedirs('work/ipsw', exist_ok = True)
+
     if not os.path.exists(ipsw):
+
         sys.exit(f"IPSW at '{ipsw}' doesn't exist!\nExiting...")
+
     if zipfile.is_zipfile(ipsw):
+
         pass
+
         if verbose:
             print(f'[VERBOSE] {ipsw} is a zip archive!')
+
     else:
         sys.exit(f'{ipsw} is not a valid IPSW!\nExiting...')
+
     if ipsw.endswith('.ipsw'):
+
         if verbose:
             print(f'Extracting IPSW at {ipsw}. This may take a while, please wait...')
+
         else:
             print('Extracting IPSW. This may take a while, please wait...')
+
         with zipfile.ZipFile(ipsw, 'r') as ipsw:
             ipsw.extractall('work/ipsw')
+
     if verbose:
         print(f'[VERBOSE] IPSW extracted to: work/ipsw')
-    return 'work/ipsw'
     
 def find_bundle(device_identifier, version, verbose=None):
+
     if os.path.isdir(f'resources/FirmwareBundles/{device_identifier}_{version}_bundle'):
+
         if verbose:
             print(f'[VERBOSE] Firmware bundle exists at: resources/FirmwareBundles/{device_identifier}_{version}_bundle')
+
         return f'resources/FirmwareBundles/{device_identifier}_{version}_bundle'
+
     else:
         sys.exit(f"Firmware bundle for {device_identifier}, {version} doesn't exist!\nIf you have provided your own firmware bundle,\nplease make sure it is in 'resources/FirmwareBundles'\nand named {device_identifier}_{version}_bundle")
 
-def grab_latest_llb_iboot(device_identifier, ipsw_dir, firm_bundle, firm_bundle_number):
+def grab_latest_llb_iboot(device_identifier, firm_bundle, firm_bundle_number):
+    ipswme_device_info = requests.get(f'https://api.ipsw.me/v4/device/{device_identifier}?type=ipsw')
+    device_info = ipswme_device_info.json()
+
     with open(f'{firm_bundle}/Info.json') as f:
         data = json.load(f)
         if firm_bundle_number != 1337:
             hardware_model = data['devices'][firm_bundle_number]['boardconfig']
+
         else:
             hardware_model = data['boardconfig']
-    ipswme_device_info = requests.get(f'https://api.ipsw.me/v4/device/{device_identifier}?type=ipsw')
-    device_info = ipswme_device_info.json()
+
     for x in range(0, len(device_info['firmwares'])):
+
         if device_info['firmwares'][x]['signed'] == True:
             ipsw_download = device_info['firmwares'][x]['url']
+
     with RemoteZip(ipsw_download) as ipsw:
+        os.makedirs('work/tmp')
+        os.chdir('work/tmp/')
         ipsw.extract(f'Firmware/all_flash/LLB.{hardware_model}.RELEASE.im4p')
         ipsw.extract(f'Firmware/all_flash/iBoot.{hardware_model}.RELEASE.im4p')
-    shutil.copy(f'Firmware/all_flash/LLB.{hardware_model}.RELEASE.im4p', f'{ipsw_dir}/Firmware/all_flash/')
-    shutil.copy(f'Firmware/all_flash/iBoot.{hardware_model}.RELEASE.im4p', f'{ipsw_dir}/Firmware/all_flash/')
-    shutil.rmtree('Firmware')
+        os.chdir('../../')
+
+    shutil.copy(f'work/tmp/Firmware/all_flash/LLB.{hardware_model}.RELEASE.im4p', 'work/ipsw/Firmware/all_flash/')
+    shutil.copy(f'work/tmp/Firmware/all_flash/iBoot.{hardware_model}.RELEASE.im4p', 'work/ipsw/Firmware/all_flash/')
+
+    shutil.rmtree('work/tmp')
 
 def verify_bootchain(firm_bundle, firm_bundle_number, verbose=None):
     with open(f'{firm_bundle}/Info.json') as f:
@@ -129,11 +158,16 @@ def fetch_processor(firm_bundle):
         data = json.load(f)
         return data['processor']
 
-def make_ipsw(ipsw_dir, firm_bundle, verbose=None):
+def make_ipsw(firm_bundle, verbose=None):
+
     if os.path.isfile(f'{firm_bundle[26:-7]}_custom.ipsw'):
+
         if verbose:
             print(f'[VERBOSE] Found custom IPSW from previous run: {firm_bundle[26:-7]}_custom.ipsw, deleting...')
+
         os.remove(f'{firm_bundle[26:-7]}_custom.ipsw')
-    shutil.make_archive(f'{firm_bundle[26:-7]}', 'zip', ipsw_dir)
+
+    shutil.make_archive(f'{firm_bundle[26:-7]}', 'zip', 'work/ipsw')
     os.rename(f'{firm_bundle[26:-7]}.zip', f'{firm_bundle[26:-7]}_custom.ipsw')
+
     return f'{firm_bundle[26:-7]}_custom.ipsw'

@@ -4,7 +4,7 @@ import bsdiff4
 import subprocess
 import time
 
-def patch_bootchain(firm_bundle, ipsw_path, firm_bundle_number, verbose=None): # Applies patches from firmware bundle onto bootchain
+def patch_bootchain(firmware_bundle, firm_bundle_number, verbose=None): # Applies patches from firmware bundle onto bootchain
     os.makedirs('work/patched_files', exist_ok = True)
     with open(f'{firm_bundle}/Info.json') as f:
         data = json.load(f)
