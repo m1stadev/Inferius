@@ -3,49 +3,74 @@ import os
 import subprocess
 import time
 import sys
+from . import log
 
-def send_ibss_ibec(processor, verbose=None):
-    if processor.lower() == 's5l8960' or 't8015':
-        with open('work/empty_file', 'w') as f:
-            f.close()
-        subprocess.Popen(f'./resources/bin/irecovery -f work/empty_file', stdout=subprocess.PIPE, shell=True)
-        time.sleep(5)
-    subprocess.Popen(f'./resources/bin/irecovery -f work/ipsw/ibss.img4', stdout=subprocess.PIPE, shell=True)
-    time.sleep(5)
-    subprocess.Popen(f'./resources/bin/irecovery -f work/ipsw/ibec.img4', stdout=subprocess.PIPE, shell=True)
-    time.sleep(5)
-    if processor.lower() == 't8010' or 't8015':
-        subprocess.Popen(f'./resources/bin/irecovery -c go', stdout=subprocess.PIPE, shell=True)
-        time.sleep(5)
+def send_bootchain(processor, verbose=None):
+
+    if processor.lower() == 's5l8960' or processor.lower() == 't8015':
+        subprocess.run('./resources/bin/irecovery -f work/ipsw/ibss.img4', stdout=subprocess.PIPE, universal_newlines=True, shell=True)
+
+    ibss_send = subprocess.run('./resources/bin/irecovery -f work/ipsw/ibss.img4', stdout=subprocess.PIPE, universal_newlines=True, shell=True)
+    if verbose:
+        print(ibss_send.stdout)
+
+
+    ibec_send = subprocess.run('./resources/bin/irecovery -f work/ipsw/ibec.img4', stdout=subprocess.PIPE, universal_newlines=True, shell=True)
+    if verbose:
+        print(ibec_send.stdout)
+
+    if processor.lower() == 't8010' or processor.lower() == 't8015':
+        subprocess.run('./resources/bin/irecovery -c go', stdout=subprocess.PIPE, universal_newlines=True, shell=True)
+
     if verbose:
         print('[VERBOSE] Checking if device is in pwnrecovery...')
-    lsusb = subprocess.Popen('./resources/bin/lsusb', stdout=subprocess.PIPE, shell=True)
-    time.sleep(10)
-    lsusb_output = str(lsusb.stdout.read())
-    if 'Apple Mobile Device (Recovery Mode)' in lsusb_output:
+
+    recmode_check = subprocess.run('./resources/bin/lsusb', stdout=subprocess.PIPE, universal_newlines=True, shell=True)
+
+    if 'Apple Mobile Device (Recovery Mode)' in recmode_check.stdout:
+
         if verbose:
+
             print('[VERBOSE] Device entered pwnrecovery successfully!')
+            log.log_to_file('[VERBOSE] Device entered pwnrecovery successfully!')
+
     else:
         sys.exit('Device did not enter recovery mode successfully! Make sure your device is in Pwned DFU mode with signature checks removed, then run this script again.\nExiting...')
 
 def is_cellular(device_identifier):
     non_cellular_devices = ['ipad6,11', 'ipad7,5', 'ipad7,11', 'ipod7,1', 'ipod9,1', 'ipad4,1', 'ipad5,3', 'ipad6,7', 'ipad6,3', 'ipad7,1', 'ipad7,3', 'ipad4,4', 'ipad4,7', 'ipad5,1']
     device_identifier = device_identifier.lower()
+
     if device_identifier in non_cellular_devices:
-        return False
+        is_cellular = True
+
     else:
-        return True
+        is_cellular = False
+
+    return is_cellular
 
 def restore(ipsw_path, is_cellular, keep_data, verbose=None):
     if is_cellular:
+        
+        if verbose:
+            print('[VERBOSE] Device has cellular support, continuing with restore.')
+            log.log_to_file('[VERBOSE] Device has cellular support, continuing with restore.')
+
         if keep_data:
-            print('Requested to keep data, please note this is experimental!')
-            subprocess.run(f'./resources/bin/futurerestore -t work/ipsw/blob.shsh2 -u --latest-sep --latest-baseband {ipsw_path}', shell=True)
+            print('Update option enabled, saving data.')
+            update = ' -u '
         else:
-            subprocess.run(f'./resources/bin/futurerestore -t work/ipsw/blob.shsh2 --latest-sep --latest-baseband {ipsw_path}', shell=True)
+            update = ' '
+        
+        futurerestore = subprocess.run(f'./resources/bin/futurerestore -t work/ipsw/blob.shsh2{update}--latest-sep --latest-baseband {ipsw_path}', stdout=subprocess.PIPE, universal_newlines=True, shell=True)
+        log.log_to_file(futurerestore.stdout)
+
     else:
         if keep_data:
-            print('Requested to keep data, please note this is experimental!')
-            subprocess.run(f'./resources/bin/futurerestore -t work/ipsw/blob.shsh2 -u --latest-sep --latest-baseband {ipsw_path}', shell=True)
+            print('Update option enabled, saving data.')
+            update = ' -u '
         else:
-            subprocess.run(f'./resources/bin/futurerestore -t work/ipsw/blob.shsh2 --latest-sep --no-baseband {ipsw_path}', shell=True)
+            update = ' '
+        
+        futurerestore = subprocess.run(f'./resources/bin/futurerestore -t work/ipsw/blob.shsh2{update}--latest-sep --no-baseband {ipsw_path}', stdout=subprocess.PIPE, universal_newlines=True, shell=True)
+        log.log_to_file(futurerestore.stdout)

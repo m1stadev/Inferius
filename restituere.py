@@ -126,9 +126,9 @@ if args.ipsw:
     processor = ipsw.fetch_processor(firmware_bundle)
     print('Preparations done! Beginning restore...')
     if args.verbose:
-        restore.send_ibss_ibec(processor, 'yes')
+        restore.send_bootchain(processor, 'yes')
     else:
-        restore.send_ibss_ibec(processor)
+        restore.send_bootchain(processor)
     if args.verbose:
         restore.restore(args.ipsw[0], restore.is_cellular(args.device[0]), keep_data, 'yes')
     else:

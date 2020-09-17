@@ -11,10 +11,12 @@ import hashlib
 def a9_check(firm_bundle):
     with open(f'{firm_bundle}/Info.json') as f:
         data = json.load(f)
+
     if 'devices' in data:
-        return True
+        a9_device = True
     else:
-        return False
+        a9_device = False
+    return a9_device
 
 def fetch_a9_boardconfigs(firm_bundle):
     board_configs = []
