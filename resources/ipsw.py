@@ -186,3 +186,43 @@ def verify_ipsw(device_identifier, version, ipsw_dir, is_verbose):
         return True
     else:
         return False
+
+def verify_version(device_identifier, version, is_verbose):
+    api_data = requests.get(f'https://api.ipsw.me/v4/device/{device_identifier}?type=ipsw')
+    data = api_data.json()
+    device_identifier.replace('p', 'P')
+    try:
+        float(version)
+    except ValueError:
+        utils.print_and_log(f'[ERROR] {version} is not a valid iOS version!\nExiting...', is_verbose)
+        sys.exit()
+
+    for x in range(0, len(data['firmwares'])):
+        if data['firmwares'][x]['version'] == version:
+            valid_version = True
+            break
+        else:
+            valid_version = False
+    
+    if not valid_version:
+        utils.print_and_log(f'[ERROR] iOS {version} does not exist for device {device_identifier}!\nExiting...', is_verbose)
+        sys.exit()
+
+    utils.print_and_log(f'[VERBOSE] iOS {version} exists for device {device_identifier}!', is_verbose)
+
+def verify_device(device_identifier, is_verbose):
+    api_data = requests.get('https://api.ipsw.me/v2.1/firmwares.json/condensed')
+    data = api_data.json()
+
+    for x in data['devices']:
+        if data['devices'][x] == data['devices'][device_identifier]:
+            valid_device = True
+            break
+        else:
+            valid_device = False
+    
+    if not valid_device:
+        utils.print_and_log(f'[ERROR] Device {device_identifier} does not exist!\nExiting...', is_verbose)
+        sys.exit()
+
+    utils.print_and_log(f'[VERBOSE] Device {device_identifier} exists!', is_verbose)

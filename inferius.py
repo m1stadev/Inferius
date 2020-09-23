@@ -29,9 +29,9 @@ parser.add_argument('-u', '--update', help='Restore device without losing data (
 parser.add_argument('-v', '--verbose', help='Print verbose output for debugging', action='store_true')
 args = parser.parse_args()
 
-def create_ipsw():
+def create_ipsw(device_identifier):
     utils.print_and_log('Verifying IPSW. This may take a while, please wait...', True)
-    is_stock = ipsw.verify_ipsw(args.device[0], args.version[0], args.ipsw[0], is_verbose)
+    is_stock = ipsw.verify_ipsw(device_identifier, args.version[0], args.ipsw[0], is_verbose)
     if not is_stock:
         sys.exit(f'[ERROR] IPSW {args.ipsw[0]} is not verified! Redownload your IPSW, and try again.\nExiting...')
 
@@ -44,7 +44,7 @@ def create_ipsw():
     patch.patch_bootchain(firmware_bundle, firm_bundle_number, is_verbose)
 
     utils.print_and_log('Grabbing latest LLB and iBoot to put into custom IPSW...', True)
-    ipsw.grab_latest_llb_iboot(args.device[0], firmware_bundle, firm_bundle_number)
+    ipsw.grab_latest_llb_iboot(device_identifier, firmware_bundle, firm_bundle_number)
 
     utils.print_and_log('Packing everything into custom IPSW. This may take a while, please wait...', True)
     ipsw_name = ipsw.make_ipsw(firmware_bundle, is_verbose)
@@ -59,11 +59,11 @@ def create_ipsw():
 
     return ipsw_name
 
-def restore(fresh_ipsw, ipsw_path):
+def restore(fresh_ipsw, ipsw_path, device_identifier):
     processor = ipsw.fetch_processor(firmware_bundle)
 
     utils.print_and_log('Checking if IPSW is custom...', False)
-    is_stock = ipsw.verify_ipsw(args.device[0], args.version[0], ipsw_path, is_verbose)
+    is_stock = ipsw.verify_ipsw(device_identifier, args.version[0], ipsw_path, is_verbose)
     if is_stock:
         utils.print_and_log('[ERROR] IPSW is not custom, will not restore!\nExiting...', False)
         sys.exit()
@@ -73,7 +73,7 @@ def restore(fresh_ipsw, ipsw_path):
         utils.print_and_log('Restoring freshly created custom IPSW', is_verbose)
     else:
         utils.print_and_log('Checking if IPSW is custom...', False)
-        is_stock = ipsw.verify_ipsw(args.device[0], args.version[0], ipsw_path, is_verbose)
+        is_stock = ipsw.verify_ipsw(device_identifier, args.version[0], ipsw_path, is_verbose)
         if is_stock:
             utils.print_and_log('[ERROR] IPSW is not custom, will not restore!\nExiting...', False)
             sys.exit()
@@ -114,9 +114,9 @@ def restore(fresh_ipsw, ipsw_path):
     os.makedirs('work/ipsw', exist_ok=True)
 
     if firm_bundle_number != 1337:
-        fetch_blobs = subprocess.run(f'./resources/bin/tsschecker -d {args.device[0]} -l -B {board_configs[firm_bundle_number]}ap -e 0x{ecid} -s --apnonce {apnonce} --save-path work/ipsw/', stdout=subprocess.PIPE, universal_newlines=True, shell=True)
+        fetch_blobs = subprocess.run(f'./resources/bin/tsschecker -d {device_identifier} -l -B {board_configs[firm_bundle_number]}ap -e 0x{ecid} -s --apnonce {apnonce} --save-path work/ipsw/', stdout=subprocess.PIPE, universal_newlines=True, shell=True)
     else:
-        fetch_blobs = subprocess.run(f'./resources/bin/tsschecker -d {args.device[0]} -l -e 0x{ecid} -s --apnonce {apnonce} --save-path work/ipsw/', stdout=subprocess.PIPE, universal_newlines=True, shell=True)
+        fetch_blobs = subprocess.run(f'./resources/bin/tsschecker -d {device_identifier} -l -e 0x{ecid} -s --apnonce {apnonce} --save-path work/ipsw/', stdout=subprocess.PIPE, universal_newlines=True, shell=True)
     utils.log(fetch_blobs.stdout)
     
     if not 'Saved shsh blobs!' in fetch_blobs.stdout:
@@ -135,7 +135,7 @@ def restore(fresh_ipsw, ipsw_path):
 
     utils.print_and_log('Preparations done! Beginning restore...', True)
     inferius_restore.send_bootchain(processor, is_verbose)
-    inferius_restore.restore(ipsw_path, inferius_restore.is_cellular(args.device[0]), keep_data, is_verbose)
+    inferius_restore.restore(ipsw_path, inferius_restore.is_cellular(device_identifier), keep_data, is_verbose)
 
     utils.print_and_log('Restore finished! Cleaning up...', True)
     utils.cleanup(is_verbose)
@@ -146,14 +146,15 @@ if not args.ipsw:
 
 if args.device:
     utils.log('Inferius Log')
-    utils.log(f'[INFO] Device: {args.device[0]}')
+    device_identifier = args.device[0].replace('p', 'P')
+    utils.log(f'[INFO] Device: {device_identifier}')
 else:
     sys.exit(parser.print_help(sys.stderr))
 
 if args.version:
     version_str = args.version[0]
     version_str = version_str.split('.')
-    unsupported_versions = ['1', '2', '3', '4', '5', '6' '7' '8' '9' '10']
+    unsupported_versions = ['1', '2', '3', '4', '5', '6' '7' '8' '9' '10', '14']
     major_ios = f'{version_str[0]}'
 
     if major_ios in unsupported_versions:
@@ -161,12 +162,17 @@ if args.version:
 
 else:
     sys.exit(parser.print_help(sys.stderr))
-utils.log(f'[INFO] iOS Version: {args.version[0]}')
 
 if args.verbose:
     is_verbose = True
 else:
     is_verbose = False
+
+utils.print_and_log(f'[VERBOSE] Verifying device {device_identifier} exists...', is_verbose)
+ipsw.verify_device(device_identifier, is_verbose)
+utils.print_and_log(f'[VERBOSE] Verifying iOS {args.version[0]} exists for device {device_identifier}...', is_verbose)
+ipsw.verify_version(device_identifier, args.version[0], is_verbose)
+utils.log(f'[INFO] iOS Version: {args.version[0]}')
 
 if not utils.check_internet():
     sys.exit('[ERROR] You are not connected to the Internet. Connect to the internet, then run this script again.\nExiting...')
@@ -175,8 +181,8 @@ atexit.register(utils.cleanup, 'exit')
 
 utils.cleanup(is_verbose)
 
-utils.print_and_log(f'[VERBOSE] Finding Fimware Bundle for {args.device[0]}, {args.version[0]}', is_verbose)
-firmware_bundle = ipsw.find_bundle(args.device[0], args.version[0], is_verbose)
+utils.print_and_log(f'[VERBOSE] Finding Fimware Bundle for {device_identifier}, {args.version[0]}', is_verbose)
+firmware_bundle = ipsw.find_bundle(device_identifier, args.version[0], is_verbose)
 
 utils.print_and_log('[VERBOSE] Checking if device is A9...', is_verbose)
 if ipsw.is_a9(firmware_bundle):
@@ -216,12 +222,12 @@ if args.update:
 
 if args.create:
     if args.restore:
-        ipsw_path = create_ipsw()
-    create_ipsw()
+        ipsw_path = create_ipsw(device_identifier)
+    create_ipsw(device_identifier)
     fresh_ipsw = True
 else:
     ipsw_path = args.ipsw[0]
     fresh_ipsw = False
 
 if args.restore:
-    restore(fresh_ipsw, ipsw_path)
+    restore(fresh_ipsw, ipsw_path, device_identifier)
