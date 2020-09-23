@@ -33,12 +33,12 @@ pip3 install -r requirements.txt
 
 To create a custom IPSW with Inferius and restore the custom IPSW onto your device
 ```py
-./restituere.py -d 'device' -i 'iOS version' -f 'IPSW' -c -r [-v]
+./inferius.py -d 'device' -i 'iOS version' -f 'IPSW' -c -r [-v]
 ```
 
 To restore a custom IPSW onto your device
 ```py
-./restituere.py -d 'device' -i 'iOS version' -f 'IPSW' -r [-v]
+./inferius.py -d 'device' -i 'iOS version' -f 'IPSW' -r [-v]
 ```
 
 Most options provided by both Inferius and Restituere are the same. Below, you can find all the options both tools have to offer
