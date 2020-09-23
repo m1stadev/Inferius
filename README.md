@@ -1,5 +1,5 @@
 # Inferius
-Inferius (alongside Restituere) is an [xpwn](https://github.com/planetbeing/xpwn)-like tool, written in Python, which can create custom IPSWs with firmware bundles & restore 64-bit devices using a custom IPSW.
+Inferius is an [xpwn](https://github.com/planetbeing/xpwn)-like tool, written in Python, which can create custom IPSWs with firmware bundles & restore 64-bit devices using a custom IPSW.
 
 Its current purpose is to downgrade devices (vulnerable to [checkm8](https://github.com/axi0mX/ipwndfu)) to previous iOS versions. However, the tool can (theoretically) be used by other applications.
 
@@ -17,23 +17,28 @@ Inferius may not come with a firmware bundle compatible with your device. If you
 ## Usage
 Currently, to use Inferius, you'll need
 - A computer running macOS (Linux support may come in the future)
+- At least **10gbs** of free space on your computer
+- An Internet Connection
 - A 64-bit device (vulnerable to [checkm8](https://github.com/axi0mX/ipwndfu))
-- A firmware bundle for the device you are wanting to restore and the version you are wanting to downgrade to
-- `ldid` (You can install it from [Homebrew](https://brew.sh/))
+- A firmware bundle for your device & the iOS version to be downgraded to
 - A brain (Not completely necessary, but YMMV)
 
 To create a custom IPSW with Inferius
 ```py
 pip3 install -r requirements.txt
 ```
-
 ```py
-./inferius.py -d 'device' -i 'iOS Version' -f 'IPSW' [-v]
+./inferius.py -d 'device' -i 'iOS Version' -f 'IPSW' -c [-v]
 ```
 
-To restore your device with the created IPSW with Restituere
+To create a custom IPSW with Inferius and restore the custom IPSW onto your device
 ```py
-./restituere.py -d 'device' -i 'iOS version' -f 'IPSW' [-v]
+./restituere.py -d 'device' -i 'iOS version' -f 'IPSW' -c -r [-v]
+```
+
+To restore a custom IPSW onto your device
+```py
+./restituere.py -d 'device' -i 'iOS version' -f 'IPSW' -r [-v]
 ```
 
 Most options provided by both Inferius and Restituere are the same. Below, you can find all the options both tools have to offer
@@ -41,11 +46,13 @@ Most options provided by both Inferius and Restituere are the same. Below, you c
 | Option (short) | Option (long) | Description |
 |----------------|---------------|-------------|
 | `-h` | `--help` | Shows all options avaiable |
+| `-c` | `--create` | Create custom IPSW |
 | `-d DEVICE` | `--device DEVICE` | Specifies your device indentifier (e.g iPhone 10,2) |
 | `-i VERSION` | `--version VERSION` | Specifies the version of your stock/custom IPSW |
 | `-f IPSW` | `--ipsw IPSW` | Specifies the path to the stock/custom IPSW |
+| `-r` | `--restore` | Restore custom IPSW |
+| `-u` | `--update` | Keeps your data when restoring (requires --restore) |
 | `-v` | `--verbose` | Print verbose output for debugging |
-| `-u` | `--update` | Keeps your data when restoring (Experimental, only for Restituere)
 
 ## Special thanks
 I'd like to thank the following individuals for their corresponding role in this project
