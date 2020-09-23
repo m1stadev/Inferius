@@ -191,11 +191,6 @@ def verify_version(device_identifier, version, is_verbose):
     api_data = requests.get(f'https://api.ipsw.me/v4/device/{device_identifier}?type=ipsw')
     data = api_data.json()
     device_identifier.replace('p', 'P')
-    try:
-        float(version)
-    except ValueError:
-        utils.print_and_log(f'[ERROR] {version} is not a valid iOS version!\nExiting...', is_verbose)
-        sys.exit()
 
     for x in range(0, len(data['firmwares'])):
         if data['firmwares'][x]['version'] == version:
