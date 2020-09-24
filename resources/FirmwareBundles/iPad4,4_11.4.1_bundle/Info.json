@@ -1,0 +1,27 @@
+{
+    "version": "11.4.1",
+    "boardconfig": "ipad4b",
+    "processor": "T7000",
+        "files": {
+            "ibss": {
+                "file": "Firmware/dfu/iBSS.ipad4b.RELEASE.im4p",
+                "sha1": "d7e56d8b6291888dbd0c4914ef68d5dbb0937ce7",
+                "patch": "iBSS.ipad4b.RELEASE.patch"
+            },
+            "ibec": {
+                "file": "Firmware/dfu/iBEC.ipad4b.RELEASE.im4p",
+                "sha1": "4c4ddeb88219659a27414e518dda772640dfd145",
+                "patch": "iBEC.ipad4b.RELEASE.patch"
+            },
+            "ramdisk": {
+                "file": "048-20313-076.dmg",
+                "sha1": "f02701eab931c33aaeb05265d1d6288f9ebd7042",
+                "patch": "048-20313-076.asr.patch"
+            },
+            "kernelcache": {
+                "file": "kernelcache.release.ipad4b",
+                "sha1": "dd49e73405341f981b3d3c55fca21dd2db2c360e",
+                "patch": "kernelcache.release.ipad4b.patch"
+            }
+        }
+}
