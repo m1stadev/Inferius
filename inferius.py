@@ -56,10 +56,10 @@ def restore_ipsw(fresh_ipsw, ipsw_path):
     processor = ipsw.fetch_processor(firmware_bundle)
 
     if fresh_ipsw:
-        utils.log('------------RESTORE-BEGINNING------------')
+        utils.log('------------RESTORE-BEGINNING------------', False)
         utils.log('Restoring freshly created custom IPSW', is_verbose)
     else:
-        utils.log('Inferius Restore Log')
+        utils.log('Inferius Restore Log', False)
         utils.log('Checking if IPSW is custom...', False)
         is_stock = ipsw.verify_ipsw(device_identifier, args.version[0], ipsw_path, buildid, is_verbose)
         if is_stock:
@@ -79,7 +79,7 @@ def restore_ipsw(fresh_ipsw, ipsw_path):
         sys.exit()
 
     lsusb = subprocess.run('./resources/bin/lsusb', stdout=subprocess.PIPE, universal_newlines=True, shell=True)
-    utils.log(lsusb.stdout)
+    utils.log(lsusb.stdout, False)
 
     if not 'Apple Mobile Device (DFU Mode)' in lsusb.stdout:
         utils.log('[ERROR] Specified device is not in pwndfu!\nExiting...', is_verbose)
@@ -109,10 +109,10 @@ if not args.ipsw:
     sys.exit(parser.print_help(sys.stderr))
 
 if args.device:
-    utils.log('Inferius Log')
+    utils.log('Inferius Log', False)
     device_identifier = args.device[0].lower()
     device_identifier = device_identifier.replace('p', 'P')
-    utils.log(f'[INFO] Device: {device_identifier}')
+    utils.log(f'[INFO] Device: {device_identifier}', False)
 else:
     sys.exit(parser.print_help(sys.stderr))
 
@@ -133,7 +133,7 @@ if args.version:
             utils.log('[ERROR] Only A7 devices can downgrade to iOS 10.x currently!\nExiting...', True)
             sys.exit()
         downgrade_10 = True
-        ipsw.fetch_ota_bm(device_identifier, args.version[0])
+        ipsw.fetch_1033_ota_bm(device_identifier, args.version[0], is_verbose)
     else:
         downgrade_10 = False
 
