@@ -2,26 +2,22 @@
     "version": "13.5",
     "boardconfig": "d22",
     "processor": "T8015",
-        "files": {
-            "ibss": {
-                "file": "Firmware/dfu/iBSS.d22.RELEASE.im4p",
-                "sha1": "6e93b3ff208678a1ee3cad8eab35e1fa7634802f",
-                "patch": "iBSS.d22.RELEASE.patch"
-            },
-            "ibec": {
-                "file": "Firmware/dfu/iBEC.d22.RELEASE.im4p",
-                "sha1": "03de9f64115a6e885388b6f83c40feec9145a74a",
-                "patch": "iBEC.d22.RELEASE.patch"
-            },
-            "ramdisk": {
-                "file": "038-35648-088.dmg",
-                "sha1": "76f8d67eff5f2930d1b6c60df8cca0dc6a82ef69",
-                "patch": "038-35648-088.asr.patch"
-            },
-            "kernelcache": {
-                "file": "kernelcache.release.iphone10b",
-                "sha1": "d015817c1a77d92e7658c22904f5abf7fe531ac7",
-                "patch": "kernelcache.release.iphone10b.patch"
-            }
+    "files": {
+        "ibss": {
+            "file": "Firmware/dfu/iBSS.d22.RELEASE.im4p",
+            "patch": "iBSS.d22.RELEASE.patch"
+        },
+        "ibec": {
+            "file": "Firmware/dfu/iBEC.d22.RELEASE.im4p",
+            "patch": "iBEC.d22.RELEASE.patch"
+        },
+        "ramdisk": {
+            "file": "038-35648-088.dmg",
+            "patch": "038-35648-088.asr.patch"
+        },
+        "kernelcache": {
+            "file": "kernelcache.release.iphone10b",
+            "patch": "kernelcache.release.iphone10b.patch"
         }
+    }
 }

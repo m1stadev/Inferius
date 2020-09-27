@@ -299,7 +299,7 @@ def check_buildid(firm_bundle):
             bm_data = plistlib.load(f)
             ipsw_buildid = bm_data['BuildIdentities']['Info']['BuildNumber']
 
-        for x in range(0, len(bundle_data['files'])):
+        for x in range(0, len(bundle_data['files']['ramdisk'])):
             if bundle_data['files']['ramdisk'][x]['buildid']:
                 if bundle_data['files']['ramdisk'][x]['buildid'].lower() == ipsw_buildid.lower():
                     buildid = ipsw_buildid

@@ -1,49 +1,40 @@
 {
     "version": "13.0",
-    "processor": "s8000",
-    "devices": [
-        {
-            "boardconfig": "n71",
-            "files": {
-                "ibss": {
-                    "file": "Firmware/dfu/iBSS.n71.RELEASE.im4p",
-                    "sha1": "846f1f23de7951061ff332a7c9ec6d621b05949f",
-                    "patch": "iBSS.n71.RELEASE.patch"
-                },
-                "ibec": {
-                    "file": "Firmware/dfu/iBEC.n71.RELEASE.im4p",
-                    "sha1": "cf03a4e7b9ae1638886d5306e26f2abee43a4342",
-                    "patch": "iBEC.n71.RELEASE.patch"
-                }
-            }
-        },
-        {
-            "boardconfig": "n71m",
-            "files": {
-                "ibss": {
-                    "file": "Firmware/dfu/iBSS.n71m.RELEASE.im4p",
-                    "sha1": "4e88197cf54182ba11281019432440823a951ad0",
-                    "patch": "iBSS.n71m.RELEASE.patch"
-                },
-                "ibec": {
-                    "file": "Firmware/dfu/iBEC.n71m.RELEASE.im4p",
-                    "sha1": "0103457068cc8f9f62b80d26139ffd6944be86a1",
-                    "patch": "iBEC.n71m.RELEASE.patch"
-                }
+    "processor": "S8000",
+    "devices": [{
+        "boardconfig": "n71",
+        "files": {
+            "ibss": {
+                "file": "Firmware/dfu/iBSS.n71.RELEASE.im4p",
+                "patch": "iBSS.n71.RELEASE.patch"
+            },
+            "ibec": {
+                "file": "Firmware/dfu/iBEC.n71.RELEASE.im4p",
+                "patch": "iBEC.n71.RELEASE.patch"
             }
         }
-    ],
-    "files": [{
+    },
+    {
+        "boardconfig": "n71m",
+        "files": {
+            "ibss": {
+                "file": "Firmware/dfu/iBSS.n71m.RELEASE.im4p",
+                "patch": "iBSS.n71m.RELEASE.patch"
+            },
+            "ibec": {
+                "file": "Firmware/dfu/iBEC.n71m.RELEASE.im4p",
+                "patch": "iBEC.n71m.RELEASE.patch"
+            }
+        }
+    }],
+    "files": {
         "ramdisk": {
             "file": "048-96245-001.dmg",
-            "sha1": "bd9d65ddbcad1d6d0b73316e198ac46a2fd665ad",
             "patch": "048-96245-001.asr.patch"
         },
         "kernelcache": {
             "file": "kernelcache.release.n71",
-            "sha1": "3e01c04430396cea3be8fc312d8e3f006bb2f15f",
             "patch": "kernelcache.release.n71.patch"
         }
-    }]
+    }
 }
-

@@ -5,22 +5,18 @@
     "files": {
         "ibss": {
             "file": "Firmware/dfu/iBSS.n102.RELEASE.im4p",
-            "sha1": "47c05552272bb413d280a24b63bb6b76b3301f87",
             "patch": "iBSS.n102.RELEASE.patch"
         },
         "ibec": {
             "file": "Firmware/dfu/iBEC.n102.RELEASE.im4p",
-            "sha1": "ef412ec36fc057118b8cc133f1d172df00829897",
             "patch": "iBEC.n102.RELEASE.patch"
         },
         "ramdisk": {
             "file": "048-78047-092.dmg",
-            "sha1": "6ae11e445bcbbb1c8c9fb9adde5666512495de51",
             "patch": "048-78047-092.asr.patch"
         },
         "kernelcache": {
             "file": "kernelcache.release.n102",
-            "sha1": "ffea0c94f228282ecc3f389a20a462fd1b41da41",
             "patch": "kernelcache.release.n102.patch"
         }
     }
