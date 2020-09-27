@@ -251,7 +251,7 @@ def verify_device(device_identifier, is_verbose):
 
     utils.log(f'[VERBOSE] Device {device_identifier} exists!', is_verbose)
 
-def fetch_ota_bm(device_identifier, version):
+def fetch_1033_ota_bm(device_identifier, version):
     if version.startswith('10.'):
         manifest_version = '10.3.3'
 

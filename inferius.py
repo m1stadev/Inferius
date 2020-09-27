@@ -50,6 +50,10 @@ def create_ipsw():
     ipsw_name = ipsw.make_ipsw(firmware_bundle, is_verbose)
 
     utils.log(f'Done!\nCustom IPSW at: {ipsw_name}', True)
+
+    if not args.restore:
+        utils.cleanup(True)
+
     return ipsw_name
 
 def restore_ipsw(fresh_ipsw, ipsw_path):
@@ -63,7 +67,7 @@ def restore_ipsw(fresh_ipsw, ipsw_path):
         utils.log('Checking if IPSW is custom...', False)
         is_stock = ipsw.verify_ipsw(device_identifier, args.version[0], ipsw_path, buildid, is_verbose)
         if is_stock:
-            utils.log('[ERROR] IPSW is not custom, will not restore!\nExiting...', False)
+            utils.log('[ERROR] IPSW is stock!\nExiting...', False)
             sys.exit()
 
     if args.update:
@@ -83,7 +87,7 @@ def restore_ipsw(fresh_ipsw, ipsw_path):
 
     if not 'Apple Mobile Device (DFU Mode)' in lsusb.stdout:
         utils.log('[ERROR] Specified device is not in pwndfu!\nExiting...', is_verbose)
-#        sys.exit()
+        sys.exit()
 
     os.makedirs('work/ipsw', exist_ok=True)
     utils.log('Fetching some required info...', True)
@@ -100,9 +104,12 @@ def restore_ipsw(fresh_ipsw, ipsw_path):
         ipsw.fetch_1033_sepbb(device_identifier, args.version[0], is_verbose)
 
     restore.send_bootchain(processor, is_verbose)
-    restore.restore(ipsw_path, ipsw.is_cellular(device_identifier), keep_data, downgrade_10, is_verbose)
+    futurerestore = restore.restore(ipsw_path, ipsw.is_cellular(device_identifier), keep_data, downgrade_10, is_verbose)
+    if not futurerestore:
+        sys.exit()
+    else:
+        utils.cleanup(True)
 
-    utils.log('Restore finished! Cleaning up...', True)
     utils.log('Done.\nExiting...', True)
 
 if not args.ipsw:
@@ -133,7 +140,7 @@ if args.version:
             utils.log('[ERROR] Only A7 devices can downgrade to iOS 10.x currently!\nExiting...', True)
             sys.exit()
         downgrade_10 = True
-        ipsw.fetch_1033_ota_bm(device_identifier, args.version[0], is_verbose)
+        ipsw.fetch_1033_ota_bm(device_identifier, args.version[0])
     else:
         downgrade_10 = False
 

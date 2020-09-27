@@ -55,7 +55,14 @@ def restore(ipsw_path, is_cellular, keep_data, downgrade_10, is_verbose):
     else:
         baseband = '--no-baseband'
 
-    subprocess.run(f'./resources/bin/futurerestore -t work/ipsw/blob.shsh2{update}{sep_fw} {baseband} {ipsw_path}', stdout=sys.stdout, universal_newlines=True, shell=True)
+    futurerestore = subprocess.run(f'./resources/bin/futurerestore -t work/ipsw/blob.shsh2{update}{sep_fw} {baseband} {ipsw_path}', stdout=sys.stdout, universal_newlines=True, shell=True)
+
+    if futurerestore.stdout != 0:
+        utils.log('[ERROR] Restore failed!\nExiting...', True)
+        return False
+    else:
+        utils.log('Restore successful!\nCleaning up...', True)
+        return True
 
 def save_blobs(device_identifier, firm_bundle_number, board_configs, downgrade_10, is_verbose):
     if downgrade_10:
