@@ -33,7 +33,7 @@
             }
         }
     ],
-    "files": {
+    "files": [{
         "ramdisk": {
             "file": "048-96245-001.dmg",
             "sha1": "bd9d65ddbcad1d6d0b73316e198ac46a2fd665ad",
@@ -44,6 +44,6 @@
             "sha1": "3e01c04430396cea3be8fc312d8e3f006bb2f15f",
             "patch": "kernelcache.release.n71.patch"
         }
-    }
+    }]
 }
 
