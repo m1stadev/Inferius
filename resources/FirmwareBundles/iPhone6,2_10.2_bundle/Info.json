@@ -1,0 +1,23 @@
+{
+    "version": "10.2",
+    "boardconfig": "iphone6",
+    "processor": "S5L8960",
+    "files": {
+        "ibss": {
+            "file": "Firmware/dfu/iBSS.n53.RELEASE.im4p",
+            "patch": "iBSS.n53.RELEASE.patch"
+        },
+        "ibec": {
+            "file": "Firmware/dfu/iBEC.n53.RELEASE.im4p",
+            "patch": "iBEC.n53.RELEASE.patch"
+        },
+        "ramdisk": {
+            "file": "058-54560-094.dmg",
+            "patch": "058-54560-094.asr.patch"
+        },
+        "kernelcache": {
+            "file": "kernelcache.release.n53",
+            "patch": "kernelcache.release.n53.patch"
+        }
+    }
+}
