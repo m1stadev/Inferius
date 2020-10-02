@@ -1,12 +1,12 @@
 # Inferius
 Inferius is an [xpwn](https://github.com/planetbeing/xpwn)-like tool, written in Python, which can create custom IPSWs with firmware bundles & restore 64-bit devices using a custom IPSW.
 
-Its current purpose is to downgrade devices (vulnerable to [checkm8](https://github.com/axi0mX/ipwndfu)) to previous iOS versions. However, the tool can (theoretically) be used by other applications.
+Its current purpose is to downgrade devices (vulnerable to [checkm8](https://github.com/axi0mX/ipwndfu)) to previous iOS versions. However, there are other possible uses for this tool as well.
 
 ## Notes and Caveats
 Before using Inferius, keep in mind that
 - **No one but YOU** is fully responsible for any data loss or damage caused to your device
-- Creating a new IPSW when attempting to restore is a good practice when using Inferius. Previously created IPSWs can brick your device, depending on which LLB and iBoot files were used from a signed firmware
+- Creating a new IPSW when attempting to restore is a **must** when using Inferius. Previously created IPSWs can brick your device, depending on which LLB and iBoot files were used from a signed firmware
 - Restores are **not** untethered. This means that in order to boot your device, you're always required to use [PyBoot](https://github.com/MatthewPierson/PyBoot) or [ra1nsn0w](https://github.com/tihmstar/ra1nsn0w) to do just that (or if you want to boot jailbroken, [checkra1n](https://checkra.in) will work fine too)
 - Downgrades are still limited to versions compatible with the latest signed SEP version. This will change when [checkra1n](https://checkra.in/) recieves a SEP bypass
 
