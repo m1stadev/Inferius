@@ -120,11 +120,17 @@ def grab_latest_llb_iboot(device_identifier, version, firm_bundle, firm_bundle_n
         ipsw_dir = 'work/ipsw/Firmware/all_flash/'
         llb_file = f'LLB.{hardware_model}.RELEASE.im4p'
         iboot_file = f'iBoot.{hardware_model}.RELEASE.im4p'
+
     elif hardware_model == 'iphone6':
         full_boardconfig = device_info['boardconfig']
-        semi_boardconfig = full_boardconfig[:3]
+        semi_boardconfig = full_boardconfig[-2:]
         ipsw_dir = f'work/ipsw/Firmware/all_flash/all_flash.{full_boardconfig}.production/'
         llb_file = f'LLB.{semi_boardconfig}.RELEASE.im4p'
+        iboot_file = f'iBoot.{semi_boardconfig}.RELEASE.im4p'
+
+    else:
+        ipsw_dir = f'work/ipsw/Firmware/all_flash/all_flash.{device_info["boardconfig"]}.production/'
+        llb_file = f'LLB.{hardware_model}.RELEASE.im4p'
         iboot_file = f'iBoot.{semi_boardconfig}.RELEASE.im4p'
 
     os.rename(f'work/tmp/LLB_iBoot/Firmware/all_flash/LLB.{hardware_model}.RELEASE.im4p', f'{ipsw_dir + llb_file}')
@@ -291,18 +297,20 @@ def check_buildid(firm_bundle):
 
     if len(bundle_data['files']) == 1:
         buildid = None
+        return buildid
+    
+    buildids = []
+    for x in range(0, len(bundle_data['files']['ramdisk'])):
+        if bundle_data['files']['ramdisk'][x]['buildid']:
+            buildids.append(bundle_data['files']['ramdisk'][x]['buildid'])
 
-    if not os.path.isfile('work/tmp/IPSW_BuildManifest/BuildManifest.plist'):
-        buildid = None
-    else:
-        with open('work/tmp/IPSW_BuildManifest/BuildManifest.plist') as f:
-            bm_data = plistlib.load(f)
-            ipsw_buildid = bm_data['BuildIdentities']['Info']['BuildNumber']
+    x = input(f'Version with multiple buildids detected, please choose the number of the correct buildid for your IPSW:\n  [1] {buildids[0]}\n  [2] {buildids[1]}\nChoice: ')
 
-        for x in range(0, len(bundle_data['files']['ramdisk'])):
-            if bundle_data['files']['ramdisk'][x]['buildid']:
-                if bundle_data['files']['ramdisk'][x]['buildid'].lower() == ipsw_buildid.lower():
-                    buildid = ipsw_buildid
-                    break
+    try:
+        int(x)
+    except ValueError:
+        utils.log('[Error] Input not a number!\nExiting...', True)
+        sys.exit()
 
-    return buildid
+    x = x - 1
+    return buildids[x]

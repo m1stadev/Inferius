@@ -192,7 +192,7 @@ if ipsw.is_a9(firmware_bundle):
         utils.log('[ERROR] Invalid input given.\nExiting...', True)
         sys.exit()
 
-    utils.log(f'[INFO] Device boardconfig: {board_configs[firm_bundle_number]}')
+    utils.log(f'[INFO] Device boardconfig: {board_configs[firm_bundle_number]}', False)
 
 else:
     board_configs = None
