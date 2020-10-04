@@ -293,16 +293,15 @@ def fetch_ipsw_bm(ipsw_dir, is_verbose):
 
 def check_buildid(firm_bundle):
     with open(f'{firm_bundle}/Info.json') as f:
-        bundle_data = json.load(f)
+        data = json.load(f)
 
-    if len(bundle_data['files']) == 1:
-        buildid = None
-        return buildid
+    if len(data['files']['ramdisk']) == 1:
+        return None
     
     buildids = []
-    for x in range(0, len(bundle_data['files']['ramdisk'])):
-        if bundle_data['files']['ramdisk'][x]['buildid']:
-            buildids.append(bundle_data['files']['ramdisk'][x]['buildid'])
+    for x in range(0, len(data['files']['ramdisk'])):
+        if data['files']['ramdisk'][x]['buildid']:
+            buildids.append(data['files']['ramdisk'][x]['buildid'])
 
     x = input(f'Version with multiple buildids detected, please choose the number of the correct buildid for your IPSW:\n  [1] {buildids[0]}\n  [2] {buildids[1]}\nChoice: ')
 
