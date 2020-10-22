@@ -82,7 +82,7 @@ def restore_ipsw(fresh_ipsw, ipsw_path):
         utils.log('[ERROR] Specified device is not in pwndfu!\nExiting...', is_verbose)
         sys.exit()
 
-    lsusb = subprocess.run('./resources/bin/lsusb', stdout=subprocess.PIPE, universal_newlines=True, shell=True)
+    lsusb = subprocess.run('./resources/bin/lsusb', stdout=subprocess.PIPE, universal_newlines=True)
     utils.log(lsusb.stdout, False)
 
     if not 'Apple Mobile Device (DFU Mode)' in lsusb.stdout:
