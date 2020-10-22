@@ -1,4 +1,6 @@
+argparse==1.4.0
 bsdiff4==1.2.0
-remotezip==0.9.2
-progressbar==2.5
 datetime==4.3
+progressbar==2.5
+remotezip==0.9.2
+requests==2.24.0

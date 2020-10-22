@@ -2,7 +2,6 @@ from . import utils
 import bsdiff4
 import json
 import os
-import subprocess
 
 def patch_bootchain(firm_bundle, firm_bundle_number, buildid, is_verbose): # Applies patches from firmware bundle onto bootchain
     os.makedirs('work/patched_files', exist_ok = True)

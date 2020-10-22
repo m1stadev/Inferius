@@ -3,14 +3,10 @@
 from resources import ipsw, patch, restore, utils
 import argparse
 import atexit
-import glob
-import json
 import os
 import platform
-import requests
 import subprocess
 import sys
-import time
 
 atexit.register(utils.cleanup)
 utils.cleanup()
