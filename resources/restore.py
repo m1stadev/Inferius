@@ -24,7 +24,7 @@ def send_bootchain(processor, is_verbose):
         
     time.sleep(3)
     utils.log('[VERBOSE] Checking if device is in pwnrecovery...', is_verbose)
-    recmode_check = subprocess.run('./resources/bin/lsusb', stdout=subprocess.PIPE)
+    recmode_check = subprocess.run('./resources/bin/lsusb', stdout=subprocess.PIPE, universal_newlines=True)
     utils.log(recmode_check.stdout, False)
 
     if 'Apple Mobile Device (Recovery Mode)' in recmode_check.stdout:
