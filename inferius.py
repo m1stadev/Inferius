@@ -9,7 +9,7 @@ import subprocess
 import sys
 
 atexit.register(utils.cleanup)
-utils.cleanup()
+utils.cleanup(True)
 
 if not platform.system() == 'Darwin':
     sys.exit('[ERROR] This script can only be ran on macOS. Please run this on a macOS computer.\nExiting...')
