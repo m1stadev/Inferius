@@ -41,7 +41,7 @@ To restore a custom IPSW onto your device
 ./inferius.py -d 'device' -i 'iOS version' -f 'IPSW' -r [-v]
 ```
 
-Most options provided by both Inferius and Restituere are the same. Below, you can find all the options both tools have to offer
+Below, you can find all the options Inferius has to offer
 
 | Option (short) | Option (long) | Description |
 |----------------|---------------|-------------|
