@@ -1,0 +1,23 @@
+{
+    "version": "12.1",
+    "boardconfig": "n61",
+    "processor": "T7000",
+    "files": {
+        "ibss": {
+            "file": "Firmware/dfu/iBSS.n61.RELEASE.im4p",
+            "patch": "iBSS.n61.RELEASE.patch"
+        },
+        "ibec": {
+            "file": "Firmware/dfu/iBEC.n61.RELEASE.im4p",
+            "patch": "iBEC.n61.RELEASE.patch"
+        },
+        "ramdisk": {
+            "file": "048-32459-105.dmg",
+            "patch": "048-32459-105.asr.patch"
+        },
+        "kernelcache": {
+            "file": "kernelcache.release.iphone7",
+            "patch": "kernelcache.release.iphone7.patch"
+        }
+    }
+}
