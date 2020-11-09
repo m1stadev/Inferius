@@ -158,9 +158,11 @@ if not utils.check_internet():
 utils.log(f'[VERBOSE] Finding Firmware Bundle for {device_identifier}, {args.version[0]}', is_verbose)
 firmware_bundle = ipsw.find_bundle(device_identifier, args.version[0], is_verbose)
 
-if args.version[0] == '10.1.1' or args.version[0] == '10.1.1':
+if args.version[0] == '10.1.1' or args.version[0] == '12.1.2':
     utils.log(f'[VERBOSE] Finding proper buildid for version {args.version[0]}', is_verbose)
-buildid = ipsw.check_buildid(firmware_bundle) 
+    buildid = ipsw.check_buildid(firmware_bundle) 
+else:
+    buildid = False
 
 utils.log('[VERBOSE] Checking if device is A9...', is_verbose)
 if ipsw.is_a9(firmware_bundle):
