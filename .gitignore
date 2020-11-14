@@ -9,3 +9,4 @@ work/
 *.zip
 .irecovery
 *.log
+venv/*
