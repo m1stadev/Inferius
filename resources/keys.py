@@ -9,7 +9,13 @@ class Keys(object):
 
         self.device = device_identifier
         self.components = components
+        self.img4_check()
         self.keys = self.decrypt_keys()
+
+    def img4_check(self):
+        img4_check = subprocess.run(('which', 'img4'), stdout=subprocess.PIPE, universal_newlines=True)
+        if img4_check.returncode != 0:
+            sys.exit("[ERROR] img4lib not installed! If img4lib is installed, make sure the 'img4' binary is in a directory on your PATH. Exiting...")
 
     def decrypt_keys(self):
         ibss_img4 = subprocess.run(('img4', '-i', f'.tmp/mass-decryptor/{self.components["ibss"]["file"]}', '-b'), stdout=subprocess.PIPE, universal_newlines=True)
