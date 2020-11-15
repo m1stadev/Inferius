@@ -10,6 +10,10 @@ import requests
 import shutil
 import sys
 import zipfile
+import traceback
+from tqdm import tqdm
+
+import pathlib
 
 def is_a9(firm_bundle):
     with open(f'{firm_bundle}/Info.json') as f:
@@ -78,14 +82,88 @@ def extract_ipsw(ipsw, is_verbose):
 
         utils.log('[VERBOSE] IPSW extracted to: work/ipsw', is_verbose)
         
+    
 def find_bundle(device_identifier, version, is_verbose):
-    if os.path.isdir(f'resources/FirmwareBundles/{device_identifier}_{version}_bundle'):
-        pass
-    else:
-        sys.exit(f"[ERROR] Firmware bundle for {device_identifier}, {version} doesn't exist!\nIf you have provided your own firmware bundle,\nplease make sure it is in 'resources/FirmwareBundles'\nand named '{device_identifier}_{version}_bundle'")
 
-    utils.log(f'[VERBOSE] Firmware bundle exists at: resources/FirmwareBundles/{device_identifier}_{version}_bundle', is_verbose)
-    return f'resources/FirmwareBundles/{device_identifier}_{version}_bundle'
+    if (pathlib.Path("resources") / "FirmwareBundles" / f"{device_identifier}_{version}_bundle").is_dir():
+        utils.log(f'[VERBOSE] Firmware bundle exists at: {(pathlib.Path("resources") / "FirmwareBundles" / f"{device_identifier}_{version}_bundle").absolute()}', is_verbose)
+        return (pathlib.Path("resources") / "FirmwareBundles" / f"{device_identifier}_{version}_bundle").absolute()
+    else:
+        utils.log("[WARNING]: No Firmware bundle found, checking Github and downloading.", is_verbose=is_verbose)
+        try:
+            call_bundle_repo = requests.get("https://api.github.com/repos/marijuanARM/inferius-bundles/contents")
+            if call_bundle_repo.status_code == requests.codes.ok:
+                try:
+                    parse_response = call_bundle_repo.json()
+                except Exception:
+                    utils.log("[ERROR]: Could Not parse API response from Github!", is_verbose=is_verbose)
+                    sys.exit(f"[ERROR] Firmware bundle for {device_identifier}, {version} doesn't exist!\nIf you have provided your own firmware bundle,\nplease make sure it is in 'resources/FirmwareBundles'\nand named '{device_identifier}_{version}_bundle'")
+
+
+                # Make sure the download file directory is ready to go.
+
+                if not (pathlib.Path("resources") / "FirmwareBundles").is_dir():
+                    if (pathlib.Path("resources") / "FirmwareBundles").is_file() or (pathlib.Path("resources") / "FirmwareBundles").exists():
+                        sys.exit(f"[ERROR] Attempted to detect folder called FirmwareBundles but it appears a (non-folder) item already exists with the same name. Please delete the offending file and restart.")
+                    (pathlib.Path("resources") / "FirmwareBundles").mkdir()
+
+                
+
+
+                target_file_name = f"{device_identifier}_{version}_bundle.zip"
+
+
+                
+                was_bundle_found = False
+                for bundle_found in parse_response:
+                    if bundle_found['name'] == target_file_name:
+                        utils.log("[DEBUG]: Found Target Bundle Name! Downloading from Github.", is_verbose)
+                        bundle_found_download_link = bundle_found['download_url']
+                        _download_file_request = requests.get(bundle_found_download_link, stream=True)
+                        total_size_for_download_request = int(
+                            _download_file_request.headers.get("content-length", 0)
+                        )
+
+                        progress_bar = tqdm(total=total_size_for_download_request, unit="iB", unit_scale=True)
+                        with open((pathlib.Path("resources") / "FirmwareBundles" / target_file_name), "wb") as file:
+                            for data in _download_file_request.iter_content(chunk_size=1024):
+                                progress_bar.update(len(data))
+                                file.write(data)
+                        progress_bar.close()
+
+                        if total_size_for_download_request != 0 and progress_bar.n != total_size_for_download_request:
+                            sys.exit(f"[INFO]: There was an issue with downloading the requested firmware bundle. Please download the required firmware bundle here: \n {bundle_found_download_link} ")
+                        was_bundle_found = True
+
+                        with zipfile.ZipFile((pathlib.Path("resources") / "FirmwareBundles" / target_file_name), 'r') as zipped_bundle:
+                            try:
+                                if (pathlib.Path("resources") / "FirmwareBundles" / f"{device_identifier}_{version}_bundle").is_dir() == True:
+                                    sys.exit("[ERROR] Directory to extract to already exists. This shouldn't happen. Please open an issue on Github.")
+
+                                (pathlib.Path("resources") / "FirmwareBundles" / f"{device_identifier}_{version}_bundle").mkdir()
+
+                                zipped_bundle.extractall((pathlib.Path("resources") / "FirmwareBundles" / f"{device_identifier}_{version}_bundle"))
+                            except OSError:
+                                utils.log('[ERROR] Ran out of storage while extracting bundle. Clear up some space on your computer, then run this script again.\nExiting...', is_verbose)
+                                sys.exit()
+                            except Exception:
+                                utils.log(f'[ERROR] Issue with extracted downloaded bundle. Please manually extract bundle located in {(pathlib.Path("resources") / "FirmwareBundles" / target_file_name).absolute()}\n to {(pathlib.Path("resources") / "FirmwareBundles").absolute()}\n and try again.', is_verbose)
+                                
+                                sys.exit(traceback.format_exc())
+                        break
+                
+                if was_bundle_found == False:
+                     sys.exit(f"[ERROR] Firmware bundle for {device_identifier}, {version} doesn't exist!\nIf you have provided your own firmware bundle,\nplease make sure it is in '{ (pathlib.Path('resources') / 'FirmwareBundles').absolute()  }'\nand named '{device_identifier}_{version}_bundle'")
+                else:
+                    return str((pathlib.Path("resources") / "FirmwareBundles" / target_file_name).absolute())
+
+            else:
+                utils.log(f"[ERROR]: Github has returned an error status code: {call_bundle_repo.status_code}", is_verbose)
+                sys.exit(f"[ERROR] Firmware bundle for {device_identifier}, {version} doesn't exist!\nIf you have provided your own firmware bundle,\nplease make sure it is in 'resources/FirmwareBundles'\nand named '{device_identifier}_{version}_bundle'")
+        except Exception:
+            utils.log(f"[ERROR]: Unhandled exception attempting to grab from Github. {traceback.format_exc()}", is_verbose)
+            
+    sys.exit(f"[ERROR] Firmware bundle for {device_identifier}, {version} doesn't exist!\nIf you have provided your own firmware bundle,\nplease make sure it is in 'resources/FirmwareBundles'\nand named '{device_identifier}_{version}_bundle'")
 
 
 def grab_latest_llb_iboot(device_identifier, version, firm_bundle, firm_bundle_number, is_verbose):
