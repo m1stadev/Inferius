@@ -34,3 +34,8 @@ Criptam is a tool written in Python to easily decrypt [Firmware Keys](https://ww
 - Uploading keys to [TheiPhoneWiki](https://www.theiphonewiki.com/) requires you to have an account.
 - If there are already keys for the version you are trying to decrypt, Criptam will not overwrite them.
 - Criptam will ask for your wiki login information before uploading if you choose to upload. This is **not** saved anywhere.
+
+## TODO
+- Add in support for iOS versions under iOS 10
+- Add in support for A9 devices
+- Import ipwndfu instead of calling the script via subprocess
