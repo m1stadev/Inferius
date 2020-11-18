@@ -43,3 +43,4 @@ Criptam is a tool written in Python to easily decrypt [Firmware Keys](https://ww
 - Add in support for iOS versions under iOS 10
 - Add in support for A9 devices
 - Import ipwndfu instead of calling the script via subprocess
+- Add in device checks
