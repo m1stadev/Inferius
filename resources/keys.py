@@ -12,9 +12,6 @@ class Keys(object):
         self.components = components
         self.cpid = cpid
         self.img4_check()
-        self.check_pwndfu()
-        self.check_cpid()
-        self.keys = self.decrypt_keys()
 
     def img4_check(self):
         img4_check = subprocess.run(('which', 'img4'), stdout=subprocess.PIPE, universal_newlines=True)
@@ -66,6 +63,8 @@ class Keys(object):
         keys['iboot'] = {"kbag": iboot_decrypt.stdout.split('\n')[1], "key": iboot_decrypt.stdout.split('\n')[1][-64:], "iv": iboot_decrypt.stdout.split('\n')[1][:32]}
         keys['llb'] = {"kbag": llb_decrypt.stdout.split('\n')[1], "key": llb_decrypt.stdout.split('\n')[1][-64:], "iv": llb_decrypt.stdout.split('\n')[1][:32]}
         keys['sep'] = {"kbag": sep_img4.stdout.split('\n')[0].lower(), "key": 'Unknown', "iv": 'Unknown'}
+
+        self.keys = keys
 
         return keys
 

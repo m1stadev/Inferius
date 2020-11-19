@@ -54,6 +54,8 @@ def main():
     device_identifier = data['identifier']
     boardconfig = data['boardconfig']
 
+    valid_device = None
+
     for v in range(0, len(data['firmwares'])):
         version = data['firmwares'][v]['version']
         buildid = data['firmwares'][v]['buildid']
@@ -85,6 +87,12 @@ def main():
         ipsw_dl.download_components(buildmanifest.components)
 
         decrypt = keys.Keys(device_identifier, buildmanifest.components, restoremanifest.cpid)
+        if valid_device == None:
+            decrypt.check_pwndfu()
+            decrypt.check_cpid()
+            valid_device = True
+
+        decrypt.decrypt_keys()
 
         for x in glob.glob('.tmp/mass-decryptor/*'):
             os.remove(x)
