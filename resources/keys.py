@@ -12,8 +12,8 @@ class Keys(object):
         self.components = components
         self.cpid = cpid
         self.img4_check()
-        self.check_cpid()
         self.check_pwndfu()
+        self.check_cpid()
         self.keys = self.decrypt_keys()
 
     def img4_check(self):
