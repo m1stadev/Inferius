@@ -2,3 +2,4 @@ argparse==1.4.0
 remotezip==0.9.2
 requests==2.24.0
 mwclient==0.10.1
+pyusb==1.1.0

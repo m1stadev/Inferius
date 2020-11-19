@@ -10,6 +10,7 @@ class IPSW(object):
         self.ipsw = ipsw_url
         self.version = version
         self.manifest = self.download_manifest()
+        self.restoremanifest = self.download_restoremanifest()
 
     def download_manifest(self):
         headers = {
@@ -25,6 +26,21 @@ class IPSW(object):
             return False
 
         return '.tmp/mass-decryptor/BuildManifest.plist'
+
+    def download_restoremanifest(self):
+        headers = {
+        'User-Agent': 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10 7 4) AppleWebKit/537.13 (KHTML, like Gecko) Chrome/24.0.1290.1 Safari/537.13',
+        }
+
+        try:
+            with remotezip.RemoteZip(self.ipsw, headers=headers) as f:
+                f.extract('Restore.plist', '.tmp/mass-decryptor')
+
+        except remotezip.RemoteIOError:
+            print(f"[ERROR] Unable to extract bootchain from iOS {self.version}'s IPSW. Continuing...")
+            return False
+
+        return '.tmp/mass-decryptor/Restore.plist'
 
     def download_components(self, components):
         headers = {

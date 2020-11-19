@@ -73,3 +73,14 @@ class Manifest(object):
                 components[x]['file'] = components[x]['path']
 
         return components
+
+class RestoreManifest(object):
+    def __init__(self, manifest, device):
+        super().__init__()
+
+        self.device = device
+        self.manifest = plistlib.load(manifest)
+        self.cpid = self.fetch_cpid()
+
+    def fetch_cpid(self):
+        return self.manifest['DeviceMap'][self.manifest['SupportedProductTypes'].index(self.device)]['Platform'][1:]

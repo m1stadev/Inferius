@@ -2,14 +2,18 @@ import os
 import glob
 import subprocess
 import sys
+import usb
 
 class Keys(object):
-    def __init__(self, device_identifier, components):
+    def __init__(self, device_identifier, components, cpid):
         super().__init__()
 
         self.device = device_identifier
         self.components = components
+        self.cpid = cpid
         self.img4_check()
+        self.check_cpid()
+        self.check_pwndfu()
         self.keys = self.decrypt_keys()
 
     def img4_check(self):
@@ -53,10 +57,7 @@ class Keys(object):
 
         for x in [ibss_decrypt, ibec_decrypt, llb_decrypt, iboot_decrypt]:
             if x.returncode != 0:
-                if 'ERROR: No Apple device in DFU Mode 0x1227 detected after 5.00 second timeout. Exiting.' in x.stdout:
-                    sys.exit('[ERROR] No device was found in pwned DFU mode. Exiting...')
-                else:
-                    sys.exit('[ERROR] Failed to decrypt kbag using the connected device. Exiting...')
+                sys.exit('[ERROR] Failed to decrypt kbag using the connected device. Exiting...')
 
         os.chdir('../../')
 
@@ -67,6 +68,32 @@ class Keys(object):
         keys['sep'] = {"kbag": sep_img4.stdout.split('\n')[0].lower(), "key": 'Unknown', "iv": 'Unknown'}
 
         return keys
+
+    def check_cpid(self):
+        try:
+            for x in usb.core.find(find_all=True, idVendor=0x5AC, idProduct=0x1227):
+                if x.serial_number != None:
+                    serial_number = x.serial_number
+                    break
+    
+        except usb.core.NoBackendError:
+            sys.exit('[ERROR] libusb is not installed. Install libusb from Homebrew. Exiting...')
+
+        if serial_number.split(' ')[0].split(':')[1] != self.cpid:
+            sys.exit('[ERROR] Attempting to decrypt keys that cannot be decrypted with this device. Exiting...')
+
+    def check_pwndfu(self):
+        try:
+            for x in usb.core.find(find_all=True, idVendor=0x5AC, idProduct=0x1227):
+                if x.serial_number != None:
+                    serial_number = x.serial_number
+                    break
+    
+        except usb.core.NoBackendError:
+            sys.exit('[ERROR] libusb is not installed. Install libusb from Homebrew. Exiting...')
+
+        if 'PWND:[checkm8]' not in serial_number:
+            sys.exit('[ERROR] Attempting to decrypt keys with a device not in Pwned DFU mode. Exiting...')
 
     def save_keys(self, version, buildid):
         os.makedirs(f'keys/{self.device}/{version}/{buildid}', exist_ok=True)

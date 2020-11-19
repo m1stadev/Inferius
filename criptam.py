@@ -70,7 +70,8 @@ def main():
         ipsw_download = data['firmwares'][v]['url'].replace('http://updates-http', 'https://updates')
         
         ipsw_dl = ipsw.IPSW(device_identifier, version, ipsw_download)
-        bm = ipsw_dl.download_manifest()
+        bm = ipsw_dl.manifest
+        rm = ipsw_dl.restoremanifest
 
         if bm == False:
             continue
@@ -78,9 +79,12 @@ def main():
         with open(bm, 'rb') as f:
             buildmanifest = manifest.Manifest(f, boardconfig, template.required_components)
 
+        with open(rm, 'rb') as f:
+            restoremanifest = manifest.RestoreManifest(f, device_identifier)
+
         ipsw_dl.download_components(buildmanifest.components)
 
-        decrypt = keys.Keys(device_identifier, buildmanifest.components)
+        decrypt = keys.Keys(device_identifier, buildmanifest.components, restoremanifest.cpid)
 
         for x in glob.glob('.tmp/mass-decryptor/*'):
             os.remove(x)
@@ -100,7 +104,7 @@ def main():
             decrypt.save_keys(version, buildid)
 
             print(f"iOS {version}'s keys for {device_identifier} written to 'keys/{device_identifier}/{version}/{buildid}/keys.txt'")
-        else:
+        elif not args.wiki and not args.upload:
             print(f"iOS {version}'s keys for {device_identifier}:\niBSS KBAG: {decrypt.keys['ibss']['kbag']}\niBEC KBAG: {decrypt.keys['ibec']['kbag']}\niBoot KBAG: {decrypt.keys['iboot']['kbag']}\nLLB KBAG: {decrypt.keys['llb']['kbag']}")
 
         if args.version:
