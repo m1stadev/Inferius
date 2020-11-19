@@ -82,14 +82,14 @@ def main():
             buildmanifest = manifest.Manifest(f, boardconfig, template.required_components)
 
         with open(rm, 'rb') as f:
-            restoremanifest = manifest.RestoreManifest(f, device_identifier)
+            restoremanifest = manifest.RestoreManifest(f, device_identifier, data['cpid'])
 
         ipsw_dl.download_components(buildmanifest.components)
 
-        decrypt = keys.Keys(device_identifier, buildmanifest.components, restoremanifest.cpid)
+        decrypt = keys.Keys(device_identifier, buildmanifest.components, restoremanifest.fetch_platform())
         if valid_device == None:
             decrypt.check_pwndfu()
-            decrypt.check_cpid()
+            decrypt.check_platform()
             valid_device = True
 
         decrypt.decrypt_keys()

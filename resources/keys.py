@@ -5,12 +5,12 @@ import sys
 import usb
 
 class Keys(object):
-    def __init__(self, device_identifier, components, cpid):
+    def __init__(self, device_identifier, components, platform):
         super().__init__()
 
         self.device = device_identifier
         self.components = components
-        self.cpid = cpid
+        self.platform = platform
         self.img4_check()
 
     def img4_check(self):
@@ -68,7 +68,7 @@ class Keys(object):
 
         return keys
 
-    def check_cpid(self):
+    def check_platform(self):
         try:
             for x in usb.core.find(find_all=True, idVendor=0x5AC, idProduct=0x1227):
                 if x.serial_number != None:
@@ -78,7 +78,7 @@ class Keys(object):
         except usb.core.NoBackendError:
             sys.exit('[ERROR] libusb is not installed. Install libusb from Homebrew. Exiting...')
 
-        if serial_number.split(' ')[0].split(':')[1] != self.cpid:
+        if serial_number.split(' ')[0].split(':')[1] != self.platform:
             sys.exit('[ERROR] Attempting to decrypt keys that cannot be decrypted with this device. Exiting...')
 
     def check_pwndfu(self):

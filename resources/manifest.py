@@ -75,12 +75,14 @@ class Manifest(object):
         return components
 
 class RestoreManifest(object):
-    def __init__(self, manifest, device):
+    def __init__(self, manifest, device, cpid):
         super().__init__()
 
         self.device = device
         self.manifest = plistlib.load(manifest)
-        self.cpid = self.fetch_cpid()
+        self.cpid = cpid
 
-    def fetch_cpid(self):
-        return self.manifest['DeviceMap'][self.manifest['SupportedProductTypes'].index(self.device)]['Platform'][1:]
+    def fetch_platform(self):
+        for x in range(0, len(self.manifest['DeviceMap'])):
+            if self.manifest['DeviceMap'][x]['CPID'] == self.cpid:
+                return self.manifest['DeviceMap'][x]['Platform'][1:]
