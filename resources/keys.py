@@ -91,6 +91,11 @@ class Keys(object):
         except usb.core.NoBackendError:
             sys.exit('[ERROR] libusb is not installed. Install libusb from Homebrew. Exiting...')
 
+        try:
+            serial_number
+        except UnboundLocalError:
+            sys.exit('[ERROR] Device in Pwned DFU mode not found. Exiting...')
+
         if 'PWND:[checkm8]' not in serial_number:
             sys.exit('[ERROR] Attempting to decrypt keys with a device not in Pwned DFU mode. Exiting...')
 
