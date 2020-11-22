@@ -82,7 +82,7 @@ def main():
             buildmanifest = manifest.Manifest(f, boardconfig, template.required_components)
 
         with open(rm, 'rb') as f:
-            restoremanifest = manifest.RestoreManifest(f, device_identifier, data['cpid'])
+            restoremanifest = manifest.RestoreManifest(f, device_identifier, data['boardconfig'])
 
         ipsw_dl.download_components(buildmanifest.components)
 
