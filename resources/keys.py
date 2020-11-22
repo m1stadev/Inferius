@@ -70,33 +70,28 @@ class Keys(object):
 
     def check_platform(self):
         try:
-            for x in usb.core.find(find_all=True, idVendor=0x5AC, idProduct=0x1227):
-                if x.serial_number != None:
-                    serial_number = x.serial_number
-                    break
-    
+            device = usb.core.find(idVendor=0x5AC, idProduct=0x1227)
+
         except usb.core.NoBackendError:
             sys.exit('[ERROR] libusb is not installed. Install libusb from Homebrew. Exiting...')
 
-        if serial_number.split(' ')[0].split(':')[1] != self.platform:
+        if device == None:
+            sys.exit('[ERROR] Device in Pwned DFU mode not found. Exiting...')
+
+        if device.serial_number.split(' ')[0].split(':')[1] != self.platform:
             sys.exit('[ERROR] Attempting to decrypt keys that cannot be decrypted with this device. Exiting...')
 
     def check_pwndfu(self):
         try:
-            for x in usb.core.find(find_all=True, idVendor=0x5AC, idProduct=0x1227):
-                if x.serial_number != None:
-                    serial_number = x.serial_number
-                    break
-    
+            device = usb.core.find(idVendor=0x5AC, idProduct=0x1227)
+
         except usb.core.NoBackendError:
             sys.exit('[ERROR] libusb is not installed. Install libusb from Homebrew. Exiting...')
 
-        try:
-            serial_number
-        except UnboundLocalError:
+        if device == None:
             sys.exit('[ERROR] Device in Pwned DFU mode not found. Exiting...')
 
-        if 'PWND:[checkm8]' not in serial_number:
+        if 'PWND:[checkm8]' not in device.serial_number:
             sys.exit('[ERROR] Attempting to decrypt keys with a device not in Pwned DFU mode. Exiting...')
 
     def save_keys(self, version, buildid):
