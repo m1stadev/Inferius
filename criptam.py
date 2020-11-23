@@ -27,7 +27,7 @@ def device_check(device):
 atexit.register(cleanup)
 
 def main():
-    parser = argparse.ArgumentParser(description='Key Fetcher', usage="./key-fetcher.py -d 'device' [-i 'version']")
+    parser = argparse.ArgumentParser(description='Criptam - Automatic Firmware Key decryptor/parser/uploader', usage="./key-fetcher.py -d 'device' [-i 'version']")
     parser.add_argument('-d', '--device', help='Device identifier (ex. iPhone9,3)', nargs=1)
     parser.add_argument('-w', '--wiki', help='Save decrypted keys in TheiPhoneWiki format', action='store_true')
     parser.add_argument('-u', '--upload', help='Upload decrypted keys to TheiPhoneWiki', action='store_true')

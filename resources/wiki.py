@@ -143,6 +143,6 @@ class Wiki(object):
             print(f"[NOTE] iOS {self.version}'s keys for {self.device} are already on the wiki. Continuing...")
             return
 
-        self.page.edit(page_contents, 'Add keys via key-fetcher script')
+        self.page.edit(page_contents, 'Add keys via Criptam')
 
         print(f"iOS {self.version}'s keys for {self.device} uploaded to TheiPhoneWiki")
