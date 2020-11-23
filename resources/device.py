@@ -8,6 +8,7 @@ class Device(object):
         self.cellular = self.has_baseband()
         self.maggie = self.has_maggie()
         self.homer = self.has_homer()
+        self.multitouch = self.has_multitouch()
         self.version = version
         self.template = self.get_wiki_template()
 
@@ -29,13 +30,22 @@ class Device(object):
         maggie_devices = ['iPhone9,1', 'iPhone9,2', 'iPhone9,3', 'iPhone9,4', 'iPhone10,1', 'iPhone10,2', 'iPhone10,3', 'iPhone10,4', 'iPhone10,5', 'iPhone10,6']
         if self.device in maggie_devices:
             return True
-        return False
+        else:
+            return False
+
+    def has_multitouch(self):
+        multitouch_devices = ['iPad7,11', 'iPad7,12'] # No need to include A11 devices, as all A11 devices have Multitouch.
+        if self.device in multitouch_devices:
+            return True
+        else:
+            return False
 
     def has_homer(self):
         homer_devices = ['iPhone9,1', 'iPhone9,2', 'iPhone9,3', 'iPhone9,4']
         if self.device in homer_devices:
             return True
-        return False
+        else:
+            return False
 
     def get_wiki_template(self):
         a7_devices = ['iPad4,1', 'iPad4,2', 'iPad4,3', 'iPad4,4', 'iPad4,5', 'iPad4,6', 'iPad4,7', 'iPad4,8', 'iPad4,9', 'iPhone6,1', 'iPhone6,2']
@@ -63,6 +73,9 @@ class Device(object):
             
             if self.homer:
                 wiki_template = f'{wiki_template[:-4]}_maggie_homer.txt' # All devices with Homer also have Maggie
+
+            if self.multitouch:
+                wiki_template = f'{wiki_template[:-4]}_multitouch.txt'
             
         elif self.device in a11_devices:
             wiki_template = 'resources/templates/a11_cellular_maggie.txt'
@@ -103,5 +116,8 @@ class Device(object):
         else:
             self.required_components["audiocodec"] = False
             self.required_components["multitouch"] = False
+
+        if self.multitouch:
+            self.required_components["multitouch"] = True
 
         return wiki_template

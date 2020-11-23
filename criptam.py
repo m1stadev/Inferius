@@ -54,6 +54,12 @@ def main():
     device_identifier = data['identifier']
     boardconfig = data['boardconfig']
 
+    if boardconfig == 'j171ap': # super jank fix for IPSW.me returning incorrect boardconfigs for the iPad7,11 and iPad7,12
+        boardconfig = 'j172ap'
+
+    elif boardconfig == 'j172ap':
+        boardconfig = 'j171ap'
+
     valid_device = None
 
     for v in range(0, len(data['firmwares'])):
