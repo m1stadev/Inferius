@@ -85,4 +85,9 @@ class RestoreManifest(object):
     def fetch_platform(self):
         for x in range(0, len(self.manifest['DeviceMap'])):
             if self.manifest['DeviceMap'][x]['BoardConfig'] == self.boardconfig:
-                return self.manifest['DeviceMap'][x]['Platform'][1:]
+
+                if self.manifest['DeviceMap'][x]['Platform'].startswith('s5l89'):
+                    return self.manifest['DeviceMap'][x]['Platform'][3:-1]
+
+                else:
+                    return self.manifest['DeviceMap'][x]['Platform'][-4:]
