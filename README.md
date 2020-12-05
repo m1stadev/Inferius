@@ -16,9 +16,6 @@ Criptam is a tool written in Python to easily decrypt [Firmware Keys](https://ww
     ```py
     pip3 install -r requirements.txt
     ```
-- A version of ipwndfu at `resources/ipwndfu` that supports your device
-    - For A7, A10, and A11, use [this](https://github.com/axi0mX/ipwndfu) version
-    - For A8 and A9, use [this](https://github.com/marijuanARM/ipwndfu-t7000-s8000-s8003) version
 - [img4lib](https://github.com/xerub/img4lib)
 
 

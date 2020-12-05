@@ -36,14 +36,6 @@ class Keys(object):
         llb_kbag = llb_img4.stdout.split('\n')[0]
         iboot_kbag = iboot_img4.stdout.split('\n')[0]
         sep_kbag = sep_img4.stdout.split('\n')[0].lower()
-
-        if not os.path.isdir('resources/ipwndfu'):
-            if len(glob.glob('resources/ipwndfu*')) == 0:
-                sys.exit("[ERROR] No ipwndfu detected in 'resources/'. Put a version of ipwndfu in 'resources/'. Exiting...")
-
-            else:
-                for x in glob.glob('resources/ipwndfu*'):
-                    os.rename(x, 'resources/ipwndfu')
     
         os.chdir('resources/ipwndfu')
 
