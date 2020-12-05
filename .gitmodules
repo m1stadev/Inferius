@@ -1,0 +1,3 @@
+[submodule "resources/ipwndfu"]
+	path = resources/ipwndfu
+	url = https://github.com/marijuanARM/ipwndfu
