@@ -2,7 +2,7 @@
 Criptam is a tool written in Python to easily decrypt [Firmware Keys](https://www.theiphonewiki.com/wiki/Firmware_Keys) for iOS devices.
 
 ## Features
-- Automatic uploading of decrypted keys to [TheiPhoneWiki](https://www.theiphonewiki.com/) (more on that [here](https://github.com/marijuanARM/criptam/blob/master/README.md#wiki-uploading))
+- Automatic uploading of decrypted keys to [TheiPhoneWiki](https://www.theiphonewiki.com/) (more on that [here](https://github.com/marijuanARM/Criptam#wiki-uploading))
 - Decrypt keys for *all* iOS versions for your iOS device
 - Decrypt keys for other devices not including yours (requires the device you're decrypting for & the device you're decrypting with to share the same SoC)
 
