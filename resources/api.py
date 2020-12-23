@@ -32,3 +32,5 @@ class API(object):
             boardconfig = 'j171ap'
 
         return boardconfig
+
+    def fetch_sha1(self, buildid): return [self.v4_api['firmwares'][x]['sha1sum'] for x in range(len(data['firmwares'])) if data['firmwares'][x]['buildid'] == buildid][0]

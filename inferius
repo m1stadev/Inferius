@@ -39,16 +39,15 @@ def main():
     if not 10 <= int(args.version[0].split('.')[0]) <= 13:
         sys.exit(f'[ERROR] iOS {args.version[0]} is not supported by Inferius. Exiting...')
 
+    elif float(args.version[0].rsplit('.', 1)[0]) <= 10.1:
+        sys.exit(f'[ERROR] iOS {args.version[0]} is not supported by Inferius. Exiting...')
+
     cleanup()
     os.makedirs('.tmp/Inferius/ipsw')
 
     ipsw = ipsw.IPSW(args.device[0], args.ipsw[0])
 
-    ipsw.extract_file('BuildManifest.plist', '.tmp/Inferius/ipsw')
     ipsw.extract_file('Restore.plist', '.tmp/Inferius/ipsw')
-
-    with open('.tmp/Inferius/ipsw/BuildManifest.plist', 'rb') as f:
-        buildmanfiest = manifest.Manifest(f, ipsw.boardconfig)
 
     with open('.tmp/Inferius/ipsw/Restore.plist', 'rb') as f:
         restoremanifest = manifest.RestoreManifest(f, args.device[0], ipsw.boardconfig)
@@ -61,76 +60,16 @@ def main():
     if float(args.version[0].rsplit('.', 1)[0]) >= 10.1 and restoremanifest.platform != 8960:
         sys.exit(f'[ERROR] iOS {args.version[0]} can only be downgraded to on A7 devices, currently. Exiting...')
 
-    elif float(args.version[0].rsplit('.', 1)[0]) <= 10.1:
-        sys.exit(f'[ERROR] iOS {args.version[0]} is not supported by Inferius. Exiting...')
+    ipsw.extract_file('BuildManifest.plist', '.tmp/Inferius/ipsw')
+    with open('.tmp/Inferius/ipsw/BuildManifest.plist', 'rb') as f:
+        buildmanfiest = manifest.Manifest(f, ipsw.boardconfig)
 
+    ipsw.verify_ipsw(api.fetch_sha1(buildmanifest.buildid))
     ipsw.extract_ipsw('.tmp/Inferius/ipsw')
-
-    for v in range(0, len(data['firmwares'])):
-        version = data['firmwares'][v]['version']
-        buildid = data['firmwares'][v]['buildid']
-
-        if args.version and version != args.version[0]:
-            continue
-
-        if version.startswith('7') or version.startswith('8') or version.startswith('9'):
-            sys.exit('[ERROR] Decrypting pre-iOS 10 version are not supported yet. Exiting...')
-
-        template = device.Device(args.device[0], version)
-        wiki_template = template.template
-
-        ipsw_download = data['firmwares'][v]['url'].replace('http://updates-http', 'https://updates')
-        
-        ipsw_dl = ipsw.IPSW(device_identifier, version, ipsw_download)
-        bm = ipsw_dl.manifest
-        rm = ipsw_dl.restoremanifest
-
-        if bm == False:
-            continue
-
-        with open(bm, 'rb') as f:
-            buildmanifest = manifest.Manifest(f, boardconfig, template.required_components)
-
-        with open(rm, 'rb') as f:
-            restoremanifest = manifest.RestoreManifest(f, device_identifier, data['boardconfig'])
-
-        ipsw_dl.download_components(buildmanifest.components)
-
-        decrypt = keys.Keys(device_identifier, buildmanifest.components, restoremanifest.fetch_platform())
-        if valid_device == None:
-            decrypt.check_pwndfu()
-            decrypt.check_platform()
-            valid_device = True
-
-        decrypt.decrypt_keys()
-
-        for x in glob.glob('.tmp/mass-decryptor/*'):
-            os.remove(x)
-
-        wiki_upload = wiki.Wiki(device_identifier, buildid, version, buildmanifest.codename, buildmanifest.components)
-        wiki_page = wiki_upload.make_keypage(decrypt.keys, wiki_template, ipsw_download)
-
-        if args.wiki:
-            wiki_upload.save_keys(wiki_page)
-            print(f"iOS {version}'s keys for {device_identifier} in TheiPhoneWiki format written to 'keys/{device_identifier}/{version}/{buildid}/wiki_keys.txt'")
-
-        if args.upload:
-            wiki_upload.login_info(wiki_user, wiki_pass)
-            wiki_upload.upload_to_wiki(wiki_page)
-
-        if args.save:
-            decrypt.save_keys(version, buildid)
-
-            print(f"iOS {version}'s keys for {device_identifier} written to 'keys/{device_identifier}/{version}/{buildid}/keys.txt'")
-        elif not args.wiki and not args.upload:
-            print(f"iOS {version}'s keys for {device_identifier}:\niBSS KBAG: {decrypt.keys['ibss']['kbag']}\niBEC KBAG: {decrypt.keys['ibec']['kbag']}\niBoot KBAG: {decrypt.keys['iboot']['kbag']}\nLLB KBAG: {decrypt.keys['llb']['kbag']}")
-
-        if args.version:
-            break
 
     print('Done!')
 
-    shutil.rmtree('.tmp')
+    cleanup()
 
 if __name__ == '__main__':
     main()

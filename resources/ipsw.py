@@ -11,10 +11,8 @@ class IPSW(object):
         self.device = device_identifier
         self.ipsw = ipsw
 
-    def verify_ipsw(self, version):
-        data = requests.get(f'https://api.ipsw.me/v4/device/{self.device}?type=ipsw').json()
-
-        ipsw_sha1 = [data['firmwares'][x]['sha1sum'] for x in range(len(data['firmwares'])) if data['firmwares'][x]['version'] == self.version][0]
+    def verify_ipsw(self, sha1):
+        ipsw_sha1 = [data['firmwares'][x]['sha1sum'] for x in range(len(data['firmwares'])) if data['firmwares'][x]['buildid'] == buildid][0]
 
         with open(ipsw_dir, 'rb') as f:
             sha1 = hashlib.sha1()
