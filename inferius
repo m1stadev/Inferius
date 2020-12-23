@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 
-from resources import device, ipsw, keys, manifest, wiki
+from resources import api, bundle, device, ipsw, manifest
 import atexit
 import argparse
 import getpass
@@ -12,44 +12,34 @@ import shutil
 import sys
 
 if not platform.system() == 'Darwin':
-    sys.exit(f'[ERROR] {platform.system()} is not supported. Exiting...')
+    sys.exit(f'[ERROR] {platform.system()} is not supported by Inferius. Exiting...')
 
 def cleanup():
     if os.path.isdir('.tmp'):
         shutil.rmtree('.tmp')
 
-def device_check(device):
-    api = requests.get('https://api.ipsw.me/v2.1/firmwares.json/condensed')
-    data = api.json()
-    if device in data['devices']:
-        return True
-
 atexit.register(cleanup)
 
 def main():
     parser = argparse.ArgumentParser(description='Inferius - Create & Restore 64-bit custom IPSWs', usage="./inferius.py -d 'device' -i 'iOS version' -f 'IPSW' [-c/-r] [-v]")
-    parser.add_argument('-c', '--create', help='Create custom IPSW', action='store_true')
     parser.add_argument('-d', '--device', help='Device identifier (e.g. iPhone10,2)', nargs=1)
-    parser.add_argument('-f', '--ipsw', help='Path to custom IPSW', nargs=1)
-    parser.add_argument('-i', '--version', help='The version of your stock IPSW', nargs=1)
-    parser.add_argument('-r', '--restore', help='Restore custom IPSW after creation', action='store_true')
-    parser.add_argument('-v', '--verbose', help='Print verbose output for debugging', action='store_true')
+    parser.add_argument('-i', '--version', help='iOS Version', action='store_true')
+    parser.add_argument('-f', '--ipsw', help='Path to IPSW', nargs=1)
+    parser.add_argument('-c', '--create', help='Create custom IPSW', action='store_true')
+    parser.add_argument('-r', '--restore', help='Restore custom IPSW', action='store_true')
+#    parser.add_argument('-v', '--verbose', help='Print verbose output for debugging', action='store_true')
     args = parser.parse_args()
 
     if not args.device or not args.version:
         sys.exit(parser.print_help(sys.stderr))
 
-    if not device_check(args.device[0]):
-        sys.exit(f'[ERROR] Device {args.device[0]} does not exist. Exiting...')
+    checks = device.Device(args.device[0])
+    checks.check_device()
 
     cleanup()
+    os.makedirs('.tmp/Inferius')
 
-    os.makedirs('.tmp/mass-decryptor')
-
-    api = requests.get(f'https://api.ipsw.me/v4/device/{args.device[0]}?type=ipsw')
-    data = api.json()
-    device_identifier = data['identifier']
-    boardconfig = data['boardconfig']
+    ipsw = ipsw.IPSW(args.device[0], args.ipsw[0])
 
     if boardconfig == 'j171ap': # super jank fix for IPSW.me returning incorrect boardconfigs for the iPad7,11 and iPad7,12
         boardconfig = 'j172ap'
@@ -57,7 +47,7 @@ def main():
     elif boardconfig == 'j172ap':
         boardconfig = 'j171ap'
 
-    valid_device = None
+    
 
     for v in range(0, len(data['firmwares'])):
         version = data['firmwares'][v]['version']
