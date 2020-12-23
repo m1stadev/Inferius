@@ -36,6 +36,9 @@ def main():
     checks = api.API(args.device[0], args.version[0])
     checks.check_version()
 
+    if not 10 <= int(args.version[0].split('.')[0]) <= 13:
+        sys.exit(f'[ERROR] iOS {args.version[0]} is not supported by Inferius. Exiting...')
+
     cleanup()
     os.makedirs('.tmp/Inferius/ipsw')
 
@@ -54,6 +57,12 @@ def main():
 
     if restoremanifest.platform not in supported_devices:
         sys.exit(f'[ERROR] Device {args.device[0]} is not supported by Inferius. Exiting...')
+
+    if float(args.version[0].rsplit('.', 1)[0]) >= 10.1 and restoremanifest.platform != 8960:
+        sys.exit(f'[ERROR] iOS {args.version[0]} can only be downgraded to on A7 devices, currently. Exiting...')
+
+    elif float(args.version[0].rsplit('.', 1)[0]) <= 10.1:
+        sys.exit(f'[ERROR] iOS {args.version[0]} is not supported by Inferius. Exiting...')
 
     ipsw.extract_ipsw('.tmp/Inferius/ipsw')
 
