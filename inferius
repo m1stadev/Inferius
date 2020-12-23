@@ -23,7 +23,7 @@ atexit.register(cleanup)
 def main():
     parser = argparse.ArgumentParser(description='Inferius - Create & Restore 64-bit custom IPSWs', usage="./inferius.py -d 'device' -i 'iOS version' -f 'IPSW' [-c/-r] [-v]")
     parser.add_argument('-d', '--device', help='Device identifier (e.g. iPhone10,2)', nargs=1)
-    parser.add_argument('-i', '--version', help='iOS Version', action='store_true')
+    parser.add_argument('-i', '--version', help='iOS Version', nargs=1)
     parser.add_argument('-f', '--ipsw', help='Path to IPSW', nargs=1)
     parser.add_argument('-c', '--create', help='Create custom IPSW', action='store_true')
     parser.add_argument('-r', '--restore', help='Restore custom IPSW', action='store_true')
@@ -33,21 +33,29 @@ def main():
     if not args.device or not args.version:
         sys.exit(parser.print_help(sys.stderr))
 
-    checks = device.Device(args.device[0])
-    checks.check_device()
+    checks = api.API(args.device[0], args.version[0])
+    checks.check_version()
 
     cleanup()
-    os.makedirs('.tmp/Inferius')
+    os.makedirs('.tmp/Inferius/ipsw')
 
     ipsw = ipsw.IPSW(args.device[0], args.ipsw[0])
 
-    if boardconfig == 'j171ap': # super jank fix for IPSW.me returning incorrect boardconfigs for the iPad7,11 and iPad7,12
-        boardconfig = 'j172ap'
+    ipsw.extract_file('BuildManifest.plist', '.tmp/Inferius/ipsw')
+    ipsw.extract_file('Restore.plist', '.tmp/Inferius/ipsw')
 
-    elif boardconfig == 'j172ap':
-        boardconfig = 'j171ap'
+    with open('.tmp/Inferius/ipsw/BuildManifest.plist', 'rb') as f:
+        buildmanfiest = manifest.Manifest(f, ipsw.boardconfig)
 
-    
+    with open('.tmp/Inferius/ipsw/Restore.plist', 'rb') as f:
+        restoremanifest = manifest.RestoreManifest(f, args.device[0], ipsw.boardconfig)
+
+    supported_devices = [8960, 7000, 7001, 8000, 8001, 8003, 8010, 8011, 8015]
+
+    if restoremanifest.platform not in supported_devices:
+        sys.exit(f'[ERROR] Device {args.device[0]} is not supported by Inferius. Exiting...')
+
+    ipsw.extract_ipsw('.tmp/Inferius/ipsw')
 
     for v in range(0, len(data['firmwares'])):
         version = data['firmwares'][v]['version']

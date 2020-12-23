@@ -22,12 +22,6 @@ class Device(object):
                 return True
             else:
                 return False
-    
-    def check_device(self):
-        data = requests.get('https://api.ipsw.me/v2.1/firmwares.json/condensed').json()
-
-        if self.device not in data['devices']:
-            sys.exit(f'[ERROR] Device {self.device} does not exist. Exiting...')
 
     def check_platform(self):
         try:

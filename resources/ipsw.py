@@ -24,7 +24,7 @@ class IPSW(object):
                 file_buffer = f.read(8192)
 
         if ipsw_sha1 != sha1.hexdigest():
-            sys.exit('[ERROR] IPSW is not valid. Redownload the IPSW then try again. Exiting...')
+            sys.exit(f'[ERROR] IPSW at path: {self.ipsw} is not valid. Redownload the IPSW then try again. Exiting...')
 
     def extract_ipsw(self, path):
         with zipfile.ZipFile(self.ipsw, 'r') as ipsw:
@@ -32,5 +32,20 @@ class IPSW(object):
                 ipsw.extractall(path)
             except FileNotFoundError:
                 sys.exit(f'[ERROR] IPSW does not exist at path: {self.ipsw}. Exiting...')
+            except zipfile.BadZipFile:
+                sys.exit(f'[ERROR] IPSW at path: {self.ipsw} is not a valid zip archive. Redownload the IPSW then try again. Exiting...')
+            except OSError:
+                sys.exit('[ERROR] Ran out of storage while extracting IPSW. Ensure you have at least 10gbs of free space on your computer, then try again. Exiting...', is_verbose)
+
+    def extract_file(self, file, path):
+        with zipfile.ZipFile(self.ipsw, 'r') as ipsw:
+            try:
+                ipsw.extract(file, path)
+            except FileNotFoundError:
+                sys.exit(f'[ERROR] IPSW does not exist at path: {self.ipsw}. Exiting...')
+            except zipfile.BadZipFile:
+                sys.exit(f'[ERROR] IPSW at path: {self.ipsw} is not a valid zip archive. Redownload the IPSW then try again. Exiting...')
+            except KeyError:
+                sys.exit(f'[ERROR] IPSW at path: {self.ipsw} is not valid. Redownload the IPSW then try again. Exiting...')
             except OSError:
                 sys.exit('[ERROR] Ran out of storage while extracting IPSW. Ensure you have at least 10gbs of free space on your computer, then try again. Exiting...', is_verbose)
