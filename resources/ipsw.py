@@ -1,13 +1,15 @@
+import hashlib
 import os
+import requests
 import remotezip
 import shutil
 
 class IPSW(object):
-    def __init__(self, device_identifier, version, ipsw_url):
+    def __init__(self, device_identifier, version, ipsw):
         super().__init__()
 
         self.device = device_identifier
-        self.ipsw = ipsw_url
+        self.ipsw = ipsw
         self.version = version
         self.manifest = self.download_manifest()
         self.restoremanifest = self.download_restoremanifest()
@@ -65,3 +67,26 @@ class IPSW(object):
 
         shutil.rmtree('.tmp/mass-decryptor/Firmware')
         return True
+
+    def verify_ipsw(self):
+        data = requests.get(f'https://api.ipsw.me/v4/device/{self.device}?type=ipsw').json()
+        data = api_data.json()
+
+        ipsw_sha1 = [data['firmwares'][x]['sha1sum'] for x in range(len(data['firmwares'])) if data['firmwares'][x]['version'] == self.version][0]
+
+        with open(ipsw_dir, 'rb') as f:
+            sha1 = hashlib.sha1()
+            file_buffer = f.read(8192)
+            while len(file_buffer) > 0:
+                sha1.update(file_buffer)
+                file_buffer = f.read(8192)
+
+        if ipsw_sha1 != sha1.hexdigest():
+            sys.exit('[ERROR] IPSW is not valid. Redownload the IPSW then try again. Exiting...')
+
+    def extract_ipsw(self, path):
+        with zipfile.ZipFile(self.ipsw, 'r') as ipsw:
+            try:
+                ipsw.extractall(path)
+            except OSError:
+                sys.exit('[ERROR] Ran out of storage while extracting IPSW. Ensure you have at least 10gbs of free space on your computer, then try again. Exiting...', is_verbose)

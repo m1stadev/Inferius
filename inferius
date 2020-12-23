@@ -11,8 +11,8 @@ import requests
 import shutil
 import sys
 
-if platform.system() == 'Windows':
-    sys.exit('[ERROR] Windows systems are not supported. Exiting...')
+if not platform.system() == 'Darwin':
+    sys.exit(f'[ERROR] {platform.system()} is not supported. Exiting...')
 
 def cleanup():
     if os.path.isdir('.tmp'):
@@ -27,15 +27,16 @@ def device_check(device):
 atexit.register(cleanup)
 
 def main():
-    parser = argparse.ArgumentParser(description='Criptam - Automatic Firmware Key decryptor/parser/uploader', usage="./key-fetcher.py -d 'device' [-i 'version']")
-    parser.add_argument('-d', '--device', help='Device identifier (ex. iPhone9,3)', nargs=1)
-    parser.add_argument('-w', '--wiki', help='Save decrypted keys in TheiPhoneWiki format', action='store_true')
-    parser.add_argument('-u', '--upload', help='Upload decrypted keys to TheiPhoneWiki', action='store_true')
-    parser.add_argument('-s', '--save', help='Save decrypted keys in txt format', action='store_true')
-    parser.add_argument('-v', '--version', help='Decrypt keys for a single iOS version', nargs=1)
+    parser = argparse.ArgumentParser(description='Inferius - Create & Restore 64-bit custom IPSWs', usage="./inferius.py -d 'device' -i 'iOS version' -f 'IPSW' [-c/-r] [-v]")
+    parser.add_argument('-c', '--create', help='Create custom IPSW', action='store_true')
+    parser.add_argument('-d', '--device', help='Device identifier (e.g. iPhone10,2)', nargs=1)
+    parser.add_argument('-f', '--ipsw', help='Path to custom IPSW', nargs=1)
+    parser.add_argument('-i', '--version', help='The version of your stock IPSW', nargs=1)
+    parser.add_argument('-r', '--restore', help='Restore custom IPSW after creation', action='store_true')
+    parser.add_argument('-v', '--verbose', help='Print verbose output for debugging', action='store_true')
     args = parser.parse_args()
 
-    if not args.device:
+    if not args.device or not args.version:
         sys.exit(parser.print_help(sys.stderr))
 
     if not device_check(args.device[0]):
@@ -44,10 +45,6 @@ def main():
     cleanup()
 
     os.makedirs('.tmp/mass-decryptor')
-
-    if args.upload:
-        wiki_user = input('TheiPhoneWiki username: ')
-        wiki_pass = getpass.getpass('TheiPhoneWiki password: ')
 
     api = requests.get(f'https://api.ipsw.me/v4/device/{args.device[0]}?type=ipsw')
     data = api.json()

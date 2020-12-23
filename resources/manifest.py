@@ -81,8 +81,9 @@ class RestoreManifest(object):
         self.device = device
         self.manifest = plistlib.load(manifest)
         self.boardconfig = boardconfig
+        self.cpid = self.fetch_cpid()
 
-    def fetch_platform(self):
+    def fetch_cpid(self):
         for x in range(0, len(self.manifest['DeviceMap'])):
             if self.manifest['DeviceMap'][x]['BoardConfig'] == self.boardconfig:
 
