@@ -33,10 +33,15 @@ class Checks(object):
         tsschecker_check = subprocess.run('which tsschecker', stdout=subprocess.DEVNULL, shell=True)
 
         if tsschecker_check.returncode != 0:
-            sys.exit('[ERROR] tsschecker is not installed on your system. Exiting...')
+            sys.exit('[ERROR] TSSChecker is not installed on your system. Exiting...')
 
     def check_irecovery(self):
         irecovery_check = subprocess.run('which irecovery', stdout=subprocess.DEVNULL, shell=True)
 
         if irecovery_check.returncode != 0:
-            sys.exit('[ERROR] irecovery is not installed on your system. Exiting...')
+            sys.exit('[ERROR] iRecovery is not installed on your system. Exiting...')
+
+        irecovery_version_check = subprocess.run(('irecovery', '-V'), stdout=subprocess.DEVNULL, universal_newlines=True)
+
+        if 'unrecognized option' in irecovery_version_check.stdout:
+            sys.exit('[ERROR] Your iRecovery version is too old. Exiting...')
