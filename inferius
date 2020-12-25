@@ -1,9 +1,12 @@
 #!/usr/bin/env python3
 
-from resources import device, manifest
+from resources import manifest
 from resources.api import API
 from resources.bundle import Bundle
+from resources.dependencies import Checks
+from resources.device import Device
 from resources.ipsw import IPSW
+from resources.restore import Restore
 import atexit
 import argparse
 import getpass
@@ -51,6 +54,46 @@ def create_ipsw(device, version, ipsw_file):
     custom_ipsw = ipsw.create_ipsw('.tmp/Inferius/ipsw', f'{ipsw_file.split("/")[-1].rsplit(".", 1)[0]}_custom.ipsw', bundle.check_update_support())
 
     return custom_ipsw
+
+def restore_ipsw(device, version, ipsw_file, update):
+    with open('.tmp/Inferius/ipsw/BuildManifest.plist', 'rb') as f:
+        buildmanifest = manifest.Manifest(f)
+
+    api = API(device, version)
+    Checks()
+    device = Device(device)
+    ipsw = IPSW(device, ipsw_file)
+    restore = Restore(device, version)
+
+    print('verifying custom IPSW')
+    ipsw.verify_custom_ipsw(update)
+
+    print('checking for device in pwndfu')
+    device.check_pwndfu()
+
+    print('saving blobs')
+    restore.save_blobs(device.boardconfig, device.ecid, device.apnonce, '.tmp/Inferius')
+
+    ibss_path = buildmanifest.fetch_component_path(device.boardconfig, 'iBSS')
+    ibec_path = buildmanifest.fetch_component_path(device.boardconfig, 'iBEC')
+
+    print('extracting ibss')
+    ipsw.extract_file(ibss_path '.tmp/Inferius/ipsw')
+    print('extracting ibec')
+    ipsw.extract_file(ibec_path, '.tmp/Inferius/ipsw')
+
+    print('signing ibss')
+    restore.sign_component(f'.tmp/Inferius/ipsw/{ibss_path}', '.tmp/Inferius')
+    print('signing ibec')
+    restore.sign_component(f'.tmp/Inferius/ipsw/{ibec_path}', '.tmp/Inferius')
+
+    print('sending ibss')
+    restore.send_component(f'.tmp/Inferius/{ibss_path.split("/")[-1].rsplit(".", 1)[0]}.img4', 'iBSS')
+    print('sending ibec')
+    restore.send_component(f'.tmp/Inferius/{ibec_path.split("/")[-1].rsplit(".", 1)[0]}.img4', 'iBSS')
+
+    print('restoring')
+    restore.restore(ipsw, device.baseband, update)
 
 def main():
     parser = argparse.ArgumentParser(description='Inferius - Create & Restore 64-bit custom IPSWs', usage="./inferius.py -d 'device' -i 'iOS version' -f 'IPSW' [-c/-r] [-v]")
@@ -111,7 +154,10 @@ def main():
     else:
         custom_ipsw = args.ipsw[0]
 
-    print('Done!')
+    if args.restore:
+        restore_ipsw(args.device[0], args.version[0], custom_ipsw, args.update)
+
+    print('done!')
 
     cleanup()
 

@@ -1,6 +1,4 @@
-import glob
 import hashlib
-import os
 import shutil
 import sys
 import zipfile
@@ -45,7 +43,7 @@ class IPSW(object):
             except KeyError:
                 sys.exit(f'[ERROR] IPSW at path: {self.ipsw} is not valid. Redownload the IPSW then try again. Exiting...')
             except OSError:
-                sys.exit(f"[ERROR] Ran out of storage while extracting '{file}'' from IPSW. Ensure you have at least 10gbs of free space on your computer, then try again. Exiting...")
+                sys.exit(f"[ERROR] Ran out of storage while extracting '{file}' from IPSW. Ensure you have at least 10gbs of free space on your computer, then try again. Exiting...")
 
     def create_ipsw(self, path, output, update_support):
         if not os.path.isdir('IPSWs'):
@@ -66,3 +64,16 @@ class IPSW(object):
         os.rename(f'IPSWs/{output}.zip', f'IPSWs/{output}')
 
         return f'IPSWs/{output}'
+
+    def verify_custom_ipsw(self, update_support):
+        with zipfile.ZipFile(self.ipsw, 'r') as ipsw:
+            try:
+                if '.Inferius' not in ipsw.namelist():
+                    sys.exit('[ERROR] This IPSW was not created by Inferius. Exiting...')
+                
+                if '.no_update_support' not in ipsw.namelist() and update_support:
+                    sys.exit('[ERROR] This IPSW does not have support for restoring while keeping data. Exiting...')
+            except FileNotFoundError:
+                sys.exit(f'[ERROR] IPSW does not exist at path: {self.ipsw}. Exiting...')
+            except zipfile.BadZipFile:
+                sys.exit(f'[ERROR] IPSW at path: {self.ipsw} is not a valid zip archive. Redownload the IPSW then try again. Exiting...')
