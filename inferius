@@ -121,7 +121,7 @@ def main():
     print('verifying version')
     api.check_version()
 
-    if not 10 <= int(args.version[0].split('.')[0]) <= 13:
+    if not 11 <= int(args.version[0].split('.')[0]) <= 13:
         sys.exit(f'[ERROR] iOS {args.version[0]} is not supported by Inferius. Exiting...')
 
     elif float(args.version[0].rsplit('.', 1)[0]) <= 10.1:
