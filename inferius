@@ -73,7 +73,7 @@ def restore_ipsw(device_identifier, version, ipsw_file, update):
     device.check_pwndfu()
 
     print('saving blobs')
-    restore.save_blobs(device.boardconfig, device.ecid, device.apnonce, '.tmp/Inferius')
+    restore.save_blobs(device.boardconfig, device.ecid, device.apnonce, update, '.tmp/Inferius')
 
     ibss_path = buildmanifest.fetch_component_path(device.boardconfig, 'iBSS')
     ibec_path = buildmanifest.fetch_component_path(device.boardconfig, 'iBEC')

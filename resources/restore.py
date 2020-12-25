@@ -10,8 +10,28 @@ class Restore(object):
         self.device = device_identifier
         self.platform = platform
 
-    def save_blobs(self, boardconfig, ecid, apnonce, path):
-        tsschecker = subprocess.run(('tsschecker', '-d', self.device, '-l', '-e', f'0x{ecid}', '-s', '-B', boardconfig, '--apnonce', apnonce, '--save-path', path), stdout=subprocess.PIPE, universal_newlines=True)
+    def save_blobs(self, boardconfig, ecid, apnonce, update, path):
+
+        args= [
+            'tsschecker',
+            '-d',
+            self.device,
+            '-l',
+            '-e',
+            f'0x{ecid}',
+            '-s',
+            '-B',
+            boardconfig,
+            '--apnonce',
+            apnonce,
+            '--save-path',
+            path
+        ]
+
+        if update:
+            args.insert(5, '-u')
+
+        tsschecker = subprocess.run(args, stdout=subprocess.PIPE, universal_newlines=True)
 
         if tsschecker.returncode != 0:
             sys.exit('[ERROR] Failed to save blobs. Exiting...')

@@ -72,7 +72,7 @@ class IPSW(object):
                 if '.Inferius' not in ipsw.namelist():
                     sys.exit('[ERROR] This IPSW was not created by Inferius. Exiting...')
                 
-                if '.no_update_support' not in ipsw.namelist() and update_support:
+                if '.no_update_support' in ipsw.namelist() and update_support == True:
                     sys.exit('[ERROR] This IPSW does not have support for restoring while keeping data. Exiting...')
             except FileNotFoundError:
                 sys.exit(f'[ERROR] IPSW does not exist at path: {self.ipsw}. Exiting...')
