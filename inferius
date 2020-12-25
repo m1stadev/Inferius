@@ -41,7 +41,7 @@ def create_ipsw(device, version, ipsw_file):
 
     print('patching components')
     bundle.apply_patches()
-    
+
     print('fetching latest llb')
     api.fetch_latest(buildmanifest.fetch_component_path(api.boardconfig, 'LLB'), '.tmp/Inferius/ipsw')
     print('fetching latest iboot')
@@ -107,7 +107,9 @@ def main():
         sys.exit(f"[ERROR] Specified IPSW: '{args.ipsw[0]}' is not for iOS {args.version[0]}. Exiting...")
 
     if args.create:
-        create_ipsw(args.device[0], args.version[0], args.ipsw[0])
+        custom_ipsw = create_ipsw(args.device[0], args.version[0], args.ipsw[0])
+    else:
+        custom_ipsw = args.ipsw[0]
 
     print('Done!')
 

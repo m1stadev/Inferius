@@ -16,8 +16,6 @@ class Manifest(object):
     def fetch_supported_devices(self): return self.manifest['SupportedProductTypes']
 
     def fetch_component_path(self, boardconfig, component): return next(self.manifest['BuildIdentities'][x]['Manifest'][component]['Info']['Path'] for x in range(len(self.manifest['BuildIdentities'])) if self.manifest['BuildIdentities'][x]['Info']['DeviceClass'] in boardconfig)
-        
-
 
 class RestoreManifest(object):
     def __init__(self, manifest, device, boardconfig):

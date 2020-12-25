@@ -14,7 +14,7 @@ class API(object):
         self.v4_api = requests.get(f'https://api.ipsw.me/v4/device/{self.device}?type=ipsw').json()
 
         self.version = version
-    
+
     def check_device(self):
         if self.device not in self.v2_1_api['devices']:
             sys.exit(f'[ERROR] {self.device} does not exist. Exiting...')
