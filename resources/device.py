@@ -8,6 +8,7 @@ class Device(object):
 
         self.device = device_identifier
         self.baseband = self.check_baseband()
+        self.boardconfig = self.check_boardconfig()
 
     def check_baseband(self):
         if self.device.startswith('iPhone'):

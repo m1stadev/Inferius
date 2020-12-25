@@ -33,8 +33,8 @@ def main():
     if not args.device or not args.version:
         sys.exit(parser.print_help(sys.stderr))
 
-    checks = api.API(args.device[0], args.version[0])
-    checks.check_version()
+    api = api.API(args.device[0], args.version[0])
+    api.check_version()
 
     if not 10 <= int(args.version[0].split('.')[0]) <= 13:
         sys.exit(f'[ERROR] iOS {args.version[0]} is not supported by Inferius. Exiting...')
@@ -50,22 +50,39 @@ def main():
     ipsw.extract_file('Restore.plist', '.tmp/Inferius/ipsw')
 
     with open('.tmp/Inferius/ipsw/Restore.plist', 'rb') as f:
-        restoremanifest = manifest.RestoreManifest(f, args.device[0], ipsw.boardconfig)
+        restoremanifest = manifest.RestoreManifest(f, args.device[0], api.boardconfig)
 
     supported_devices = [8960, 7000, 7001, 8000, 8001, 8003, 8010, 8011, 8015]
 
     if restoremanifest.platform not in supported_devices:
         sys.exit(f'[ERROR] Device {args.device[0]} is not supported by Inferius. Exiting...')
 
-    if float(args.version[0].rsplit('.', 1)[0]) >= 10.1 and restoremanifest.platform != 8960:
-        sys.exit(f'[ERROR] iOS {args.version[0]} can only be downgraded to on A7 devices, currently. Exiting...')
+    if int(args.version[0].split('.')[0]) == 10 and restoremanifest.platform != 8960:
+        sys.exit(f'[ERROR] iOS {args.version[0]} can only be downgraded to on A7 devices currently. Exiting...')
 
     ipsw.extract_file('BuildManifest.plist', '.tmp/Inferius/ipsw')
     with open('.tmp/Inferius/ipsw/BuildManifest.plist', 'rb') as f:
-        buildmanfiest = manifest.Manifest(f, ipsw.boardconfig)
+        buildmanifest = manifest.Manifest(f)
+
+    if args.device[0] not in buildmanifest.supported_devices:
+        sys.exit(f"[ERROR] Specified IPSW: '{args.ipsw[0]}' does not support '{args.version[0]}'. Exiting...")
+
+    if args.version[0] != buildmanifest.version:
+        sys.exit(f"[ERROR] Specified IPSW: '{args.ipsw[0]}' is not for iOS {args.version[0]}. Exiting...")
+
+    bundle = bundle.Bundle('.tmp/Inferius/ipsw')
+    bundle.fetch_bundle(args.device[0], args.version[0])
 
     ipsw.verify_ipsw(api.fetch_sha1(buildmanifest.buildid))
     ipsw.extract_ipsw('.tmp/Inferius/ipsw')
+
+    bundle.apply_patches()
+    
+    api.fetch_latest(buildmanifest.fetch_component_path(api.boardconfig, 'LLB'), '.tmp/Inferius/ipsw')
+    api.fetch_latest(buildmanifest.fetch_component_path(api.boardconfig, 'iBoot'), '.tmp/Inferius/ipsw')
+
+    os.makedirs('IPSWs', exist_ok=True)
+    ipsw.create_ipsw('.tmp/Inferius/ipsw', f'IPSW/{args.ipsw[0].rsplit('.', 1)}_custom.ipsw')
 
     print('Done!')
 

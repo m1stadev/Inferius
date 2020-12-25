@@ -1,3 +1,4 @@
+import remotezip
 import requests
 
 class API(object):
@@ -23,14 +24,15 @@ class API(object):
             sys.exit(f'[ERROR] {self.version} does not exist. Exiting...')
 
     def fetch_boardconfig(self):
-        boardconfig = self.v4_api['boardconfig']
+        boardconfig_list = requests.get('https://gist.githubusercontent.com/marijuanARM/6041aa45974c047b3d75da98b9926210/raw/95993516bdd086cf4b23d2771d57d0ef75bc6540/boardconfigs.json').json()
+        boardconfigs = []
+        for x in boardconfig_list[self.device]:
+            boardconfigs.append(x.lower())
 
-        if boardconfig == 'j171ap': # super jank fix for IPSW.me returning incorrect boardconfigs for the iPad7,11 and iPad7,12
-            boardconfig = 'j172ap'
-
-        elif boardconfig == 'j172ap':
-            boardconfig = 'j171ap'
-
-        return boardconfig
+        return boardconfigs
 
     def fetch_sha1(self, buildid): return [self.v4_api['firmwares'][x]['sha1sum'] for x in range(len(data['firmwares'])) if data['firmwares'][x]['buildid'] == buildid][0]
+
+    def fetch_latest(self, component, path):
+        with remotezip.RemoteZip(self.v4_api['firmwares'][0]['url']) as ipsw:
+        ipsw.extract(component, path)

@@ -1,7 +1,6 @@
 import hashlib
 import os
 import requests
-import remotezip
 import shutil
 
 class IPSW(object):
@@ -33,7 +32,7 @@ class IPSW(object):
             except zipfile.BadZipFile:
                 sys.exit(f'[ERROR] IPSW at path: {self.ipsw} is not a valid zip archive. Redownload the IPSW then try again. Exiting...')
             except OSError:
-                sys.exit('[ERROR] Ran out of storage while extracting IPSW. Ensure you have at least 10gbs of free space on your computer, then try again. Exiting...', is_verbose)
+                sys.exit('[ERROR] Ran out of storage while extracting IPSW. Ensure you have at least 10gbs of free space on your computer, then try again. Exiting...')
 
     def extract_file(self, file, path):
         with zipfile.ZipFile(self.ipsw, 'r') as ipsw:
@@ -46,4 +45,10 @@ class IPSW(object):
             except KeyError:
                 sys.exit(f'[ERROR] IPSW at path: {self.ipsw} is not valid. Redownload the IPSW then try again. Exiting...')
             except OSError:
-                sys.exit('[ERROR] Ran out of storage while extracting IPSW. Ensure you have at least 10gbs of free space on your computer, then try again. Exiting...', is_verbose)
+                sys.exit(f"[ERROR] Ran out of storage while extracting '{file}'' from IPSW. Ensure you have at least 10gbs of free space on your computer, then try again. Exiting...")
+
+    def create_ipsw(self, path, output):
+        try:
+            shutil.make_archive(path, 'zip', output)
+        except OSError:
+            sys.exit('[ERROR] Ran out of storage while creating IPSW. Ensure you have at least 10gbs of free space on your computer, then try again. Exiting...')
