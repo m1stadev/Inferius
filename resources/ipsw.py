@@ -47,9 +47,16 @@ class IPSW(object):
             except OSError:
                 sys.exit(f"[ERROR] Ran out of storage while extracting '{file}'' from IPSW. Ensure you have at least 10gbs of free space on your computer, then try again. Exiting...")
 
-    def create_ipsw(self, path, output):
+    def create_ipsw(self, path, output, update_support):
         if not os.path.isdir('IPSWs'):
             os.mkdir('IPSWs')
+
+        if not update_support:
+            with open(f'{path}/.no_update_support', 'w') as f:
+                pass
+
+        with open(f'{path}/.Inferius', 'w') as f:
+            pass
 
         try:
             shutil.make_archive(f'IPSWs/{output}', 'zip', path)

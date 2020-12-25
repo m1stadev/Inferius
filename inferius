@@ -32,14 +32,15 @@ def create_ipsw(device, version, ipsw_file):
     ipsw = IPSW(device, ipsw_file)
 
     print('fetching bundle')
-    bundle.fetch_bundle(device, version)
+    bundle.fetch_bundle(device, version, buildmanifest.buildid)
 
     print('verifying ipsw')
     ipsw.verify_ipsw(api.fetch_sha1(buildmanifest.buildid))
     print('extracting ipsw')
     ipsw.extract_ipsw('.tmp/Inferius/ipsw')
 
-#    bundle.apply_patches()
+    print('patching components')
+    bundle.apply_patches()
     
     print('fetching latest llb')
     api.fetch_latest(buildmanifest.fetch_component_path(api.boardconfig, 'LLB'), '.tmp/Inferius/ipsw')
@@ -47,7 +48,7 @@ def create_ipsw(device, version, ipsw_file):
     api.fetch_latest(buildmanifest.fetch_component_path(api.boardconfig, 'iBoot'), '.tmp/Inferius/ipsw')
 
     print('creating IPSW')
-    custom_ipsw = ipsw.create_ipsw('.tmp/Inferius/ipsw', f'{ipsw_file.split("/")[-1].rsplit(".", 1)[0]}_custom.ipsw')
+    custom_ipsw = ipsw.create_ipsw('.tmp/Inferius/ipsw', f'{ipsw_file.split("/")[-1].rsplit(".", 1)[0]}_custom.ipsw', bundle.check_update_support())
 
     return custom_ipsw
 
@@ -77,9 +78,6 @@ def main():
 
     elif float(args.version[0].rsplit('.', 1)[0]) <= 10.1:
         sys.exit(f'[ERROR] iOS {args.version[0]} is not supported by Inferius. Exiting...')
-
-    cleanup()
-    os.makedirs('.tmp/Inferius/ipsw')
 
     ipsw = IPSW(args.device[0], args.ipsw[0])
 
