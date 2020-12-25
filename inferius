@@ -14,8 +14,8 @@ import requests
 import shutil
 import sys
 
-if not platform.system() == 'Darwin':
-    sys.exit(f'[ERROR] {platform.system()} is not supported by Inferius. Exiting...')
+if platform.system() == 'Windows':
+    sys.exit(f'[ERROR] Windows is not supported by Inferius. Exiting...')
 
 def cleanup():
     if os.path.isdir('.tmp'):
