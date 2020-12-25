@@ -1,7 +1,9 @@
 import glob
 import os
+import shutil
 import subprocess
 import sys
+import time
 
 class Restore(object):
     def __init__(self, device_identifier, platform):
@@ -40,8 +42,36 @@ class Restore(object):
             self.blob = f
             break
 
+        if self.platform == 8960:
+            args= [
+                'tsschecker',
+                '-d',
+                self.device,
+                '-l',
+                '-e',
+                f'0x{ecid}',
+                '-s',
+                '-B',
+                boardconfig,
+                '--save-path',
+                path
+            ]
+
+            if update:
+                args.insert(5, '-u')
+
+            tsschecker = subprocess.run(args, stdout=subprocess.PIPE, universal_newlines=True)
+
+            for f in glob.glob(f'{path}/*.shsh*'):
+                if f != self.blob:
+                    self.signing_blob = f
+                    break
+
+        else:
+            self.signing_blob = self.blob
+
     def sign_component(self, file, output):
-        img4tool = subprocess.run(('img4tool', '-c', f'{output}/{file.split("/")[-1].rsplit(".", 1)[0]}.img4', '-p', file, '-s', self.blob), stdout=subprocess.PIPE, universal_newlines=True)
+        img4tool = subprocess.run(('img4tool', '-c', f'{output}/{file.split("/")[-1].rsplit(".", 1)[0]}.img4', '-p', file, '-s', self.signing_blob), stdout=subprocess.PIPE, universal_newlines=True)
 
         if img4tool.returncode != 0:
             sys.exit(f"[ERROR] Failed to sign '{file.split('/')[-1]}'. Exiting...")
@@ -62,6 +92,10 @@ class Restore(object):
 
             if irecovery_jump.returncode != 0:
                 sys.exit(f'[ERROR] Failed to boot {component}. Exiting...')
+
+            time.sleep(2)
+        elif component == 'iBEC':
+            time.sleep(2)
 
     def restore(self, ipsw, baseband, update):
         if baseband:
@@ -85,3 +119,5 @@ class Restore(object):
 
         if futurerestore.returncode != 0:
             sys.exit('[ERROR] Restore failed. Exiting...')
+
+        shutil.rmtree(f'IPSWs/{ipsw.rsplit(".", 1)[-1]}')

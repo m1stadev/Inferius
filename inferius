@@ -16,16 +16,11 @@ import platform
 import requests
 import shutil
 import sys
-import time
 
-if platform.system() == 'Windows':
-    sys.exit(f'[ERROR] Windows is not supported by Inferius. Exiting...')
 
 def cleanup():
     if os.path.isdir('.tmp'):
         shutil.rmtree('.tmp')
-
-atexit.register(cleanup)
 
 def create_ipsw(device, version, ipsw_file):
     with open('.tmp/Inferius/ipsw/BuildManifest.plist', 'rb') as f:
@@ -116,6 +111,9 @@ def main():
     elif args.update and not args.restore:
         sys.exit(parser.print_help(sys.stderr))
 
+    if platform.system() == 'Windows':
+        sys.exit('[ERROR] Inferius does not support Windows. Exiting...')
+
     cleanup()
 
     api = API(args.device[0], args.version[0])
@@ -168,4 +166,5 @@ def main():
     cleanup()
 
 if __name__ == '__main__':
+    atexit.register(cleanup)
     main()
