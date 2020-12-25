@@ -9,14 +9,17 @@ from resources.ipsw import IPSW
 from resources.restore import Restore
 import atexit
 import argparse
-import getpass
-import glob
 import os
 import platform
 import requests
 import shutil
 import sys
 
+def check_internet():
+    try:
+        requests.get('https://google.com')
+    except requests.exceptions.ConnectionError:
+        sys.exit('[ERROR] You are not connected to the internet. Exiting...')
 
 def cleanup():
     if os.path.isdir('.tmp'):
@@ -112,6 +115,7 @@ def main():
     if platform.system() == 'Windows':
         sys.exit('[ERROR] Inferius does not support Windows. Exiting...')
 
+    check_internet()
     cleanup()
 
     api = API(args.device[0], args.version[0])

@@ -10,7 +10,6 @@ class Checks(object):
         self.check_irecovery()
         self.check_img4tool()
 
-
     def check_futurerestore(self):
         img4tool_commit = 'c0018d1260e5c41a989c13a2e8b956b85c164287'
         futurerestore_check = subprocess.run('which futurerestore', stdout=subprocess.DEVNULL, shell=True)
