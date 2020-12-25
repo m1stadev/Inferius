@@ -1,6 +1,7 @@
 import glob
 import hashlib
 import os
+import shutil
 import sys
 import zipfile
 
@@ -51,9 +52,10 @@ class IPSW(object):
             os.mkdir('IPSWs')
 
         try:
-            with zipfile.ZipFile(f'IPSWs/{output}', 'w') as ipsw:
-                for x in glob.glob(f'{path}/*/*/*'):
-                    ipsw.write(x, x[len(path) + 1:])
+            shutil.make_archive(f'IPSWs/{output}', 'zip', path)
+        except OSError:
+            sys.exit(f'[ERROR] Ran out of storage while creating IPSW. Ensure you have at least 10gbs of free space on your computer, then try again. Exiting...')
 
-        except OSError as e:
-            sys.exit(f'[ERROR] Ran out of storage while creating IPSW. Ensure you have at least 10gbs of free space on your computer, then try again. Exiting...\nerror: {e}')
+        os.rename(f'IPSWs/{output}.zip', f'IPSWs/{output}')
+
+        return f'IPSWs/{output}'
