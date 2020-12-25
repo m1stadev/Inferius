@@ -16,6 +16,7 @@ import platform
 import requests
 import shutil
 import sys
+import time
 
 if platform.system() == 'Windows':
     sys.exit(f'[ERROR] Windows is not supported by Inferius. Exiting...')
@@ -55,15 +56,15 @@ def create_ipsw(device, version, ipsw_file):
 
     return custom_ipsw
 
-def restore_ipsw(device, version, ipsw_file, update):
+def restore_ipsw(device_identifier, version, ipsw_file, update):
     with open('.tmp/Inferius/ipsw/BuildManifest.plist', 'rb') as f:
         buildmanifest = manifest.Manifest(f)
 
-    api = API(device, version)
+    api = API(device_identifier, version)
     Checks()
-    device = Device(device)
-    ipsw = IPSW(device, ipsw_file)
-    restore = Restore(device, version)
+    device = Device(device_identifier)
+    ipsw = IPSW(device_identifier, ipsw_file)
+    restore = Restore(device_identifier, version)
 
     print('verifying custom IPSW')
     ipsw.verify_custom_ipsw(update)
@@ -78,7 +79,7 @@ def restore_ipsw(device, version, ipsw_file, update):
     ibec_path = buildmanifest.fetch_component_path(device.boardconfig, 'iBEC')
 
     print('extracting ibss')
-    ipsw.extract_file(ibss_path '.tmp/Inferius/ipsw')
+    ipsw.extract_file(ibss_path, '.tmp/Inferius/ipsw')
     print('extracting ibec')
     ipsw.extract_file(ibec_path, '.tmp/Inferius/ipsw')
 
@@ -92,8 +93,10 @@ def restore_ipsw(device, version, ipsw_file, update):
     print('sending ibec')
     restore.send_component(f'.tmp/Inferius/{ibec_path.split("/")[-1].rsplit(".", 1)[0]}.img4', 'iBSS')
 
+    time.sleep(2)
+
     print('restoring')
-    restore.restore(ipsw, device.baseband, update)
+    restore.restore(ipsw_file, device.baseband, update)
 
 def main():
     parser = argparse.ArgumentParser(description='Inferius - Create & Restore 64-bit custom IPSWs', usage="./inferius.py -d 'device' -i 'iOS version' -f 'IPSW' [-c/-r] [-v]")
@@ -102,12 +105,15 @@ def main():
     parser.add_argument('-f', '--ipsw', help='Path to IPSW', nargs=1)
     parser.add_argument('-c', '--create', help='Create custom IPSW', action='store_true')
     parser.add_argument('-r', '--restore', help='Restore custom IPSW', action='store_true')
+    parser.add_argument('-u', '--update', help='Keep data while restoring to custom IPSW', action='store_true')
     parser.add_argument('-v', '--verbose', help='Print verbose output for debugging', action='store_true')
     args = parser.parse_args()
 
     if not args.device or not args.version or not args.ipsw:
         sys.exit(parser.print_help(sys.stderr))
     elif not args.create and not args.restore:
+        sys.exit(parser.print_help(sys.stderr))
+    elif args.update and not args.restore:
         sys.exit(parser.print_help(sys.stderr))
 
     cleanup()

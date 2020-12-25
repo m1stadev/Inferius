@@ -37,7 +37,7 @@ class Device(object):
         if device == None:
             sys.exit('[ERROR] Device in DFU mode not found. Exiting...')
 
-        if 'PWND:[checkm8]' not in device.serial_number:
+        if 'PWND:' not in device.serial_number:
             sys.exit('[ERROR] Attempting to restore a device not in Pwned DFU mode. Exiting...')
 
     def fetch_boardconfig(self):
@@ -48,7 +48,7 @@ class Device(object):
     def fetch_apnonce(self):
         irecovery = subprocess.run(('irecovery', '-q'), stdout=subprocess.PIPE, universal_newlines=True)
 
-        return irecovery.stdout.splitlines()[-3].split(' ')[-1]
+        return irecovery.stdout.splitlines()[-4].split(' ')[-1]
 
     def fetch_platform(self):
         try:

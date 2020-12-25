@@ -1,4 +1,5 @@
 import subprocess
+import sys
 
 class Checks(object):
     def __init__(self):
