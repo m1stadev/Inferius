@@ -101,8 +101,7 @@ def main():
     parser.add_argument('-f', '--ipsw', help='Path to IPSW', nargs=1)
     parser.add_argument('-c', '--create', help='Create custom IPSW', action='store_true')
     parser.add_argument('-r', '--restore', help='Restore custom IPSW', action='store_true')
-    parser.add_argument('-u', '--update', help='Keep data while restoring to custom IPSW', action='store_true')
-    parser.add_argument('-v', '--verbose', help='Print verbose output for debugging', action='store_true')
+    parser.add_argument('-u', '--update', help='Keep data while restoring custom IPSW', action='store_true')
     args = parser.parse_args()
 
     if not args.device or not args.version or not args.ipsw:
