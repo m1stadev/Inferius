@@ -1,7 +1,8 @@
+import glob
 import hashlib
 import os
-import requests
-import shutil
+import sys
+import zipfile
 
 class IPSW(object):
     def __init__(self, device_identifier, ipsw):
@@ -10,10 +11,8 @@ class IPSW(object):
         self.device = device_identifier
         self.ipsw = ipsw
 
-    def verify_ipsw(self, sha1):
-        ipsw_sha1 = [data['firmwares'][x]['sha1sum'] for x in range(len(data['firmwares'])) if data['firmwares'][x]['buildid'] == buildid][0]
-
-        with open(ipsw_dir, 'rb') as f:
+    def verify_ipsw(self, ipsw_sha1):
+        with open(self.ipsw, 'rb') as f:
             sha1 = hashlib.sha1()
             file_buffer = f.read(8192)
             while len(file_buffer) > 0:
@@ -48,7 +47,13 @@ class IPSW(object):
                 sys.exit(f"[ERROR] Ran out of storage while extracting '{file}'' from IPSW. Ensure you have at least 10gbs of free space on your computer, then try again. Exiting...")
 
     def create_ipsw(self, path, output):
+        if not os.path.isdir('IPSWs'):
+            os.mkdir('IPSWs')
+
         try:
-            shutil.make_archive(path, 'zip', output)
-        except OSError:
-            sys.exit('[ERROR] Ran out of storage while creating IPSW. Ensure you have at least 10gbs of free space on your computer, then try again. Exiting...')
+            with zipfile.ZipFile(f'IPSWs/{output}', 'w') as ipsw:
+                for x in glob.glob(f'{path}/*/*/*'):
+                    ipsw.write(x, x[len(path) + 1:])
+
+        except OSError as e:
+            sys.exit(f'[ERROR] Ran out of storage while creating IPSW. Ensure you have at least 10gbs of free space on your computer, then try again. Exiting...\nerror: {e}')

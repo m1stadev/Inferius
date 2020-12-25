@@ -20,7 +20,7 @@ class API(object):
             sys.exit(f'[ERROR] {self.device} does not exist. Exiting...')
 
     def check_version(self):
-        if not any(firmwares[x]['version'] == self.version for x in range(len(self.v4_api['firmwares']))):
+        if not any(self.v4_api['firmwares'][x]['version'] == self.version for x in range(len(self.v4_api['firmwares']))):
             sys.exit(f'[ERROR] {self.version} does not exist. Exiting...')
 
     def fetch_boardconfig(self):
@@ -31,8 +31,8 @@ class API(object):
 
         return boardconfigs
 
-    def fetch_sha1(self, buildid): return [self.v4_api['firmwares'][x]['sha1sum'] for x in range(len(data['firmwares'])) if data['firmwares'][x]['buildid'] == buildid][0]
+    def fetch_sha1(self, buildid): return next(self.v4_api['firmwares'][x]['sha1sum'] for x in range(len(self.v4_api['firmwares'])) if self.v4_api['firmwares'][x]['buildid'] == buildid)
 
     def fetch_latest(self, component, path):
         with remotezip.RemoteZip(self.v4_api['firmwares'][0]['url']) as ipsw:
-        ipsw.extract(component, path)
+            ipsw.extract(component, path)

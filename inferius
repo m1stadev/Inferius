@@ -1,6 +1,9 @@
 #!/usr/bin/env python3
 
-from resources import api, bundle, device, ipsw, manifest
+from resources import device, manifest
+from resources.api import API
+from resources.bundle import Bundle
+from resources.ipsw import IPSW
 import atexit
 import argparse
 import getpass
@@ -27,13 +30,16 @@ def main():
     parser.add_argument('-f', '--ipsw', help='Path to IPSW', nargs=1)
     parser.add_argument('-c', '--create', help='Create custom IPSW', action='store_true')
     parser.add_argument('-r', '--restore', help='Restore custom IPSW', action='store_true')
-#    parser.add_argument('-v', '--verbose', help='Print verbose output for debugging', action='store_true')
+    parser.add_argument('-v', '--verbose', help='Print verbose output for debugging', action='store_true')
     args = parser.parse_args()
 
     if not args.device or not args.version:
         sys.exit(parser.print_help(sys.stderr))
 
-    api = api.API(args.device[0], args.version[0])
+    cleanup()
+
+    api = API(args.device[0], args.version[0])
+    print('verifying version')
     api.check_version()
 
     if not 10 <= int(args.version[0].split('.')[0]) <= 13:
@@ -45,8 +51,9 @@ def main():
     cleanup()
     os.makedirs('.tmp/Inferius/ipsw')
 
-    ipsw = ipsw.IPSW(args.device[0], args.ipsw[0])
+    ipsw = IPSW(args.device[0], args.ipsw[0])
 
+    print('extracting restore.plist')
     ipsw.extract_file('Restore.plist', '.tmp/Inferius/ipsw')
 
     with open('.tmp/Inferius/ipsw/Restore.plist', 'rb') as f:
@@ -60,6 +67,7 @@ def main():
     if int(args.version[0].split('.')[0]) == 10 and restoremanifest.platform != 8960:
         sys.exit(f'[ERROR] iOS {args.version[0]} can only be downgraded to on A7 devices currently. Exiting...')
 
+    print('extracting buildmanifest.plist')
     ipsw.extract_file('BuildManifest.plist', '.tmp/Inferius/ipsw')
     with open('.tmp/Inferius/ipsw/BuildManifest.plist', 'rb') as f:
         buildmanifest = manifest.Manifest(f)
@@ -70,19 +78,24 @@ def main():
     if args.version[0] != buildmanifest.version:
         sys.exit(f"[ERROR] Specified IPSW: '{args.ipsw[0]}' is not for iOS {args.version[0]}. Exiting...")
 
-    bundle = bundle.Bundle('.tmp/Inferius/ipsw')
+    bundle = Bundle('.tmp/Inferius/ipsw')
+    print('fetching bundle')
     bundle.fetch_bundle(args.device[0], args.version[0])
 
+    print('verifying ipsw')
     ipsw.verify_ipsw(api.fetch_sha1(buildmanifest.buildid))
+    print('extracting ipsw')
     ipsw.extract_ipsw('.tmp/Inferius/ipsw')
 
-    bundle.apply_patches()
+#    bundle.apply_patches()
     
+    print('fetching latest llb')
     api.fetch_latest(buildmanifest.fetch_component_path(api.boardconfig, 'LLB'), '.tmp/Inferius/ipsw')
+    print('fetching laetst iboot')
     api.fetch_latest(buildmanifest.fetch_component_path(api.boardconfig, 'iBoot'), '.tmp/Inferius/ipsw')
 
-    os.makedirs('IPSWs', exist_ok=True)
-    ipsw.create_ipsw('.tmp/Inferius/ipsw', f'IPSW/{args.ipsw[0].rsplit('.', 1)}_custom.ipsw')
+    print('creating IPSW')
+    ipsw.create_ipsw('.tmp/Inferius/ipsw', f'{args.ipsw[0].split("/")[-1].rsplit(".", 1)[0]}_custom.ipsw')
 
     print('Done!')
 
