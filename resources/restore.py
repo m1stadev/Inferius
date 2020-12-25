@@ -78,7 +78,7 @@ class Restore(object):
 
     def send_component(self, file, component):
         if component == 'iBSS' and self.platform in (8960, 8015):
-            irecovery_reset = subprocess.run(('irecovery', '-r'), stdout=subprocess.PIPE, universal_newlines=True)
+            irecovery_reset = subprocess.run(('irecovery', '-f', file), stdout=subprocess.PIPE, universal_newlines=True)
 
             if irecovery_reset.returncode != 0:
                 sys.exit(f'[ERROR] Failed to reset connection. Exiting...')
@@ -99,7 +99,7 @@ class Restore(object):
 
     def restore(self, ipsw, baseband, update):
         if baseband:
-            baseband == '--latest-baseband'
+            baseband = '--latest-baseband'
         else:
             baseband = '--no-baseband'
 

@@ -59,7 +59,7 @@ def restore_ipsw(device_identifier, version, ipsw_file, update):
     Checks()
     device = Device(device_identifier)
     ipsw = IPSW(device_identifier, ipsw_file)
-    restore = Restore(device_identifier, version)
+    restore = Restore(device_identifier, device.platform)
 
     print('verifying custom IPSW')
     ipsw.verify_custom_ipsw(update)
@@ -86,9 +86,7 @@ def restore_ipsw(device_identifier, version, ipsw_file, update):
     print('sending ibss')
     restore.send_component(f'.tmp/Inferius/{ibss_path.split("/")[-1].rsplit(".", 1)[0]}.img4', 'iBSS')
     print('sending ibec')
-    restore.send_component(f'.tmp/Inferius/{ibec_path.split("/")[-1].rsplit(".", 1)[0]}.img4', 'iBSS')
-
-    time.sleep(2)
+    restore.send_component(f'.tmp/Inferius/{ibec_path.split("/")[-1].rsplit(".", 1)[0]}.img4', 'iBEC')
 
     print('restoring')
     restore.restore(ipsw_file, device.baseband, update)
