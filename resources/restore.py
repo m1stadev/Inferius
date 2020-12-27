@@ -120,4 +120,4 @@ class Restore(object):
         if futurerestore.returncode != 0:
             sys.exit('[ERROR] Restore failed. Exiting...')
 
-        shutil.rmtree(f'IPSWs/{ipsw.rsplit(".", 1)[-1]}')
+        shutil.rmtree(f'IPSWs/{ipsw.rsplit(".", 1)[0]}')
