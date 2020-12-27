@@ -40,7 +40,7 @@ class Checks(object):
         if irecovery_check.returncode != 0:
             sys.exit('[ERROR] iRecovery is not installed on your system. Exiting...')
 
-        irecovery_version_check = subprocess.run(('irecovery', '-V'), stdout=subprocess.DEVNULL, universal_newlines=True)
+        irecovery_version_check = subprocess.run(('irecovery', '-V'), stdout=subprocess.PIPE, universal_newlines=True)
 
         if 'unrecognized option' in irecovery_version_check.stdout:
             sys.exit('[ERROR] Your iRecovery version is too old. Exiting...')
