@@ -2,37 +2,41 @@ import remotezip
 import requests
 
 class API(object):
-    def __init__(self, device_identifier, version):
-        super().__init__()
+	def __init__(self, device_identifier):
+		super().__init__()
 
-        self.device = device_identifier
+		self.device = device_identifier
 
-        self.v2_1_api = requests.get('https://api.ipsw.me/v2.1/firmwares.json/condensed').json()
-        self.check_device()
-        self.boardconfig = self.fetch_boardconfig()
+		self.api = requests.get('https://api.ipsw.me/v2.1/firmwares.json/condensed').json()
+		self.check_device()
+		self.boardconfig = self.fetch_boardconfig()
 
-        self.v4_api = requests.get(f'https://api.ipsw.me/v4/device/{self.device}?type=ipsw').json()
+	def check_device(self):
+		if self.device not in self.api['devices']:
+			sys.exit(f'[ERROR] {self.device} does not exist. Exiting...')
 
-        self.version = version
+	def check_version(self, version):
+		if not any(self.api['devices'][self.device]['firmwares'][x]['version'] == version for x in range(len(self.api['devices'][self.device]['firmwares']))):
+			sys.exit(f'[ERROR] {version} does not exist. Exiting...')
 
-    def check_device(self):
-        if self.device not in self.v2_1_api['devices']:
-            sys.exit(f'[ERROR] {self.device} does not exist. Exiting...')
+	def check_signing(self, version):
+		if any(self.api['devices'][self.device]['firmwares'][x]['signed'] == True for x in range(len(self.api['devices'][self.device]['firmwares'])) if self.api['devices'][self.device]['firmwares'][x]['version'] == version):
+			return True
 
-    def check_version(self):
-        if not any(self.v4_api['firmwares'][x]['version'] == self.version for x in range(len(self.v4_api['firmwares']))):
-            sys.exit(f'[ERROR] {self.version} does not exist. Exiting...')
+		return False
 
-    def fetch_boardconfig(self):
-        boardconfig_list = requests.get('https://gist.githubusercontent.com/marijuanARM/6041aa45974c047b3d75da98b9926210/raw/95993516bdd086cf4b23d2771d57d0ef75bc6540/boardconfigs.json').json()
-        boardconfigs = []
-        for x in boardconfig_list[self.device]:
-            boardconfigs.append(x.lower())
+	def fetch_boardconfig(self):
+		device_boardconfigs = list()
+		all_boardconfigs = requests.get('https://gist.githubusercontent.com/marijuanARM/6041aa45974c047b3d75da98b9926210/raw/95993516bdd086cf4b23d2771d57d0ef75bc6540/boardconfigs.json').json()
+		for x in all_boardconfigs[self.device]:
+			device_boardconfigs.append(x.lower())
 
-        return boardconfigs
+		return device_boardconfigs
 
-    def fetch_sha1(self, buildid): return next(self.v4_api['firmwares'][x]['sha1sum'] for x in range(len(self.v4_api['firmwares'])) if self.v4_api['firmwares'][x]['buildid'] == buildid)
+	def fetch_sha1(self, buildid): return next(self.api['devices'][self.device]['firmwares'][x]['sha1sum'] for x in range(len(self.api['devices'][self.device]['firmwares'])) if self.api['devices'][self.device]['firmwares'][x]['buildid'] == buildid)
 
-    def fetch_latest(self, component, path):
-        with remotezip.RemoteZip(self.v4_api['firmwares'][0]['url']) as ipsw:
-            ipsw.extract(component, path)
+	def fetch_latest(self, component, path):
+		with remotezip.RemoteZip(self.api['devices'][self.device]['firmwares'][0]['url']) as ipsw:
+			ipsw.extract(component, path)
+		
+		return self.api['devices'][self.device]['firmwares'][0]['version']
