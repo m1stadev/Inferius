@@ -61,6 +61,7 @@ Below, you can find all the options Inferius has to offer
 ## To-Do
 - Re-implement iOS 10 downgrades for A7 devices.
 - Update bundle documentation
+- Reimplement logs for debugging
 
 ## Special thanks
 I'd like to thank the following individuals for their corresponding role in this project
