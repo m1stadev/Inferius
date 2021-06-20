@@ -1,5 +1,6 @@
 import remotezip
 import requests
+import sys
 
 class API(object):
 	def __init__(self, device_identifier):
@@ -27,7 +28,7 @@ class API(object):
 
 	def fetch_boardconfig(self):
 		device_boardconfigs = list()
-		all_boardconfigs = requests.get('https://gist.githubusercontent.com/marijuanARM/6041aa45974c047b3d75da98b9926210/raw/95993516bdd086cf4b23d2771d57d0ef75bc6540/boardconfigs.json').json()
+		all_boardconfigs = requests.get('https://gist.githubusercontent.com/m1stadev/6041aa45974c047b3d75da98b9926210/raw/95993516bdd086cf4b23d2771d57d0ef75bc6540/boardconfigs.json').json()
 		for x in all_boardconfigs[self.device]:
 			device_boardconfigs.append(x.lower())
 
