@@ -7,12 +7,10 @@ import zipfile
 
 class Bundle(object):
 	def __init__(self, ipsw_path):
-		super().__init__()
-
 		self.ipsw = ipsw_path
 
 	def fetch_bundle(self, device, version, buildid):
-		bundle = requests.get(f'https://github.com/marijuanARM/inferius-bundles/raw/master/{device}_{version}_{buildid}_bundle.zip')
+		bundle = requests.get(f'https://github.com/m1stadev/inferius-ext/raw/master/{device}_{version}_{buildid}_bundle.zip')
 		if bundle.status_code == 404:
 			sys.exit(f'[ERROR] A Firmware Bundle does not exist for device: {device}, version: {version}. Exiting.')
 

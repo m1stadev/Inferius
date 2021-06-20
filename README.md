@@ -10,9 +10,9 @@ Before using Inferius, keep in mind that
 - Restores are **not** untethered. This means that in order to boot your device, you're always required to use [PyBoot](https://github.com/MatthewPierson/PyBoot) or [ra1nsn0w](https://github.com/tihmstar/ra1nsn0w) to do just that (or if you want to boot jailbroken, [checkra1n](https://checkra.in) will work fine too)
 - Downgrades are still limited to versions compatible with the latest signed SEP version. This will change when [checkra1n](https://checkra.in/) implements a nonce setter for the SEP.
 
-Inferius may not come with a firmware bundle compatible with your device. If you need to create your own firmware bundle, you can follow [this guide](https://github.com/marijuanARM/Inferius/wiki/Creating-your-own-Firmware-Bundles).
+Inferius may not come with a firmware bundle compatible with your device. If you need to create your own firmware bundle, you can follow [this guide](https://github.com/m1stadev/Inferius/wiki/Creating-your-own-Firmware-Bundles).
 
-[Pull requests](https://github.com/marijuanARM/inferius-bundles/compare) for new firmware bundles are welcome, as long as the firmware bundle you want to add can create a usable IPSW for the targeted version.
+[Pull requests](https://github.com/m1stadev/inferius-ext/compare) for new firmware bundles are welcome, as long as the firmware bundle you want to add can create a usable IPSW for the targeted version.
 
 ## Usage
 Currently, to use Inferius, you'll need
@@ -25,8 +25,8 @@ Currently, to use Inferius, you'll need
 
 ## Requirements
 - [libusb](https://libusb.info/)
-- [My fork of futurerestore](https://github.com/marijuanARM/futurerestore)
-- [My fork of img4tool](https://github.com/marijuanARM/img4tool)
+- [My fork of futurerestore](https://github.com/m1stadev/futurerestore)
+- [My fork of img4tool](https://github.com/m1stadev/img4tool)
 - [libirecovery](https://github.com/libimobiledevice/libirecovery)
 - [tsschecker](https://github.com/tihmstar/tsschecker)
 - Pip dependencies:
