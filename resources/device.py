@@ -32,13 +32,13 @@ class Device(object):
 			device = usb.core.find(idVendor=0x5AC, idProduct=0x1227)
 
 		except usb.core.NoBackendError:
-			sys.exit('[ERROR] libusb is not installed. Install libusb from Homebrew. Exiting...')
+			sys.exit('[ERROR] libusb is not installed. Install libusb from Homebrew. Exiting.')
 
 		if device is None:
-			sys.exit('[ERROR] Device in DFU mode not found. Exiting...')
+			sys.exit('[ERROR] Device in DFU mode not found. Exiting.')
 
 		if 'PWND:' not in device.serial_number:
-			sys.exit('[ERROR] Attempting to restore a device not in Pwned DFU mode. Exiting...')
+			sys.exit('[ERROR] Attempting to restore a device not in Pwned DFU mode. Exiting.')
 
 	def fetch_boardconfig(self):
 		irecovery = subprocess.run(('irecovery', '-qv'), stdout=subprocess.DEVNULL, stderr=subprocess.PIPE, universal_newlines=True)
@@ -55,10 +55,10 @@ class Device(object):
 			device = usb.core.find(idVendor=0x5AC, idProduct=0x1227)
 
 		except usb.core.NoBackendError:
-			sys.exit('[ERROR] libusb is not installed. Install libusb from Homebrew. Exiting...')
+			sys.exit('[ERROR] libusb is not installed. Install libusb from Homebrew. Exiting.')
 
 		if device is None:
-			sys.exit('[ERROR] Device in DFU mode not found. Exiting...')
+			sys.exit('[ERROR] Device in DFU mode not found. Exiting.')
 
 		return int(device.serial_number.split(' ')[0].split(':')[1])
 
@@ -67,10 +67,10 @@ class Device(object):
 			device = usb.core.find(idVendor=0x5AC, idProduct=0x1227)
 
 		except usb.core.NoBackendError:
-			sys.exit('[ERROR] libusb is not installed. Install libusb from Homebrew. Exiting...')
+			sys.exit('[ERROR] libusb is not installed. Install libusb from Homebrew. Exiting.')
 
 		if device is None:
-			sys.exit('[ERROR] Device in DFU mode not found. Exiting...')
+			sys.exit('[ERROR] Device in DFU mode not found. Exiting.')
 
 		ecid = device.serial_number.split(' ')[5].split(':')[1]
 

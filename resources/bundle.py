@@ -14,7 +14,7 @@ class Bundle(object):
 	def fetch_bundle(self, device, version, buildid):
 		bundle = requests.get(f'https://github.com/marijuanARM/inferius-bundles/raw/master/{device}_{version}_{buildid}_bundle.zip')
 		if bundle.status_code == 404:
-			sys.exit(f'[ERROR] A Firmware Bundle does not exist for device: {device}, version: {version}. Exiting...')
+			sys.exit(f'[ERROR] A Firmware Bundle does not exist for device: {device}, version: {version}. Exiting.')
 
 		#os.makedirs(f'.tmp/Inferius/{device}_{version}_bundle')
 
@@ -25,7 +25,7 @@ class Bundle(object):
 			try:
 				f.extractall(f'.tmp/Inferius/{device}_{version}_{buildid}_bundle')
 			except OSError:
-				sys.exit('[ERROR] Ran out of storage while extracting Firmware Bundle. Ensure you have at least 10gbs of free space on your computer, then try again. Exiting...', is_verbose)
+				sys.exit('[ERROR] Ran out of storage while extracting Firmware Bundle. Ensure you have at least 10gbs of free space on your computer, then try again. Exiting.', is_verbose)
 
 		os.remove(f'.tmp/Inferius/{device}_{version}_{buildid}_bundle.zip')
 

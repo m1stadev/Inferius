@@ -23,31 +23,31 @@ class IPSW(object):
 				file_buffer = f.read(8192)
 
 		if ipsw_sha1 != sha1.hexdigest():
-			sys.exit(f'[ERROR] IPSW at path: {self.ipsw} is not valid. Redownload the IPSW then try again. Exiting...')
+			sys.exit(f'[ERROR] IPSW at path: {self.ipsw} is not valid. Redownload the IPSW then try again. Exiting.')
 
 	def extract_ipsw(self, path):
 		with zipfile.ZipFile(self.ipsw, 'r') as ipsw:
 			try:
 				ipsw.extractall(path)
 			except FileNotFoundError:
-				sys.exit(f'[ERROR] IPSW does not exist at path: {self.ipsw}. Exiting...')
+				sys.exit(f'[ERROR] IPSW does not exist at path: {self.ipsw}. Exiting.')
 			except zipfile.BadZipFile:
-				sys.exit(f'[ERROR] IPSW at path: {self.ipsw} is not a valid zip archive. Redownload the IPSW then try again. Exiting...')
+				sys.exit(f'[ERROR] IPSW at path: {self.ipsw} is not a valid zip archive. Redownload the IPSW then try again. Exiting.')
 			except OSError:
-				sys.exit('[ERROR] Ran out of storage while extracting IPSW. Ensure you have at least 10gbs of free space on your computer, then try again. Exiting...')
+				sys.exit('[ERROR] Ran out of storage while extracting IPSW. Ensure you have at least 10gbs of free space on your computer, then try again. Exiting.')
 
 	def extract_file(self, file, path):
 		with zipfile.ZipFile(self.ipsw, 'r') as ipsw:
 			try:
 				ipsw.extract(file, path)
 			except FileNotFoundError:
-				sys.exit(f'[ERROR] IPSW does not exist at path: {self.ipsw}. Exiting...')
+				sys.exit(f'[ERROR] IPSW does not exist at path: {self.ipsw}. Exiting.')
 			except zipfile.BadZipFile:
-				sys.exit(f'[ERROR] IPSW at path: {self.ipsw} is not a valid zip archive. Redownload the IPSW then try again. Exiting...')
+				sys.exit(f'[ERROR] IPSW at path: {self.ipsw} is not a valid zip archive. Redownload the IPSW then try again. Exiting.')
 			except KeyError:
-				sys.exit(f'[ERROR] IPSW at path: {self.ipsw} is not valid. Redownload the IPSW then try again. Exiting...')
+				sys.exit(f'[ERROR] IPSW at path: {self.ipsw} is not valid. Redownload the IPSW then try again. Exiting.')
 			except OSError:
-				sys.exit(f"[ERROR] Ran out of storage while extracting '{file}' from IPSW. Ensure you have at least 10gbs of free space on your computer, then try again. Exiting...")
+				sys.exit(f"[ERROR] Ran out of storage while extracting '{file}' from IPSW. Ensure you have at least 10gbs of free space on your computer, then try again. Exiting.")
 
 	def create_ipsw(self, path, output, update_support, bootloader_src_ver):
 		if not os.path.isdir('IPSWs'):
@@ -63,7 +63,7 @@ class IPSW(object):
 		try:
 			shutil.make_archive(f'IPSWs/{output}', 'zip', path)
 		except OSError:
-			sys.exit(f'[ERROR] Ran out of storage while creating IPSW. Ensure you have at least 10gbs of free space on your computer, then try again. Exiting...')
+			sys.exit(f'[ERROR] Ran out of storage while creating IPSW. Ensure you have at least 10gbs of free space on your computer, then try again. Exiting.')
 
 		os.rename(f'IPSWs/{output}.zip', f'IPSWs/{output}')
 
@@ -73,21 +73,21 @@ class IPSW(object):
 		try:
 			with zipfile.ZipFile(self.ipsw, 'r') as ipsw:
 				if '.Inferius' not in ipsw.namelist():
-					sys.exit('[ERROR] This IPSW was not created by Inferius. Exiting...')
+					sys.exit('[ERROR] This IPSW was not created by Inferius. Exiting.')
 
 				ipsw.extract('.Inferius', '.tmp/Inferius')
 
 		except FileNotFoundError:
-			sys.exit(f'[ERROR] IPSW does not exist at path: {self.ipsw}. Exiting...')
+			sys.exit(f'[ERROR] IPSW does not exist at path: {self.ipsw}. Exiting.')
 		except zipfile.BadZipFile:
-			sys.exit(f'[ERROR] IPSW at path: {self.ipsw} is not a valid zip archive. Redownload the IPSW then try again. Exiting...')
+			sys.exit(f'[ERROR] IPSW at path: {self.ipsw} is not a valid zip archive. Redownload the IPSW then try again. Exiting.')
 
 		with open('.tmp/Inferius/.Inferius', 'r') as f:
 			inferius_info = json.load(f)
 
 		if inferius_info['update_support'] == False and update_support == True:
-			sys.exit('[ERROR] This IPSW does not have support for restoring while keeping data. Exiting...')
+			sys.exit('[ERROR] This IPSW does not have support for restoring while keeping data. Exiting.')
 
 		api = API(self.device)
 		if api.check_signing(inferius_info['bootloader_src_ver']) == False:
-			sys.exit('[ERROR] This IPSW is too old to be used with Inferius. Create a new custom IPSW. Exiting...')
+			sys.exit('[ERROR] This IPSW is too old to be used with Inferius. Create a new custom IPSW. Exiting.')

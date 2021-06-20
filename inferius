@@ -20,7 +20,7 @@ def check_internet():
 	try:
 		requests.get('https://google.com')
 	except requests.exceptions.ConnectionError:
-		sys.exit('[ERROR] You are not connected to the internet. Exiting...')
+		sys.exit('[ERROR] You are not connected to the internet. Exiting.')
 
 def cleanup():
 	if os.path.isdir('.tmp'):
@@ -115,7 +115,7 @@ def main():
 		sys.exit(parser.print_help(sys.stderr))
 
 	if platform.system() == 'Windows':
-		sys.exit('[ERROR] Inferius does not support Windows. Exiting...')
+		sys.exit('[ERROR] Inferius does not support Windows. Exiting.')
 
 	check_internet()
 	cleanup()
@@ -125,7 +125,7 @@ def main():
 	api.check_version(args.version[0])
 
 	if not 11 <= int(args.version[0].split('.')[0]) <= 13 or float(args.version[0].rsplit('.', 1)[0]) <= 10.1:
-		sys.exit(f'[ERROR] iOS {args.version[0]} is not supported by Inferius. Exiting...')
+		sys.exit(f'[ERROR] iOS {args.version[0]} is not supported by Inferius. Exiting.')
 
 	ipsw = IPSW(args.device[0], args.ipsw[0])
 
@@ -138,10 +138,10 @@ def main():
 	supported_devices = (8960, 7000, 7001, 8000, 8001, 8003, 8010, 8011, 8015)
 
 	if restoremanifest.platform not in supported_devices:
-		sys.exit(f'[ERROR] Device {args.device[0]} is not supported by Inferius. Exiting...')
+		sys.exit(f'[ERROR] Device {args.device[0]} is not supported by Inferius. Exiting.')
 
 	if int(args.version[0].split('.')[0]) == 10 and restoremanifest.platform != 8960:
-		sys.exit(f'[ERROR] iOS {args.version[0]} can only be downgraded to on A7 devices currently. Exiting...')
+		sys.exit(f'[ERROR] iOS {args.version[0]} can only be downgraded to on A7 devices currently. Exiting.')
 
 	print('extracting buildmanifest.plist')
 	ipsw.extract_file('BuildManifest.plist', '.tmp/Inferius/ipsw')
@@ -149,10 +149,10 @@ def main():
 		buildmanifest = manifest.Manifest(f)
 
 	if args.device[0] not in buildmanifest.supported_devices:
-		sys.exit(f"[ERROR] Specified IPSW: '{args.ipsw[0]}' does not support '{args.version[0]}'. Exiting...")
+		sys.exit(f"[ERROR] Specified IPSW: '{args.ipsw[0]}' does not support '{args.version[0]}'. Exiting.")
 
 	if args.version[0] != buildmanifest.version:
-		sys.exit(f"[ERROR] Specified IPSW: '{args.ipsw[0]}' is not for iOS {args.version[0]}. Exiting...")
+		sys.exit(f"[ERROR] Specified IPSW: '{args.ipsw[0]}' is not for iOS {args.version[0]}. Exiting.")
 
 	if args.create:
 		custom_ipsw = create_ipsw(args.device[0], args.version[0], args.ipsw[0])

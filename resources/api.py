@@ -14,11 +14,11 @@ class API(object):
 
 	def check_device(self):
 		if self.device not in self.api['devices']:
-			sys.exit(f'[ERROR] {self.device} does not exist. Exiting...')
+			sys.exit(f'[ERROR] {self.device} does not exist. Exiting.')
 
 	def check_version(self, version):
 		if not any(self.api['devices'][self.device]['firmwares'][x]['version'] == version for x in range(len(self.api['devices'][self.device]['firmwares']))):
-			sys.exit(f'[ERROR] {version} does not exist. Exiting...')
+			sys.exit(f'[ERROR] {version} does not exist. Exiting.')
 
 	def check_signing(self, version):
 		if any(self.api['devices'][self.device]['firmwares'][x]['signed'] == True for x in range(len(self.api['devices'][self.device]['firmwares'])) if self.api['devices'][self.device]['firmwares'][x]['version'] == version):
