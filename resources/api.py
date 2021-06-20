@@ -5,7 +5,6 @@ import sys
 class API(object):
 	def __init__(self, identifier):
 		self.check_device(identifier)
-
 		self.boardconfig = self.fetch_boardconfig()
 
 	def check_device(self, device):
