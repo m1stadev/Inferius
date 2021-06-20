@@ -1,43 +1,26 @@
+import shutil
 import subprocess
 import sys
 
 class Checks(object):
 	def __init__(self):
-		super().__init__()
+		self.check_bin('futurerestore')
+		self.check_bin('tsschecker')
+		self.check_bin('irecovery')
+		self.check_bin('img4tool')
 
-		self.check_futurerestore()
-		self.check_tsschecker()
-		self.check_irecovery()
-		self.check_img4tool()
+	def check_bin(self, binary):
+		if shutil.which(binary) is None:
+			sys.exit(f"[ERROR] '{binary}' is not installed on your system. Exiting.")
 
-	def check_futurerestore(self):
-		futurerestore_check = subprocess.run('which futurerestore', stdout=subprocess.DEVNULL, shell=True)
-		if futurerestore_check.returncode != 0:
-			sys.exit('[ERROR] FutureRestore is not installed on your system. Exiting.')
 
-		futurerestore_version_check = subprocess.run(('futurerestore'), stdout=subprocess.PIPE, universal_newlines=True)
-		if not futurerestore_version_check.stdout.splitlines()[1][:-1].endswith('-m1sta'):
-			sys.exit('[ERROR] This FutureRestore cannot be used with Inferius. Exiting.')
+		if binary == 'futurerestore':
+			fr_ver = subprocess.run((binary), stdout=subprocess.PIPE, universal_newlines=True).stdout.splitlines()[0]
+			if not fr_ver.endswith('-m1sta'):
+				sys.exit(f"[ERROR] This '{binary}' cannot be used with Inferius. Exiting.")
 
-	def check_img4tool(self):
-		img4tool_check = subprocess.run('which img4tool', stdout=subprocess.DEVNULL, shell=True)
+		elif binary == 'irecovery':
+			irec_ver = subprocess.run((binary, '-V'), stdout=subprocess.PIPE, universal_newlines=True).stdout
 
-		if img4tool_check.returncode != 0:
-			sys.exit('[ERROR] img4tool is not installed on your system. Exiting.')
-
-	def check_tsschecker(self):
-		tsschecker_check = subprocess.run('which tsschecker', stdout=subprocess.DEVNULL, shell=True)
-
-		if tsschecker_check.returncode != 0:
-			sys.exit('[ERROR] tsschecker is not installed on your system. Exiting.')
-
-	def check_irecovery(self):
-		irecovery_check = subprocess.run('which irecovery', stdout=subprocess.DEVNULL, shell=True)
-
-		if irecovery_check.returncode != 0:
-			sys.exit('[ERROR] irecovery is not installed on your system. Exiting.')
-
-		irecovery_version_check = subprocess.run(('irecovery', '-V'), stdout=subprocess.PIPE, universal_newlines=True)
-
-		if 'unrecognized option' in irecovery_version_check.stdout:
-			sys.exit('[ERROR] Your irecovery version is too old. Exiting.')
+			if 'unrecognized option' in irec_ver.stdout:
+				sys.exit(f"[ERROR] Your '{binary}' version is too old. Exiting.")
