@@ -12,7 +12,7 @@ class API(object):
 	def check_device(self, identifier):
 		api = requests.get('https://api.ipsw.me/v4/devices').json()
 
-		if identifier not in [x['identifier'] for x in api]:
+		if identifier not in [device['identifier'] for device in api]:
 			sys.exit(f"[ERROR] '{identifier}' does not exist. Exiting.")
 
 	def is_signed(self, version):
