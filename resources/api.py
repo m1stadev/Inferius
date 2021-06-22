@@ -2,6 +2,7 @@ import remotezip
 import requests
 import sys
 
+
 class API(object):
 	def __init__(self, identifier):
 

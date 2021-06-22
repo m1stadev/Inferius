@@ -5,6 +5,7 @@ import subprocess
 import sys
 import time
 
+
 class Restore(object):
 	def __init__(self, device_identifier, platform):
 		super().__init__()

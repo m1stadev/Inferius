@@ -2,6 +2,7 @@ import shutil
 import subprocess
 import sys
 
+
 class Checks(object):
 	def __init__(self):
 		self.check_bin('futurerestore')

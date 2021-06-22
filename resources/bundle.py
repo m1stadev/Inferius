@@ -5,6 +5,7 @@ import requests
 import sys
 import zipfile
 
+
 class Bundle(object):
 	def __init__(self, ipsw_path):
 		self.ipsw = ipsw_path

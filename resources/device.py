@@ -4,6 +4,7 @@ import subprocess
 import sys
 import usb, usb.backend.libusb1
 
+
 class Device(object):
 	def __init__(self, identifier):
 		self.device = identifier
