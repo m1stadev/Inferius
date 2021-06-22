@@ -1,4 +1,4 @@
-from resources.api import API
+from utils.api import API
 import hashlib
 import json
 import os

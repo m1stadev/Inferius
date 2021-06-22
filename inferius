@@ -1,12 +1,12 @@
 #!/usr/bin/env python3
 
-from resources import manifest
-from resources.api import API
-from resources.bundle import Bundle
-from resources.dependencies import Checks
-from resources.device import Device
-from resources.ipsw import IPSW
-from resources.restore import Restore
+from utils import manifest
+from utils.api import API
+from utils.bundle import Bundle
+from utils.dependencies import Checks
+from utils.device import Device
+from utils.ipsw import IPSW
+from utils.restore import Restore
 import atexit
 import argparse
 import os
