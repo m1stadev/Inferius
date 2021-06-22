@@ -7,62 +7,52 @@ from utils.dependencies import Checks
 from utils.device import Device
 from utils.ipsw import IPSW
 from utils.restore import Restore
-import atexit
 import argparse
-import os
 import platform
-import requests
-import shutil
+import os
 import sys
-import time
+import tempfile
 
-def check_internet():
-	try:
-		requests.get('https://google.com')
-	except requests.exceptions.ConnectionError:
-		sys.exit('[ERROR] You are not connected to the internet. Exiting.')
 
-def cleanup():
-	if os.path.isdir('.tmp'):
-		shutil.rmtree('.tmp')
+def create_ipsw(identifier, buildmanifest, ipsw_path, tmpdir):
+	print('[0] Creating custom IPSW...')
 
-def create_ipsw(device, version, ipsw_file):
-	with open('.tmp/Inferius/ipsw/BuildManifest.plist', 'rb') as f:
-		buildmanifest = manifest.Manifest(f)
+	api = API()
+	api.fetch_api(identifier)
+	bundle = Bundle()
+	ipsw = IPSW(ipsw_path)
 
-	api = API(device)
-	bundle = Bundle('.tmp/Inferius/ipsw')
-	ipsw = IPSW(device, ipsw_file)
+	print('[1] Grabbing Firmware Bundle...')
+	bundle.fetch_bundle(identifier, buildmanifest.version, buildmanifest.buildid, tmpdir)
 
-	print('fetching bundle')
-	bundle.fetch_bundle(device, version, buildmanifest.buildid)
-
-	print('verifying ipsw')
+	print('[2] Verifying IPSW...')
 	ipsw.verify_ipsw(api.fetch_sha1(buildmanifest.buildid))
-	print('extracting ipsw')
-	ipsw.extract_ipsw('.tmp/Inferius/ipsw')
 
-	print('patching components')
-	bundle.apply_patches()
+	print('[3] Extracting IPSW...')
+	extracted_ipsw = '/'.join((tmpdir, 'ipsw'))
+	os.mkdir(extracted_ipsw)
+	ipsw.extract_ipsw(extracted_ipsw)
 
-	print('fetching latest bootloader')
-	api.fetch_latest(buildmanifest.fetch_component_path(api.boardconfig, 'LLB'), '.tmp/Inferius/ipsw')
-	iboot_src_ver = api.fetch_latest(buildmanifest.fetch_component_path(api.boardconfig, 'iBoot'), '.tmp/Inferius/ipsw')
+	print('[4] Patching components...')
+	bundle.apply_patches(extracted_ipsw)
 
-	print('creating IPSW')
-	custom_ipsw = ipsw.create_ipsw('.tmp/Inferius/ipsw', f'{ipsw_file.split("/")[-1].rsplit(".", 1)[0]}_custom.ipsw', bundle.check_update_support(), iboot_src_ver)
+	boardconfig = api.get_board()
+	api.fetch_latest(buildmanifest.fetch_component_path(boardconfig, 'LLB'), extracted_ipsw)
+	bootloader_ver = api.fetch_latest(buildmanifest.fetch_component_path(boardconfig, 'iBoot'), extracted_ipsw)
 
-	return custom_ipsw
+	print('[5] Repacking IPSW...')
+	custom_ipsw = ipsw.create_ipsw(extracted_ipsw, ipsw_path.split('/')[-1].rsplit('.', 1)[0] + '_custom.ipsw', bundle.check_update_support(), bootloader_ver)
+	print(f"Finished creating custom IPSW: '{custom_ipsw}'.")
 
-def restore_ipsw(device_identifier, version, ipsw_file, update):
+def restore_ipsw(identifier, version, ipsw_path, update):
 	with open('.tmp/Inferius/ipsw/BuildManifest.plist', 'rb') as f:
 		buildmanifest = manifest.Manifest(f)
 
-	api = API(device_identifier)
+	api = API(identifier)
 	Checks()
-	device = Device(device_identifier)
-	ipsw = IPSW(device_identifier, ipsw_file)
-	restore = Restore(device_identifier, device.platform)
+	device = Device(identifier)
+	ipsw = IPSW(ipsw_path)
+	restore = Restore(identifier, device.platform)
 
 	print('verifying custom IPSW')
 	ipsw.verify_custom_ipsw(update, version)
@@ -91,23 +81,19 @@ def restore_ipsw(device_identifier, version, ipsw_file, update):
 	print('sending ibec')
 	restore.send_component(f'.tmp/Inferius/{ibec_path.split("/")[-1].rsplit(".", 1)[0]}.img4', 'iBEC')
 
-	print('waiting for device to enter pwnrecovery')
-	time.sleep(3)
-
 	print('restoring')
-	restore.restore(ipsw_file, device.baseband, update)
+	restore.restore(ipsw_path, device.baseband, update)
 
 def main():
-	parser = argparse.ArgumentParser(description='Inferius - Create & Restore 64-bit custom IPSWs', usage="./inferius.py -d 'device' -i 'iOS version' -f 'IPSW' [-c/-r] [-v]")
-	parser.add_argument('-d', '--device', help='Device identifier (e.g. iPhone10,2)', nargs=1)
-	parser.add_argument('-i', '--version', help='iOS Version', nargs=1)
+	parser = argparse.ArgumentParser(description='Inferius - Create & Restore 64-bit custom IPSWs', usage="./inferius -d 'device' -f 'IPSW' [-c/-r] [-v]")
+	parser.add_argument('-d', '--device', help='Device identifier', nargs=1)
 	parser.add_argument('-f', '--ipsw', help='Path to IPSW', nargs=1)
 	parser.add_argument('-c', '--create', help='Create custom IPSW', action='store_true')
 	parser.add_argument('-r', '--restore', help='Restore custom IPSW', action='store_true')
 	parser.add_argument('-u', '--update', help='Keep data while restoring custom IPSW', action='store_true')
 	args = parser.parse_args()
 
-	if not args.device or not args.version or not args.ipsw:
+	if not args.device or not args.ipsw:
 		sys.exit(parser.print_help(sys.stderr))
 	elif not args.create and not args.restore:
 		sys.exit(parser.print_help(sys.stderr))
@@ -117,55 +103,43 @@ def main():
 	if platform.system() == 'Windows':
 		sys.exit('[ERROR] Inferius does not support Windows. Exiting.')
 
-	check_internet()
-	cleanup()
+	identifier = args.device[0]
+	ipsw_path = args.ipsw[0]
 
-	api = API(args.device[0])
-	print('verifying version')
-	api.check_version(args.version[0])
+	api = API()
+	api.check_device(identifier)
+	api.fetch_api()
 
-	if not 11 <= int(args.version[0].split('.')[0]) <= 13 or float(args.version[0].rsplit('.', 1)[0]) <= 10.1:
-		sys.exit(f'[ERROR] iOS {args.version[0]} is not supported by Inferius. Exiting.')
-
-	ipsw = IPSW(args.device[0], args.ipsw[0])
-
-	print('extracting restore.plist')
-	ipsw.extract_file('Restore.plist', '.tmp/Inferius/ipsw')
-
-	with open('.tmp/Inferius/ipsw/Restore.plist', 'rb') as f:
-		restoremanifest = manifest.RestoreManifest(f, args.device[0], api.boardconfig)
+	ipsw = IPSW(ipsw_path)
+	restoremanifest = manifest.RestoreManifest(ipsw.read_file('Restore.plist'), api.get_board())
 
 	supported_devices = (8960, 7000, 7001, 8000, 8001, 8003, 8010, 8011, 8015)
-
 	if restoremanifest.platform not in supported_devices:
-		sys.exit(f'[ERROR] Device {args.device[0]} is not supported by Inferius. Exiting.')
+		sys.exit(f"[ERROR] '{identifier}' is not supported by Inferius. Exiting.")
 
-	if int(args.version[0].split('.')[0]) == 10 and restoremanifest.platform != 8960:
-		sys.exit(f'[ERROR] iOS {args.version[0]} can only be downgraded to on A7 devices currently. Exiting.')
+	buildmanifest = manifest.Manifest(ipsw.read_file('BuildManifest.plist'))
 
-	print('extracting buildmanifest.plist')
-	ipsw.extract_file('BuildManifest.plist', '.tmp/Inferius/ipsw')
-	with open('.tmp/Inferius/ipsw/BuildManifest.plist', 'rb') as f:
-		buildmanifest = manifest.Manifest(f)
+	ver_major = int(buildmanifest.version.split('.')[0])
+	ver_major_minor = float(buildmanifest.version.rsplit('.', 1)[0])
 
-	if args.device[0] not in buildmanifest.supported_devices:
-		sys.exit(f"[ERROR] Specified IPSW: '{args.ipsw[0]}' does not support '{args.version[0]}'. Exiting.")
+	if ver_major == 10 and restoremanifest.platform != 8960:
+		sys.exit(f'[ERROR] iOS {buildmanifest.version} can only be downgraded to on A7 devices currently. Exiting.')
 
-	if args.version[0] != buildmanifest.version:
-		sys.exit(f"[ERROR] Specified IPSW: '{args.ipsw[0]}' is not for iOS {args.version[0]}. Exiting.")
+	if not 11 <= ver_major <= 13 or ver_major_minor <= 10.1:
+		sys.exit(f'[ERROR] iOS {buildmanifest.version} is not supported by Inferius. Exiting.')
 
-	if args.create:
-		custom_ipsw = create_ipsw(args.device[0], args.version[0], args.ipsw[0])
-	else:
-		custom_ipsw = args.ipsw[0]
+	if identifier not in buildmanifest.supported_devices:
+		sys.exit(f"[ERROR] IPSW '{ipsw_path}' does not support '{identifier}'. Exiting.")
 
-	if args.restore:
-		restore_ipsw(args.device[0], args.version[0], custom_ipsw, args.update)
+	with tempfile.TemporaryDirectory() as tmpdir:
+		if args.create:
+			custom_ipsw = create_ipsw(identifier, buildmanifest, ipsw_path, tmpdir)
+		else:
+			custom_ipsw = ipsw_path
 
-	print('done!')
+		if args.restore:
+			restore_ipsw(identifier, buildmanifest.version, custom_ipsw, args.update, tmpdir)
 
-	cleanup()
 
 if __name__ == '__main__':
-	atexit.register(cleanup)
 	main()
