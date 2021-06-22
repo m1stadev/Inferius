@@ -100,7 +100,7 @@ class Restore(object):
 				if irecovery_jump.returncode != 0:
 					sys.exit(f"[ERROR] Failed to boot '{component}'. Exiting.")
 
-			time.sleep(2)
+			time.sleep(3)
 
 	def sign_component(self, file, output):
 		args = (
