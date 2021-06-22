@@ -4,11 +4,6 @@ import sys
 
 
 class API(object):
-	def __init__(self, identifier):
-		self.check_device(identifier)
-		self.api = self.fetch_api(identifier)
-		self.boardconfig = self.fetch_boardconfig()
-
 	def check_device(self, identifier):
 		api = requests.get('https://api.ipsw.me/v4/devices').json()
 
@@ -23,10 +18,30 @@ class API(object):
 			sys.exit(f"[ERROR] '{version}' does not exist. Exiting.")
 
 	def fetch_api(self, identifier):
-		return requests.get(f'https://api.ipsw.me/v4/device/{identifier}?type=ipsw').json()
+		self.check_device(identifier)
+		self.api = requests.get(f'https://api.ipsw.me/v4/device/{identifier}?type=ipsw').json()
 
-	def fetch_boardconfig(self):
-		return [board['boardconfig'] for board in self.api['boards']]
+	def get_board(self):
+		boards = [board['boardconfig'] for board in self.api['boards']]
+		if len(boards) == 1:
+			return boards[0]
+		
+		print('There are multiple boardconfigs for your device! Please choose the correct boardconfig for your device:')
+
+		for board in range(len(boards)):
+			print(f"{board + 1} - {boards[board]}")
+
+		board = input('Choice: ')
+
+		try:
+			board = int(board) - 1
+		except:
+			sys.exit('[ERROR] Invalid input given. Exiting.')
+		else:
+			if board not in range(len(boards)):
+				sys.exit('[ERROR] Invalid input given. Exiting.')
+
+		return boards[board]
 
 	def fetch_latest(self, component, path):
 		latest = self.api['firmwares'][0]
