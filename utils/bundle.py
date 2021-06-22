@@ -1,4 +1,5 @@
 import bsdiff4
+import io
 import json
 import requests
 import sys
@@ -6,10 +7,7 @@ import zipfile
 
 
 class Bundle(object):
-	def __init__(self, ipsw):
-		self.ipsw = ipsw
-
-	def apply_patches(self):
+	def apply_patches(self, ipsw):
 		with open(f'{self.bundle}/Info.json', 'r') as f:
 			bundle_data = json.load(f)
 
@@ -20,7 +18,7 @@ class Bundle(object):
 					continue
 
 			for patch in bundle_data['patches'][patches]:
-				bsdiff4.file_patch_inplace('/'.join((self.ipsw, patch['file'])), '/'.join((self.bundle, patch['file'])))
+				bsdiff4.file_patch_inplace('/'.join((ipsw, bundle_data['patches'][patches][patch]['file'])), '/'.join((self.bundle, bundle_data['patches'][patches][patch]['patch'])))
 
 	def check_update_support(self):
 		with open(f'{self.bundle}/Info.json', 'r') as f:
@@ -34,10 +32,11 @@ class Bundle(object):
 		if bundle.status_code == 404:
 			sys.exit(f'[ERROR] A Firmware Bundle does not exist for ({device}, {version}). Exiting.')
 
-		with zipfile.ZipFile(bundle.content, 'r') as f:
+		bundle_path = '/'.join((tmpdir, bundle_name))
+		with zipfile.ZipFile(io.BytesIO(bundle.content), 'r') as f:
 			try:
-				f.extractall('/'.join((tmpdir, bundle_name)))
+				f.extractall(bundle_path)
 			except OSError:
 				sys.exit('[ERROR] Ran out of storage while extracting Firmware Bundle. Exiting.')
 
-		self.bundle = '/'.join((tmpdir, bundle_name))
+		self.bundle = bundle_path
