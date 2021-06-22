@@ -4,90 +4,87 @@ import json
 import os
 import shutil
 import sys
-import time
 import zipfile
 
-class IPSW(object):
-	def __init__(self, device_identifier, ipsw):
-		super().__init__()
 
-		self.device = device_identifier
+class IPSW(object):
+	def __init__(self, identifier, ipsw):
+		self.device = identifier
 		self.ipsw = ipsw
 
-	def verify_ipsw(self, ipsw_sha1):
-		with open(self.ipsw, 'rb') as f:
-			sha1 = hashlib.sha1()
-			file_buffer = f.read(8192)
-			while len(file_buffer) > 0:
-				sha1.update(file_buffer)
-				file_buffer = f.read(8192)
+	def create_ipsw(self, path, output, update, bootloader):
+		os.makedirs('IPSW', exist_ok=True)
 
-		if ipsw_sha1 != sha1.hexdigest():
-			sys.exit(f'[ERROR] IPSW at path: {self.ipsw} is not valid. Redownload the IPSW then try again. Exiting.')
+		info = {
+			'update_support': update,
+			'bootloader': bootloader
+		}
+
+		with open(f'{path}/.Inferius', 'w') as f:
+			json.dump(info, f)
+
+		try:
+			shutil.make_archive(f'IPSW/{output}', 'zip', path)
+		except:
+			sys.exit('[ERROR] Failed to create custom IPSW. Exiting.')
+
+		os.rename(f'IPSWs/{output}.zip', '/'.join(('IPSWs', output)))
+		return '/'.join(('IPSWs', output))
+
+	def extract_file(self, file, path):
+		try:
+			with zipfile.ZipFile(self.ipsw, 'r') as ipsw:
+				fbuf = ipsw.read(file)
+			
+			with open('/'.join((path, file)), 'wb') as f:
+				f.write(fbuf)
+		except:
+			sys.exit(f"[ERROR] Failed to extract '{file}' from IPSW. Exiting.")
 
 	def extract_ipsw(self, path):
 		with zipfile.ZipFile(self.ipsw, 'r') as ipsw:
 			try:
 				ipsw.extractall(path)
-			except FileNotFoundError:
-				sys.exit(f'[ERROR] IPSW does not exist at path: {self.ipsw}. Exiting.')
-			except zipfile.BadZipFile:
-				sys.exit(f'[ERROR] IPSW at path: {self.ipsw} is not a valid zip archive. Redownload the IPSW then try again. Exiting.')
-			except OSError:
-				sys.exit('[ERROR] Ran out of storage while extracting IPSW. Ensure you have at least 10gbs of free space on your computer, then try again. Exiting.')
+			except:
+				sys.exit(f"[ERROR] Failed to extract '{self.ipsw}'. Exiting.")
 
-	def extract_file(self, file, path):
+	def verify_ipsw(self, ipsw_sha1):
+		if not os.path.isfile(self.ipsw):
+			sys.exit(f"[ERROR] '{self.ipsw}' does not exist. Exiting.")
+
+		if not zipfile.is_zipfile(self.ipsw):
+			sys.exit(f"[ERROR] '{self.ipsw}' is not a valid IPSW. Exiting.")
+
 		with zipfile.ZipFile(self.ipsw, 'r') as ipsw:
-			try:
-				ipsw.extract(file, path)
-			except FileNotFoundError:
-				sys.exit(f'[ERROR] IPSW does not exist at path: {self.ipsw}. Exiting.')
-			except zipfile.BadZipFile:
-				sys.exit(f'[ERROR] IPSW at path: {self.ipsw} is not a valid zip archive. Redownload the IPSW then try again. Exiting.')
-			except KeyError:
-				sys.exit(f'[ERROR] IPSW at path: {self.ipsw} is not valid. Redownload the IPSW then try again. Exiting.')
-			except OSError:
-				sys.exit(f"[ERROR] Ran out of storage while extracting '{file}' from IPSW. Ensure you have at least 10gbs of free space on your computer, then try again. Exiting.")
+			if '.Inferius' in ipsw.namelist():
+				sys.exit(f"[ERROR] '{self.ipsw}' is not a stock IPSW. Exiting.")
 
-	def create_ipsw(self, path, output, update_support, bootloader_src_ver):
-		if not os.path.isdir('IPSWs'):
-			os.mkdir('IPSWs')
+		sha1 = hashlib.sha1()
+		with open(self.ipsw, 'rb') as ipsw:
+			fbuf = ipsw.read(8192)
+			while len(fbuf) != 0:
+				sha1.update(fbuf)
+				fbuf = ipsw.read(8192)
 
-		inferius_info = dict()
-		inferius_info['update_support'] = update_support
-		inferius_info['bootloader_src_ver'] = bootloader_src_ver
+		if ipsw_sha1 != sha1.hexdigest():
+			sys.exit(f"[ERROR] '{self.ipsw}' is not a valid IPSW. Exiting.")
 
-		with open(f'{path}/.Inferius', 'w') as f:
-			json.dump(inferius_info, f)
+	def verify_custom_ipsw(self, update):
+		if not os.path.isfile(self.ipsw):
+			sys.exit(f"[ERROR] '{self.ipsw}' does not exist. Exiting.")
 
-		try:
-			shutil.make_archive(f'IPSWs/{output}', 'zip', path)
-		except OSError:
-			sys.exit(f'[ERROR] Ran out of storage while creating IPSW. Ensure you have at least 10gbs of free space on your computer, then try again. Exiting.')
+		if not zipfile.is_zipfile(self.ipsw):
+			sys.exit(f"[ERROR] '{self.ipsw}' is not a valid IPSW. Exiting.")
 
-		os.rename(f'IPSWs/{output}.zip', f'IPSWs/{output}')
+		with zipfile.ZipFile(self.ipsw, 'r') as ipsw:
+			if '.Inferius' not in ipsw.namelist():
+				sys.exit(f"[ERROR] '{self.ipsw}' is not a custom IPSW. Exiting.")
 
-		return f'IPSWs/{output}'
+			info = json.loads(ipsw.read('.Inferius'))
 
-	def verify_custom_ipsw(self, update_support, version):
-		try:
-			with zipfile.ZipFile(self.ipsw, 'r') as ipsw:
-				if '.Inferius' not in ipsw.namelist():
-					sys.exit('[ERROR] This IPSW was not created by Inferius. Exiting.')
-
-				ipsw.extract('.Inferius', '.tmp/Inferius')
-
-		except FileNotFoundError:
-			sys.exit(f'[ERROR] IPSW does not exist at path: {self.ipsw}. Exiting.')
-		except zipfile.BadZipFile:
-			sys.exit(f'[ERROR] IPSW at path: {self.ipsw} is not a valid zip archive. Redownload the IPSW then try again. Exiting.')
-
-		with open('.tmp/Inferius/.Inferius', 'r') as f:
-			inferius_info = json.load(f)
-
-		if inferius_info['update_support'] == False and update_support == True:
-			sys.exit('[ERROR] This IPSW does not have support for restoring while keeping data. Exiting.')
+		if (info['update_support'] == False) and (update == True):
+			sys.exit('[ERROR] This IPSW does not have support for update restores. Exiting.')
 
 		api = API(self.device)
-		if api.check_signing(inferius_info['bootloader_src_ver']) == False:
+		if api.is_signed(info['bootloader']) == False:
 			sys.exit('[ERROR] This IPSW is too old to be used with Inferius. Create a new custom IPSW. Exiting.')
