@@ -4,17 +4,19 @@ import sys
 
 class API(object):
 	def __init__(self, identifier):
+
 		self.check_device(identifier)
+		self.api = self.fetch_api(identifier)
 		self.boardconfig = self.fetch_boardconfig()
 
-	def check_device(self, device):
-		api = requests.get(f'https://api.ipsw.me/v4/device/{device}type=ipsw')
+	def check_device(self, identifier):
+		api = requests.get('https://api.ipsw.me/v4/devices').json()
 
-		if api.status_code != 200:
-			sys.exit(f"[ERROR] '{device}' does not exist. Exiting.")
-		
-		self.api = api.json()
-		self.device = device
+		if identifier not in [x['identifier'] for x in api]:
+			sys.exit(f"[ERROR] '{identifier}' does not exist. Exiting.")
+
+	def fetch_api(self, identifier):
+		return requests.get(f'https://api.ipsw.me/v4/device/{identifier}?type=ipsw').json()
 
 	def check_version(self, version):
 		if not any(firm['version'] == version for firm in self.api['firmwares']):
