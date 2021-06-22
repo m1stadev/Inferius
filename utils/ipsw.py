@@ -8,8 +8,7 @@ import zipfile
 
 
 class IPSW(object):
-	def __init__(self, identifier, ipsw):
-		self.device = identifier
+	def __init__(self, ipsw):
 		self.ipsw = ipsw
 
 	def create_ipsw(self, path, output, update, bootloader):
@@ -28,15 +27,15 @@ class IPSW(object):
 		except:
 			sys.exit('[ERROR] Failed to create custom IPSW. Exiting.')
 
-		os.rename(f'IPSWs/{output}.zip', '/'.join(('IPSWs', output)))
+		os.rename(f'IPSW/{output}.zip', '/'.join(('IPSW', output)))
 		return '/'.join(('IPSWs', output))
 
-	def extract_file(self, file, path):
+	def extract_file(self, file, output):
 		try:
 			with zipfile.ZipFile(self.ipsw, 'r') as ipsw:
 				fbuf = ipsw.read(file)
 			
-			with open('/'.join((path, file)), 'wb') as f:
+			with open(output, 'wb') as f:
 				f.write(fbuf)
 		except:
 			sys.exit(f"[ERROR] Failed to extract '{file}' from IPSW. Exiting.")
@@ -47,6 +46,16 @@ class IPSW(object):
 				ipsw.extractall(path)
 			except:
 				sys.exit(f"[ERROR] Failed to extract '{self.ipsw}'. Exiting.")
+
+	def read_file(self, file):
+		try:
+			with zipfile.ZipFile(self.ipsw, 'r') as ipsw:
+				fbuf = ipsw.read(file)
+
+		except:
+			sys.exit(f"[ERROR] Failed to read '{file}' from IPSW. Exiting.")
+
+		return fbuf
 
 	def verify_ipsw(self, ipsw_sha1):
 		if not os.path.isfile(self.ipsw):
@@ -69,7 +78,7 @@ class IPSW(object):
 		if ipsw_sha1 != sha1.hexdigest():
 			sys.exit(f"[ERROR] '{self.ipsw}' is not a valid IPSW. Exiting.")
 
-	def verify_custom_ipsw(self, update):
+	def verify_custom_ipsw(self, device, update):
 		if not os.path.isfile(self.ipsw):
 			sys.exit(f"[ERROR] '{self.ipsw}' does not exist. Exiting.")
 
@@ -85,6 +94,6 @@ class IPSW(object):
 		if (info['update_support'] == False) and (update == True):
 			sys.exit('[ERROR] This IPSW does not have support for update restores. Exiting.')
 
-		api = API(self.device)
+		api = API(device)
 		if api.is_signed(info['bootloader']) == False:
 			sys.exit('[ERROR] This IPSW is too old to be used with Inferius. Create a new custom IPSW. Exiting.')
