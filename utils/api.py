@@ -45,8 +45,11 @@ class API(object):
 	def fetch_latest(self, component, path):
 		latest = self.api['firmwares'][0]
 		with remotezip.RemoteZip(latest['url']) as ipsw:
-			ipsw.extract(component, path)
+			file = ipsw.read(component)
 		
+		with open('/'.join((path, component)), 'wb') as f:
+			f.write(file)
+
 		return latest['version']
 
 	def fetch_sha1(self, buildid):
