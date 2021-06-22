@@ -77,7 +77,7 @@ class Restore(object):
 			sys.exit(f"[ERROR] Failed to sign '{file.split('/')[-1]}'. Exiting.")
 
 	def send_component(self, file, component):
-		if component == 'iBSS' and self.platform in (8960, 8015):
+		if component == 'iBSS' and self.platform in (8960, 8015): #TODO: Reset device via pyusb rather than call an external binary.
 			irecovery_reset = subprocess.run(('irecovery', '-f', file), stdout=subprocess.PIPE, universal_newlines=True)
 
 			if irecovery_reset.returncode != 0:
@@ -85,13 +85,13 @@ class Restore(object):
 
 		irecovery = subprocess.run(('irecovery', '-f', file), stdout=subprocess.PIPE, universal_newlines=True)
 		if irecovery.returncode != 0:
-			sys.exit(f'[ERROR] Failed to send {component}. Exiting.')
+			sys.exit(f"[ERROR] Failed to send '{component}'. Exiting.")
 
 		if component == 'iBEC' and 8010 <= self.platform <= 8015:
 			irecovery_jump = subprocess.run(('irecovery', '-c', 'go'), stdout=subprocess.PIPE, universal_newlines=True)
 
 			if irecovery_jump.returncode != 0:
-				sys.exit(f'[ERROR] Failed to boot {component}. Exiting.')
+				sys.exit(f"[ERROR] Failed to boot '{component}'. Exiting.")
 
 			time.sleep(2)
 		elif component == 'iBEC':
