@@ -14,7 +14,6 @@ class Checks(object):
 		if shutil.which(binary) is None:
 			sys.exit(f"[ERROR] '{binary}' is not installed on your system. Exiting.")
 
-
 		if binary == 'futurerestore':
 			fr_ver = subprocess.run((binary), stdout=subprocess.PIPE, universal_newlines=True).stdout.splitlines()[0]
 			if not fr_ver.endswith('-m1sta'):
