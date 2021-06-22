@@ -15,7 +15,7 @@ class API(object):
 		if identifier not in [x['identifier'] for x in api]:
 			sys.exit(f"[ERROR] '{identifier}' does not exist. Exiting.")
 
-	def check_signing(self, version):
+	def is_signed(self, version):
 		return any(firm['signed'] == True for firm in self.api['firmwares'] if firm['version'] == version)
 
 	def check_version(self, version):
