@@ -10,6 +10,8 @@ class API(object):
 		if identifier not in [device['identifier'] for device in api]:
 			sys.exit(f"[ERROR] '{identifier}' does not exist. Exiting.")
 
+		self.device = identifier
+
 	def is_signed(self, version):
 		return any(firm['signed'] == True for firm in self.api['firmwares'] if firm['version'] == version)
 
@@ -17,9 +19,8 @@ class API(object):
 		if not any(firm['version'] == version for firm in self.api['firmwares']):
 			sys.exit(f"[ERROR] '{version}' does not exist. Exiting.")
 
-	def fetch_api(self, identifier):
-		self.check_device(identifier)
-		self.api = requests.get(f'https://api.ipsw.me/v4/device/{identifier}?type=ipsw').json()
+	def fetch_api(self, identifier=None):
+		self.api = requests.get(f'https://api.ipsw.me/v4/device/{identifier if identifier else self.device}?type=ipsw').json()
 
 	def get_board(self):
 		boards = [board['boardconfig'] for board in self.api['boards']]
