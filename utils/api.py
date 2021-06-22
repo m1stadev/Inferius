@@ -27,12 +27,10 @@ class API(object):
 			return boards[0]
 		
 		print('There are multiple boardconfigs for your device! Please choose the correct boardconfig for your device:')
-
 		for board in range(len(boards)):
-			print(f"{board + 1} - {boards[board]}")
+			print(f"  {board + 1}: {boards[board]}")
 
 		board = input('Choice: ')
-
 		try:
 			board = int(board) - 1
 		except:
