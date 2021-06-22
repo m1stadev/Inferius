@@ -1,39 +1,74 @@
+import glob
+import os
 import subprocess
 import sys
-import usb
+import usb, usb.backend.libusb1
 
 class Device(object):
-	def __init__(self, device_identifier):
-		super().__init__()
-
-		self.device = device_identifier
+	def __init__(self, identifier):
+		self.device = identifier
 		self.baseband = self.check_baseband()
+		self.backend = self.get_backend()
 		self.platform = self.fetch_platform()
 		self.boardconfig = self.fetch_boardconfig()
 		self.apnonce = self.fetch_apnonce()
 		self.ecid = self.fetch_ecid()
 
+	def get_backend(self): # Attempt to find a libusb 1.0 library to use as pyusb's backend, exit if one isn't found.
+		directories = ('/usr/lib', '/opt/procursus/lib', '/usr/local/lib') # Common library directories to search
+
+		libusb1 = None
+		for libdir in directories:
+			for file in glob.glob(libdir + '/**', recursive=True):
+				if os.path.isdir(file) or (not any(ext in file for ext in ('so', 'dylib'))):
+					continue
+
+				if 'libusb-1.0' in file:
+					libusb1 = file
+					break
+
+			else:
+				continue
+
+			break
+
+		if libusb1 is None:
+			sys.exit('[ERROR] libusb is not installed. Install libusb. Exiting.')
+
+		return usb.backend.libusb1.get_backend(find_library=lambda x:libusb1)
+
 	def check_baseband(self):
 		if self.device.startswith('iPhone'):
 			return True
 
-		elif self.device.startswith('iPod'):
-			return False
+		cellular_ipads = [ # All (current) 64-bit cellular iPads vulerable to checkm8.
+			'iPad4,2',
+			'iPad4,3',
+			'iPad4,5',
+			'iPad4,6',
+			'iPad4,8',
+			'iPad4,9',
+			'iPad5,2',
+			'iPad5,4',
+			'iPad6,8',
+			'iPad6,4',
+			'iPad7,2',
+			'iPad7,4',
+			'iPad8,3',
+			'iPad8,4',
+			'iPad8,7',
+			'iPad8,8',
+			'iPad8,10',
+			'iPad8,12',
+			'iPad11,2'
+			'iPad11,4',
+			'iPad13,2',
+			]
 
-		elif self.device.startswith('iPad'):
-			cellular_ipads = ['iPad4,2', 'iPad4,3', 'iPad5,4', 'iPad11,4', 'iPad13,2', 'iPad6,8', 'iPad6,4', 'iPad7,2', 'iPad7,4', 'iPad8,3', 'iPad8,4', 'iPad8,7', 'iPad8,8', 'iPad8,10', 'iPad8,12', 'iPad4,5', 'iPad4,6', 'iPad4,8', 'iPad4,9', 'iPad5,2', 'iPad11,2']
-			if self.device in cellular_ipads:
-				return True
-			else:
-				return False
+		return self.device in cellular_ipads
 
 	def check_pwndfu(self):
-		try:
-			device = usb.core.find(idVendor=0x5AC, idProduct=0x1227)
-
-		except usb.core.NoBackendError:
-			sys.exit('[ERROR] libusb is not installed. Install libusb from Homebrew. Exiting.')
-
+		device = usb.core.find(idVendor=0x5AC, idProduct=0x1227, backend=self.backend)
 		if device is None:
 			sys.exit('[ERROR] Device in DFU mode not found. Exiting.')
 
@@ -41,34 +76,22 @@ class Device(object):
 			sys.exit('[ERROR] Attempting to restore a device not in Pwned DFU mode. Exiting.')
 
 	def fetch_boardconfig(self):
-		irecovery = subprocess.run(('irecovery', '-qv'), stdout=subprocess.DEVNULL, stderr=subprocess.PIPE, universal_newlines=True)
-
-		return irecovery.stderr.splitlines()[4].split(' ')[4][:-1]
+		irecovery = subprocess.run(('irecovery', '-qv'), stdout=subprocess.DEVNULL, stderr=subprocess.PIPE, universal_newlines=True).stderr
+		return irecovery.splitlines(4).split(', ')[1].replace('model ', '')
 
 	def fetch_apnonce(self):
-		irecovery = subprocess.run(('irecovery', '-q'), stdout=subprocess.PIPE, universal_newlines=True)
-
-		return irecovery.stdout.splitlines()[-4].split(' ')[-1]
+		irecovery = subprocess.run(('irecovery', '-q'), stdout=subprocess.PIPE, universal_newlines=True).stdout
+		return irecovery.splitlines()[-3].split(' ')[-1]
 
 	def fetch_platform(self):
-		try:
-			device = usb.core.find(idVendor=0x5AC, idProduct=0x1227)
-
-		except usb.core.NoBackendError:
-			sys.exit('[ERROR] libusb is not installed. Install libusb from Homebrew. Exiting.')
-
+		device = usb.core.find(idVendor=0x5AC, idProduct=0x1227, backend=self.backend)
 		if device is None:
 			sys.exit('[ERROR] Device in DFU mode not found. Exiting.')
 
 		return int(device.serial_number.split(' ')[0].split(':')[1])
 
 	def fetch_ecid(self):
-		try:
-			device = usb.core.find(idVendor=0x5AC, idProduct=0x1227)
-
-		except usb.core.NoBackendError:
-			sys.exit('[ERROR] libusb is not installed. Install libusb from Homebrew. Exiting.')
-
+		device = usb.core.find(idVendor=0x5AC, idProduct=0x1227, backend=self.backend)
 		if device is None:
 			sys.exit('[ERROR] Device in DFU mode not found. Exiting.')
 
