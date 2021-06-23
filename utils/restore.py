@@ -16,7 +16,7 @@ class Restore(object):
 			'futurerestore',
 			'-t',
 			self.blob,
-			'--latest-sep',
+			'--latest-sep'
 		]
 
 		if update:
@@ -28,61 +28,58 @@ class Restore(object):
 			args.append('--no-baseband')
 
 		args.append(ipsw)
-		futurerestore = subprocess.run(args)
-		if futurerestore.returncode != 0:
+		futurerestore = subprocess.check_output(args, stderr=subprocess.DEVNULL, universal_newlines=True)
+		if 'Done: restoring succeeded!' not in futurerestore:
 			sys.exit('[ERROR] Restore failed. Exiting.')
 
-		shutil.rmtree(ipsw.rsplit('.', 0)[0])
+		shutil.rmtree(ipsw.rsplit('.', 1)[0])
 
-	def save_blobs(self, boardconfig, ecid, apnonce, path):
-		args = (
-			'tsschecker',
-			'-d',
-			self.device,
-			'-B',
-			boardconfig,
-			'-e',
-			'0x' + ecid,
-			'--apnonce',
-			apnonce,
-			'-l',
-			'-s',
-			'--save-path',
-			path
-			)
+	def save_blobs(self, ecid, boardconfig, path, apnonce=None):
+		if apnonce:
+			args = (
+				'tsschecker',
+				'-d',
+				self.device,
+				'-B',
+				boardconfig,
+				'-e',
+				'0x' + ecid,
+				'--apnonce',
+				apnonce,
+				'-l',
+				'-s',
+				'--save-path',
+				path,
+				'--nocache'
+				)
 
-		tsschecker = subprocess.run(args, stdout=subprocess.PIPE, universal_newlines=True)
-		if 'Saved shsh blobs!' not in tsschecker.stdout:
+		else:
+			args = (
+				'tsschecker',
+				'-d',
+				self.device,
+				'-B',
+				boardconfig,
+				'-e',
+				'0x' + ecid,
+				'-l',
+				'-s',
+				'--save-path',
+				path,
+				'--nocache'
+				)
+
+		tsschecker = subprocess.check_output(args, universal_newlines=True)
+		if 'Saved shsh blobs!' not in tsschecker:
 			sys.exit('[ERROR] Failed to save blobs. Exiting.')
 
-		self.blob = glob.glob(f'{path}/*.shsh*')[0]
-
-		if self.platform != 8960:
-			self.signing_blob = self.blob
-			return
-
-		args = (
-			'tsschecker',
-			'-d',
-			self.device,
-			'-B',
-			boardconfig,
-			'-e',
-			'0x' + ecid,
-			'-l',
-			'-s',
-			'--save-path',
-			path
-			)
-
-		tsschecker = subprocess.run(args, stdout=subprocess.PIPE, universal_newlines=True)
-		if 'Saved shsh blobs!' not in tsschecker.stdout:
-			sys.exit('[ERROR] Failed to save blobs. Exiting.')
-
-		for blob in glob.glob(f'{path}/*.shsh*'):
-			if blob != self.blob:
-				self.signing_blob = blob
-				break
+		if apnonce:
+			for blob in glob.glob(f'{path}/*.shsh*'):
+				if blob != self.signing_blob:
+					self.blob = blob
+					break
+		else:
+			self.signing_blob = glob.glob(f'{path}/*.shsh*')[0]
 
 	def send_component(self, file, component):
 		if component == 'iBSS' and self.platform in (8960, 8015): #TODO: Reset device via pyusb rather than call an external binary.
