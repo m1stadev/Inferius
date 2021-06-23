@@ -54,7 +54,7 @@ class Device(object):
 			sys.exit('[ERROR] Attempting to restore a device not in Pwned DFU mode. Exiting.')
 
 	def fetch_apnonce(self):
-		irecovery = subprocess.check_output(('irecovery', '-q'), stdout=subprocess.PIPE, universal_newlines=True)
+		irecovery = subprocess.check_output(('irecovery', '-q'), universal_newlines=True)
 		return irecovery.splitlines()[-3].split(' ')[-1]
 
 	def get_backend(self): # Attempt to find a libusb 1.0 library to use as pyusb's backend, exit if one isn't found.
@@ -82,7 +82,7 @@ class Device(object):
 
 	def fetch_boardconfig(self):
 		irecovery = subprocess.run(('irecovery', '-qv'), stdout=subprocess.DEVNULL, stderr=subprocess.PIPE, universal_newlines=True).stderr
-		return irecovery.splitlines(4).split(', ')[1].replace('model ', '')
+		return irecovery.splitlines()[4].split(', ')[1].replace('model ', '')
 
 	def fetch_ecid(self):
 		device = usb.core.find(idVendor=0x5AC, idProduct=0x1227, backend=self.backend)
