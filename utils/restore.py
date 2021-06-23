@@ -1,5 +1,4 @@
 import glob
-import os
 import shutil
 import subprocess
 import sys
@@ -28,8 +27,8 @@ class Restore(object):
 			args.append('--no-baseband')
 
 		args.append(ipsw)
-		futurerestore = subprocess.check_output(args, stderr=subprocess.DEVNULL, universal_newlines=True)
-		if 'Done: restoring succeeded!' not in futurerestore:
+		futurerestore = subprocess.run(args, stderr=subprocess.DEVNULL, stdout=subprocess.PIPE, universal_newlines=True)
+		if 'Done: restoring succeeded!' not in futurerestore.stdout:
 			sys.exit('[ERROR] Restore failed. Exiting.')
 
 		shutil.rmtree(ipsw.rsplit('.', 1)[0])
