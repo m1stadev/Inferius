@@ -44,48 +44,44 @@ def create_ipsw(identifier, buildmanifest, ipsw_path, tmpdir):
 	custom_ipsw = ipsw.create_ipsw(extracted_ipsw, ipsw_path.split('/')[-1].rsplit('.', 1)[0] + '_custom.ipsw', bundle.check_update_support(), bootloader_ver)
 	print(f"Finished creating custom IPSW: '{custom_ipsw}'.")
 
-def restore_ipsw(identifier, version, ipsw_path, update):
-	with open('.tmp/Inferius/ipsw/BuildManifest.plist', 'rb') as f:
-		buildmanifest = manifest.Manifest(f)
-
-	api = API(identifier)
+def restore_ipsw(identifier, buildmanifest, ipsw_path, updating, tmpdir):
+	api = API()
+	api.fetch_api(identifier)
 	Checks()
 	device = Device(identifier)
 	ipsw = IPSW(ipsw_path)
 	restore = Restore(identifier, device.platform)
 
-	print('verifying custom IPSW')
-	ipsw.verify_custom_ipsw(update, version)
+	print('[0] Verifying custom IPSW...')
+	ipsw.verify_custom_ipsw(identifier, updating)
 
-	print('checking for device in pwndfu')
+	print('[1] Checking for device in pwned DFU...')
 	device.check_pwndfu()
 
-	print('saving blobs')
-	restore.save_blobs(device.boardconfig, device.ecid, device.apnonce, update, '.tmp/Inferius')
+	print('[2] Extracting bootchain...')
+	ibss = buildmanifest.fetch_component_path(device.boardconfig, 'iBSS')
+	ipsw.extract_file(ibss, '/'.join((tmpdir, 'ibss.im4p')))
+	ibec = buildmanifest.fetch_component_path(device.boardconfig, 'iBEC')
+	ipsw.extract_file(ibec, '/'.join((tmpdir, 'ibec.im4p')))
 
-	ibss_path = buildmanifest.fetch_component_path(device.boardconfig, 'iBSS')
-	ibec_path = buildmanifest.fetch_component_path(device.boardconfig, 'iBEC')
+	print('[3] Signing bootchain...')
+	restore.save_blobs(device.ecid, device.boardconfig, tmpdir)
+	restore.sign_component('/'.join((tmpdir, 'ibss.im4p')), '/'.join((tmpdir, 'ibss.img4')))
+	restore.sign_component('/'.join((tmpdir, 'ibec.im4p')), '/'.join((tmpdir, 'ibec.img4')))
 
-	print('extracting ibss')
-	ipsw.extract_file(ibss_path, '.tmp/Inferius/ipsw')
-	print('extracting ibec')
-	ipsw.extract_file(ibec_path, '.tmp/Inferius/ipsw')
+	print('[4] Sending bootchain...')
+	restore.send_component('/'.join((tmpdir, 'ibss.img4')), 'iBSS')
+	restore.send_component('/'.join((tmpdir, 'ibec.img4')), 'iBEC')
 
-	print('signing ibss')
-	restore.sign_component(f'.tmp/Inferius/ipsw/{ibss_path}', '.tmp/Inferius')
-	print('signing ibec')
-	restore.sign_component(f'.tmp/Inferius/ipsw/{ibec_path}', '.tmp/Inferius')
+	print('[5] Saving SHSH blobs...')
+	restore.save_blobs(device.ecid, device.boardconfig, tmpdir, device.fetch_apnonce())
 
-	print('sending ibss')
-	restore.send_component(f'.tmp/Inferius/{ibss_path.split("/")[-1].rsplit(".", 1)[0]}.img4', 'iBSS')
-	print('sending ibec')
-	restore.send_component(f'.tmp/Inferius/{ibec_path.split("/")[-1].rsplit(".", 1)[0]}.img4', 'iBEC')
-
-	print('restoring')
-	restore.restore(ipsw_path, device.baseband, update)
+	print('[6] Restoring...')
+	restore.restore(ipsw_path, device.baseband, updating)
+	print(f'Finished restoring pwned iOS {buildmanifest.version} IPSW to your device.')
 
 def main():
-	parser = argparse.ArgumentParser(description='Inferius - Create & Restore 64-bit custom IPSWs', usage="./inferius -d 'device' -f 'IPSW' [-c/-r] [-v]")
+	parser = argparse.ArgumentParser(description='Inferius - Create & Restore 64-bit custom IPSWs', usage="./inferius -d 'identifier' -f 'IPSW' [-c/-r] [-v]")
 	parser.add_argument('-d', '--device', help='Device identifier', nargs=1)
 	parser.add_argument('-f', '--ipsw', help='Path to IPSW', nargs=1)
 	parser.add_argument('-c', '--create', help='Create custom IPSW', action='store_true')
@@ -138,7 +134,7 @@ def main():
 			custom_ipsw = ipsw_path
 
 		if args.restore:
-			restore_ipsw(identifier, buildmanifest.version, custom_ipsw, args.update, tmpdir)
+			restore_ipsw(identifier, buildmanifest, custom_ipsw, args.update, tmpdir)
 
 
 if __name__ == '__main__':
