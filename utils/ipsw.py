@@ -50,12 +50,10 @@ class IPSW(object):
 	def read_file(self, file):
 		try:
 			with zipfile.ZipFile(self.ipsw, 'r') as ipsw:
-				fbuf = ipsw.read(file)
+				return ipsw.read(file)
 
 		except:
 			sys.exit(f"[ERROR] Failed to read '{file}' from IPSW. Exiting.")
-
-		return fbuf
 
 	def verify_ipsw(self, ipsw_sha1):
 		if not os.path.isfile(self.ipsw):
