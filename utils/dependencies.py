@@ -22,5 +22,5 @@ class Checks(object):
 		elif binary == 'irecovery':
 			irec_ver = subprocess.run((binary, '-V'), stdout=subprocess.PIPE, universal_newlines=True).stdout
 
-			if 'unrecognized option' in irec_ver.stdout:
+			if 'unrecognized option' in irec_ver:
 				sys.exit(f"[ERROR] Your '{binary}' version is too old. Exiting.")
