@@ -92,6 +92,7 @@ class IPSW(object):
 		if (info['update_support'] == False) and (update == True):
 			sys.exit('[ERROR] This IPSW does not have support for update restores. Exiting.')
 
-		api = API(device)
+		api = API()
+		api.fetch_api(device)
 		if api.is_signed(info['bootloader']) == False:
 			sys.exit('[ERROR] This IPSW is too old to be used with Inferius. Create a new custom IPSW. Exiting.')
