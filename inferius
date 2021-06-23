@@ -121,7 +121,7 @@ def main():
 	if ver_major == 10 and restoremanifest.platform != 8960:
 		sys.exit(f'[ERROR] iOS {buildmanifest.version} can only be downgraded to on A7 devices currently. Exiting.')
 
-	if not 11 <= ver_major <= 13 or ver_major_minor <= 10.1:
+	if not 11 <= ver_major <= 14 or ver_major_minor <= 10.1:
 		sys.exit(f'[ERROR] iOS {buildmanifest.version} is not supported by Inferius. Exiting.')
 
 	if identifier not in buildmanifest.supported_devices:
