@@ -1,13 +1,12 @@
 # Inferius
-Inferius is an [xpwn](https://github.com/OothecaPickle/xpwn)-like tool to create & restore custom IPSWs to 64-bit devices.
+Inferius is an [xpwn](https://github.com/m1stadev/xpwn)-like tool to create & restore custom IPSWs to 64-bit devices.
 
 Its current purpose is to downgrade devices (vulnerable to [checkm8](https://github.com/axi0mX/ipwndfu)) to previous iOS versions. However, there are other possible uses for this tool as well.
 
 ## Notes and Caveats
 Before using Inferius, keep in mind that
 - **No one but YOU** is fully responsible for any data loss or damage caused to your device
-- Creating a new IPSW when attempting to restore is a **must** when using Inferius. Previously created IPSWs can brick your device, depending on which LLB and iBoot files were used from a signed firmware
-- Restores are **not** untethered. This means that in order to boot your device, you're always required to use [PyBoot](https://github.com/MatthewPierson/PyBoot) or [ra1nsn0w](https://github.com/tihmstar/ra1nsn0w) to do just that (or if you want to boot jailbroken, [checkra1n](https://checkra.in) will work fine too)
+- Restores are **not** untethered. This means that in order to boot your device, you're required to use [PyBoot](https://github.com/MatthewPierson/PyBoot), [ra1nsn0w](https://github.com/tihmstar/ra1nsn0w), or [Ramiel](https://ramiel.app/) to do just that (or if you want to boot jailbroken, [checkra1n](https://checkra.i/n) should work as well).
 - Downgrades are still limited to versions compatible with the latest signed SEP version. This will change when [checkra1n](https://checkra.in/) implements a nonce setter for the SEP.
 
 Inferius may not come with a firmware bundle compatible with your device. If you need to create your own firmware bundle, you can follow [this guide](https://github.com/m1stadev/Inferius/wiki/Creating-your-own-Firmware-Bundles).
@@ -28,31 +27,30 @@ Currently, to use Inferius, you'll need
 - [My fork of futurerestore](https://github.com/m1stadev/futurerestore)
 - [My fork of img4tool](https://github.com/m1stadev/img4tool)
 - [libirecovery](https://github.com/libimobiledevice/libirecovery)
-- [tsschecker](https://github.com/tihmstar/tsschecker)
+- [tsschecker](https://github.com/1Conan/tsschecker)
 - Pip dependencies:
     - `pip3 install -r requirements.txt`
 
 To create a custom IPSW:
 ```py
-./inferius.py -d 'device' -i 'iOS Version' -f 'IPSW' -c [-v]
+./inferius -d 'device' -f 'IPSW' -c [-v]
 ```
 
 To create and restore a custom IPSW:
 ```py
-./inferius.py -d 'device' -i 'iOS version' -f 'IPSW' -c -r [-v]
+./inferius -d 'device' -f 'IPSW' -c -r [-v]
 ```
 
 To restore a custom IPSW:
 ```py
-./inferius.py -d 'device' -i 'iOS version' -f 'IPSW' -r [-v]
+./inferius -d 'device' -f 'IPSW' -r [-v]
 ```
 
 Below, you can find all the options Inferius has to offer
 
 | Option (short) | Option (long) | Description |
 |----------------|---------------|-------------|
-| `-d DEVICE` | `--device DEVICE` | Device identifier (e.g. iPhone10,2) |
-| `-i VERSION` | `--version VERSION` | iOS Version |
+| `-d IDENTIFIER` | `--device IDENTIFIER` | Device identifier |
 | `-f IPSW` | `--ipsw IPSW` | Path to IPSW |
 | `-c` | `--create` | Create custom IPSW |
 | `-r` | `--restore` | Restore custom IPSW |
@@ -64,9 +62,8 @@ Below, you can find all the options Inferius has to offer
 - Reimplement logs for debugging
 
 ## Special thanks
-I'd like to thank the following individuals for their corresponding role in this project
+I'd like to thank the following people for their corresponding role in this project
 - [NotHereForTheDong](https://github.com/NotHereForTheDong) for providing firmware bundles and beta testing
-- [Renaitare](https://twitter.com/Renaitare), [Chibibowa](https://twitter.com/Chibibowa), and [Moses](https://twitter.com/MosesBuckwalter) for beta testing
-- [Matty](https://twitter.com/mosk_i) for his special build of futurerestore, which allows custom IPSWs to be used for restoring
+- [tale](https://twitter.com/aarnavtale), [Chibibowa](https://twitter.com/Chibibowa), and [Moses](https://twitter.com/MosesBuckwalter) for beta testing
 
-Finally, if you need help or have any questions about Inferius, join my [Discord server](https://discord.gg/fAngssA).
+Finally, if you need help or have any questions about Inferius, join my [Discord server](https://m1sta.xyz/discord).
