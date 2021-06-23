@@ -15,8 +15,8 @@ class Checks(object):
 			sys.exit(f"[ERROR] '{binary}' is not installed on your system. Exiting.")
 
 		if binary == 'futurerestore':
-			fr_ver = subprocess.run((binary), stdout=subprocess.PIPE, universal_newlines=True).stdout.splitlines()[0]
-			if not fr_ver.endswith('-m1sta'):
+			fr_ver = subprocess.run((binary), stdout=subprocess.PIPE, universal_newlines=True).stdout
+			if not fr_ver.splitlines()[1].endswith('-m1sta'):
 				sys.exit(f"[ERROR] This futurerestore cannot be used with Inferius. Exiting.")
 
 		elif binary == 'irecovery':
