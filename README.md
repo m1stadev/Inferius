@@ -25,7 +25,7 @@ Currently, to use Inferius, you'll need
 ## Requirements
 - [libusb](https://libusb.info/)
 - [My fork of futurerestore](https://github.com/m1stadev/futurerestore)
-- [My fork of img4tool](https://github.com/m1stadev/img4tool)
+    - futurerestore must be compiled with [my fork of img4tool](https://github.com/m1stadev/img4tool), or else it can't be used with Inferius.
 - [libirecovery](https://github.com/libimobiledevice/libirecovery)
 - [tsschecker](https://github.com/1Conan/tsschecker)
 - Pip dependencies:
