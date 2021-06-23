@@ -54,8 +54,8 @@ class Device(object):
 			sys.exit('[ERROR] Attempting to restore a device not in Pwned DFU mode. Exiting.')
 
 	def fetch_apnonce(self):
-		irecovery = subprocess.check_output(('irecovery', '-q'), universal_newlines=True)
-		return irecovery.splitlines()[-3].split(' ')[-1]
+		irecv = subprocess.check_output(('irecovery', '-q'), universal_newlines=True)
+		return irecv.splitlines()[-3].split(' ')[-1]
 
 	def get_backend(self): # Attempt to find a libusb 1.0 library to use as pyusb's backend, exit if one isn't found.
 		directories = ('/usr/lib', '/opt/procursus/lib', '/usr/local/lib') # Common library directories to search
