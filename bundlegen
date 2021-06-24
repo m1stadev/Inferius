@@ -228,22 +228,23 @@ def main():
 	if not args.device or not args.version:
 		sys.exit(parser.print_help(sys.stderr))
 
-	identifier = args.device[0]
-	version = args.version[0]
-
-	if any(identifier.startswith(device) for device in ('iPhone8', 'iPad6,1')):
-		sys.exit('[ERROR] A9 devices are not currently supported. Exiting.')
-
 	check_bin('asr64_patcher')
 	check_bin('img4')
 	check_bin('kairos')
 	check_bin('Kernel64Patcher')
 	check_bin('ldid')
 
+
+	identifier = 'P'.join(args.device[0].lower().split('p'))
+	version = args.version[0]
+
 	try:
 		ipsw_api = requests.get(f'https://api.ipsw.me/v4/device/{identifier}?type=ipsw').json()
 	except:
 		sys.exit(f"[ERROR] '{identifier}' is not a valid device identifier. Exiting.")
+
+	if any(identifier.startswith(device) for device in ('iPhone8', 'iPad6,1')):
+		sys.exit('[ERROR] A9 devices are not currently supported. Exiting.')
 
 	if not any(firm['version'] == version for firm in ipsw_api['firmwares']):
 		sys.exit(f"[ERROR] 'iOS {version}' is not a valid iOS version. Exiting.")
