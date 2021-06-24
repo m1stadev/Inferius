@@ -330,6 +330,7 @@ def main():
 			'boards': [
 				boardconfig
 			],
+			'update_support': False,
 			'patches': {
 				'required': [
 					{

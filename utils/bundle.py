@@ -25,7 +25,7 @@ class Bundle(object):
 		with open(f'{self.bundle}/Info.json', 'r') as f:
 			bundle_data = json.load(f)
 
-		return 'UpdateRamdisk' in bundle_data['patches']['required']
+		return bundle_data['update_support']
 
 	def fetch_bundle(self, device, version, buildid, path):
 		bundle_name = f'{device}_{version}_{buildid}'
