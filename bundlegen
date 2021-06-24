@@ -318,18 +318,20 @@ def main():
 		unmount_rdsk(tmpdir + '/ramdisk')
 
 		patch_asr(tmpdir + '/asr', tmpdir + '/asr.pwn')
+		os.chmod(tmpdir + '/asr.pwn', '0775')
+		shutil.copyfile(tmpdir + '/asr.pwn', bundle + '/asr.pwn')
 
-		mount_rdsk(ramdisk['path'] + '_rdsk.dmg', tmpdir + '/ramdisk')
-		try:
-			shutil.move(tmpdir + '/asr.pwn', tmpdir + '/ramdisk/usr/sbin/asr')
-		except OSError:
-			unmount_rdsk(tmpdir + '/ramdisk')
-			sys.exit('[ERROR] Failed to place patched ASR back into ramdisk. Exiting.')
+		#mount_rdsk(ramdisk['path'] + '_rdsk.dmg', tmpdir + '/ramdisk')
+		#try:
+		#	shutil.move(tmpdir + '/asr.pwn', tmpdir + '/ramdisk/usr/sbin/asr')
+		#except OSError:
+		#	unmount_rdsk(tmpdir + '/ramdisk')
+		#	sys.exit('[ERROR] Failed to place patched ASR back into ramdisk. Exiting.')
 
-		unmount_rdsk(tmpdir + '/ramdisk')
+		#unmount_rdsk(tmpdir + '/ramdisk')
 
-		create_im4p(ramdisk['path'] + '_rdsk.dmg', ramdisk['path'] + '.im4p', 'rdsk')
-		bsdiff4.file_diff(ramdisk['path'], ramdisk['path'] + '.im4p', '/'.join((bundle, ramdisk['name'] + '.asr.patch')))
+		#create_im4p(ramdisk['path'] + '_rdsk.dmg', ramdisk['path'] + '.im4p', 'rdsk')
+		#bsdiff4.file_diff(ramdisk['path'], ramdisk['path'] + '.im4p', '/'.join((bundle, ramdisk['name'] + '.asr.patch')))
 
 		print('[5] Making Firmware Bundle...')
 		info = {
