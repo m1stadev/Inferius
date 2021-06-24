@@ -6,8 +6,13 @@ Its current purpose is to downgrade devices (vulnerable to [checkm8](https://git
 ## Notes and Caveats
 Before using Inferius, keep in mind that
 - **No one but YOU** is fully responsible for any data loss or damage caused to your device
-- Restores are **not** untethered. This means that in order to boot your device, you're required to use [PyBoot](https://github.com/MatthewPierson/PyBoot), [ra1nsn0w](https://github.com/tihmstar/ra1nsn0w), or [Ramiel](https://ramiel.app/) to do just that (or if you want to boot jailbroken, [checkra1n](https://checkra.i/n) should work as well).
 - Downgrades are still limited to versions compatible with the latest signed SEP version. This will change when [checkra1n](https://checkra.in/) implements a nonce setter for the SEP.
+- Due to the downgrades being tethered, after restoring a custom IPSW you must use one of these tools to boot your iOS device:
+    - [PyBoot](https://github.com/MatthewPierson/PyBoot)
+    - [ra1nsn0w](https://github.com/tihmstar/ra1nsn0w)
+    - [Ramiel](https://ramiel.app/)
+    - [checkra1n](https://checkra.i/n) should work as well).
+    Alternatively, you can patch the bootchain & send it to your device over pwned DFU manually, as described [here](https://dualbootfun.github.io/).
 
 Inferius may not come with a firmware bundle compatible with your device. If you need to create your own firmware bundle, you can utilize [bundlegen](https://github.com/m1stadev/Inferius/blob/rewrite/bundlegen), or [this guide (DEPRECEATED)](https://github.com/m1stadev/Inferius/wiki/Creating-your-own-Firmware-Bundles).
 
