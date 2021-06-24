@@ -1,4 +1,5 @@
 bsdiff4
+mwclient
 remotezip
 requests
 pyusb
