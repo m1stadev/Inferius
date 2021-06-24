@@ -319,7 +319,6 @@ def main():
 
 		patch_asr(tmpdir + '/asr', tmpdir + '/asr.pwn')
 		os.chmod(tmpdir + '/asr.pwn', '0775')
-		shutil.copyfile(tmpdir + '/asr.pwn', bundle + '/asr.pwn')
 
 		mount_rdsk(ramdisk['path'] + '_rdsk.dmg', tmpdir + '/ramdisk')
 		try:
