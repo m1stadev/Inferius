@@ -12,7 +12,7 @@ Before using Inferius, keep in mind that
     - [ra1nsn0w](https://github.com/tihmstar/ra1nsn0w)
     - [Ramiel](https://ramiel.app/)
     - [checkra1n](https://checkra.i/n) should work as well).
-    Alternatively, you can patch the bootchain & send it to your device over pwned DFU manually, as described [here](https://dualbootfun.github.io/).
+Alternatively, you can patch the bootchain & send it to your device over pwned DFU manually, as described [here](https://dualbootfun.github.io/).
 
 Inferius may not come with a firmware bundle compatible with your device. If you need to create your own firmware bundle, you can utilize [bundlegen](https://github.com/m1stadev/Inferius/blob/rewrite/bundlegen), or [this guide (DEPRECEATED)](https://github.com/m1stadev/Inferius/wiki/Creating-your-own-Firmware-Bundles).
 
