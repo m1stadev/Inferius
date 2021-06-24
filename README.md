@@ -50,9 +50,12 @@ Inferius may not come with a firmware bundle compatible with your device. If you
 - A brain (Not completely necessary, but YMMV)
 - [asr64_patcher](https://github.com/exploit3dguy/asr64_patcher)
 - [img4lib](https://github.com/xerub/img4lib)
-- [kairos](https://github.com/dayt0n/kairos/releases)
+    - Compiled binaries can be found [here](https://github.com/xerub/img4lib/releases)
+- [kairos](https://github.com/dayt0n/kairos)
+    - Compiled binaries can be found [here](https://github.com/dayt0n/kairos/releases)
 - [Kernel64Patcher](https://github.com/Ralph0045/Kernel64Patcher)
-- [Link Identity Editor](https://github.com/sbingner/ldid/releases)
+- [Link Identity Editor](https://github.com/sbingner/ldid)
+    - Compiled binaries can be found [here](https://github.com/sbingner/ldid/releases)
 - Pip dependencies:
     - `pip3 install -r requirements.txt`
 
