@@ -335,10 +335,10 @@ def main():
 		info = {
 			'identifier': identifier,
 			'buildid': firm['buildid'],
+			'update_support': False,
 			'boards': [
 				boardconfig
 			],
-			'update_support': False,
 			'patches': {
 				'required': [
 					{
