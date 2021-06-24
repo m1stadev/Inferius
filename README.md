@@ -45,7 +45,7 @@ Inferius may not come with a firmware bundle compatible with your device. If you
 
 ## Requirements
 - A computer running macOS
-- At least **6gbs** of free space on your computer
+- At least **250mb** of free space on your computer
 - An Internet Connection
 - A brain (Not completely necessary, but YMMV)
 - [asr64_patcher](https://github.com/exploit3dguy/asr64_patcher)
