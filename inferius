@@ -125,12 +125,15 @@ def main():
 	buildmanifest = Manifest(ipsw.read_file('BuildManifest.plist'))
 
 	ver_major = int(buildmanifest.version.split('.')[0])
-	ver_major_minor = float(buildmanifest.version.rsplit('.', 1)[0])
+	if len(buildmanifest.version.split('.')) == 3:
+		ver_major_minor = float(buildmanifest.version.rsplit('.', 1)[0])
+	else:
+		ver_major_minor = float(buildmanifest.version)
 
 	if ver_major == 10 and restoremanifest.platform != 8960:
 		sys.exit(f'[ERROR] iOS {buildmanifest.version} can only be downgraded to on A7 devices currently. Exiting.')
 
-	if not 11 <= ver_major <= 14 or ver_major_minor <= 10.1:
+	if (not 11 <= ver_major <= 14) and (ver_major_minor < 10.1):
 		sys.exit(f'[ERROR] iOS {buildmanifest.version} is not supported by Inferius. Exiting.')
 
 	if identifier not in buildmanifest.supported_devices:
