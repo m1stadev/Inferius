@@ -7,14 +7,13 @@ Its current purpose is to downgrade devices (vulnerable to [checkm8](https://git
 Before using Inferius, keep in mind that
 - **No one but YOU** is fully responsible for any data loss or damage caused to your device
 - Downgrades are still limited to versions compatible with the latest signed SEP version. This will change when [checkra1n](https://checkra.in/) implements a nonce setter for the SEP.
-- Due to the downgrades being tethered, after restoring a custom IPSW you must use one of these tools to boot your iOS device:
+- Due to the downgrades being tethered, after restoring a custom IPSW you must patch the bootchain & send it to your device over pwned DFU manually to boot, as described [here](https://dualbootfun.github.io/), or use one of these tools to automate the process for you:
     - [PyBoot](https://github.com/MatthewPierson/PyBoot)
     - [ra1nsn0w](https://github.com/tihmstar/ra1nsn0w)
     - [Ramiel](https://ramiel.app/)
     - [checkra1n](https://checkra.i/n) should work as well).
-Alternatively, you can patch the bootchain & send it to your device over pwned DFU manually, as described [here](https://dualbootfun.github.io/).
 
-Inferius may not come with a firmware bundle compatible with your device. If you need to create your own firmware bundle, you can utilize [bundlegen](https://github.com/m1stadev/Inferius/blob/rewrite/bundlegen), or [this guide (DEPRECEATED)](https://github.com/m1stadev/Inferius/wiki/Creating-your-own-Firmware-Bundles).
+By default, firmware bundles are automatically downloadeded from an [external repo](https://github.com/m1stadev/inferius-ext/tree/master/bundles). However, if there isn't a firmware bundle for the device+iOS version combo you're attempting to downgrade to, you'll need to create your own using [bundlegen](https://github.com/m1stadev/Inferius/blob/rewrite/bundlegen). More information on this script can be found below.
 
 [Pull requests](https://github.com/m1stadev/inferius-ext/compare) for new firmware bundles are welcome, as long as the firmware bundle you want to add can create a usable IPSW for the targeted version.
 
