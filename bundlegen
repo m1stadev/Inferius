@@ -1,0 +1,368 @@
+#!/usr/bin/env python3
+
+from argparse import ArgumentParser
+from mwclient import Site
+from remotezip import RemoteZip
+from tempfile import TemporaryDirectory
+import bsdiff4
+import json
+import os
+import platform
+import plistlib
+import requests
+import shutil
+import subprocess
+import sys
+import time
+
+
+def check_bin(binary):
+	if shutil.which(binary) is None:
+		sys.exit(f"[ERROR] '{binary}' was not found on your system. Exiting.")
+
+def create_im4p(file, output, tag=None, patch=None):
+	args = [
+		'img4',
+		'-i',
+		file,
+		'-o',
+		output
+	]
+
+	if tag:
+		args.append('-A')
+		args.append('-T')
+		args.append(tag)
+
+	if patch:
+		args.append('-P')
+		args.append(patch)
+
+	img4 = subprocess.run(args, stdout=subprocess.DEVNULL)
+	if img4.returncode != 0:
+		sys.exit(f"[ERROR] Packing '{file}' into im4p container failed. Exiting.")
+
+def decrypt(file, output, kbag=None):
+	args = [
+		'img4',
+		'-i',
+		file,
+		'-o',
+		output
+	]
+
+	if kbag:
+		args.append('-k')
+		args.append(kbag)
+
+	decrypt = subprocess.run(args, stdout=subprocess.DEVNULL)
+	if decrypt.returncode != 0:
+		sys.exit(f"[ERROR] Decrypting '{file}' failed. Exiting.")
+
+def diff_kernel(original, patched, output):
+	with open(original, 'rb') as f:
+		original = f.read()
+
+	with open(patched, 'rb') as f:
+		patched = f.read()
+
+	diff = list()
+	start_time = time.time()
+	for i in range(len(original)):
+		if round(time.time() - start_time) > 30:
+			sys.exit("[ERROR] Failed to generate img4 patchfile for kernel. Exiting.")
+
+		originalByte = original[i]
+		patchedByte = patched[i]
+
+		if originalByte != patchedByte:
+			diff_info = (str(hex(i)), str(hex(originalByte)), str(hex(patchedByte)))
+			diff.append(diff_info)
+
+	with open(output, 'w') as f:
+		for line in diff:
+			f.write(' '.join(line) + '\n')
+
+def get_board(boards):
+	if len(boards) == 1:
+		return boards[0]
+	
+	print('NOTE: There are multiple boardconfigs for your device! Please choose the correct boardconfig for your device:')
+	for board in range(len(boards)):
+		print(f"  {board + 1}: {boards[board]['boardconfig']}")
+
+	board = input('Choice: ')
+	try:
+		return boards[int(board) - 1]
+	except:
+		sys.exit('[ERROR] Invalid input given. Exiting.')
+
+def get_firm(firms):
+	if len(firms) == 1:
+		return firms[0]
+	
+	print(f"NOTE: There are multiple builds for iOS {firms[0]['version']}! Please choose the version you wish to make a Firmware Bundle for:")
+	for firm in range(len(firms)):
+		print(f"  {firm + 1}: {firms[firm]['buildid']}")
+
+	firm = input('Choice: ')
+	try:
+		return firms[int(firm) - 1]
+	except:
+		sys.exit('[ERROR] Invalid input given. Exiting.')
+
+def mount_rdsk(rdsk, mountpoint):
+	args = (
+		'hdiutil',
+		'attach',
+		rdsk,
+		'-mountpoint',
+		mountpoint
+	)
+
+	mount = subprocess.run(args, stdout=subprocess.DEVNULL)
+	if mount.returncode != 0:
+		sys.exit(f'[ERROR] Mounting {rdsk} to {mountpoint} failed. Exiting.')
+
+def parse_keys(page):
+	data = page.replace(' ', '').replace('|', '').splitlines()
+	wiki_version = page.replace('|', '').splitlines()[1].split('=')[1][1:].replace('MasterGM', 'Master|GM')
+	wikikeys = dict()
+
+	for x in list(data):
+		if x in (str(), '}}', '{{keys'):
+			continue
+
+		new_str = x.split('=')
+		try:
+			wikikeys[new_str[0].lower()] = new_str[1]
+		except IndexError:
+			continue
+
+	wikikeys['version'] = wiki_version
+
+	return wikikeys
+
+def patch_bootchain(file, output):
+	args = (
+		'kairos',
+		file,
+		output
+	)
+
+	patch = subprocess.run(args, stdout=subprocess.DEVNULL)
+	if patch.returncode != 0:
+		sys.exit(f'[ERROR] Patching {file} failed. Exiting.')
+
+def patch_kernel(file, output):
+	args = (
+		'Kernel64Patcher',
+		file,
+		output,
+		'-a'
+	)
+
+	patch = subprocess.run(args, stdout=subprocess.DEVNULL)
+	if patch.returncode != 0:
+		sys.exit('[ERROR] Patching kernel failed. Exiting.')
+
+def patch_asr(file, output):
+	args = (
+		'asr64_patcher',
+		file,
+		output
+	)
+
+	patch = subprocess.run(args, stdout=subprocess.DEVNULL)
+	if patch.returncode != 0:
+		sys.exit(f"[ERROR] Patching '{file}' failed. Exiting.")
+
+	extract_ents = subprocess.run(f"ldid -e {file} > {file}.ents.plist", stdout=subprocess.DEVNULL, shell=True)
+	if extract_ents.returncode != 0:
+		sys.exit(f'[ERROR] Extracting {file} entitlements failed. Exiting.')
+
+	args = (
+		'ldid',
+		f'-S{file}.ents.plist',
+		output
+	)
+
+	resign = subprocess.run(args, stdout=subprocess.DEVNULL)
+	if resign.returncode != 0:
+		sys.exit(f'[ERROR] Resigning {output} failed. Exiting.')
+
+def partialzip_extract(url, file, path):
+	try:
+		with RemoteZip(url) as f:
+			f.extract(file, path)
+	except:
+		sys.exit(f"[ERROR] Failed to extract '{file}'. Exiting.")
+
+def partialzip_read(url, file):
+	try:
+		with RemoteZip(url) as f:
+			return f.read(file)
+	except:
+		sys.exit(f"[ERROR] Failed to read '{file}'. Exiting.")
+
+def unmount_rdsk(mountpoint):
+	args = (
+		'hdiutil',
+		'detach',
+		mountpoint
+	)
+
+	unmount = subprocess.run(args, stdout=subprocess.DEVNULL)
+	if unmount.returncode != 0:
+		sys.exit(f'[ERROR] Unmounting ramdisk at {mountpoint} failed. Exiting.')
+
+def main():
+	parser = ArgumentParser(description='Inferius Bundle Generator')
+	parser.add_argument('-d', '--device', help='Device identifier', nargs=1)
+	parser.add_argument('-i', '--version', help='iOS version', nargs=1)
+	args = parser.parse_args()
+
+	if platform.system() != 'Darwin':
+		sys.exit('[ERROR] This script only works on macOS. Exiting.')
+
+	if not args.device or not args.version:
+		sys.exit(parser.print_help(sys.stderr))
+
+	identifier = args.device[0]
+	version = args.version[0]
+
+	if any(identifier.startswith(device) for device in ('iPhone8', 'iPad6,1')):
+		sys.exit('[ERROR] A9 devices are not currently supported. Exiting.')
+
+	check_bin('asr64_patcher')
+	check_bin('img4')
+	check_bin('kairos')
+	check_bin('Kernel64Patcher')
+	check_bin('ldid')
+
+	try:
+		ipsw_api = requests.get(f'https://api.ipsw.me/v4/device/{identifier}?type=ipsw').json()
+	except:
+		sys.exit(f"[ERROR] '{identifier}' is not a valid device identifier. Exiting.")
+
+	if not any(firm['version'] == version for firm in ipsw_api['firmwares']):
+		sys.exit(f"[ERROR] 'iOS {version}' is not a valid iOS version. Exiting.")
+
+	with TemporaryDirectory() as tmpdir:
+		firm = get_firm([firm for firm in ipsw_api['firmwares'] if firm['version'] == version])
+		bundle_name = f"{identifier}_{version}_{firm['buildid']}_bundle"
+		bundle = '/'.join((tmpdir, bundle_name))
+		os.mkdir(bundle)
+
+		print(f"Creating Firmware Bundle for {identifier}, iOS {version}")
+		bm = plistlib.loads(partialzip_read(firm['url'], 'BuildManifest.plist'))
+		boardconfig = get_board(ipsw_api['boards'])['boardconfig']
+		identity = next(identity for identity in bm['BuildIdentities'] if identity['Info']['DeviceClass'].lower() == boardconfig.lower())
+
+		print('[1] Grabbing decryption keys...')
+		keypage_title = f"{identity['Info']['BuildTrain']}_{firm['buildid']}_({identifier})"
+		keypage = Site('www.theiphonewiki.com').pages[keypage_title]
+
+		if not keypage.exists:
+			sys.exit(f"[ERROR] Decryption keys for {identifier}, iOS {version} are not on The iPhone Wiki. Exiting.")
+
+		keys = parse_keys(keypage.text())
+
+		print('[2] Patching bootchain...')
+		for component in ('iBSS', 'iBEC'):
+			file = {
+				'name': identity['Manifest'][component]['Info']['Path'].split('/')[-1],
+				'ipsw_path': identity['Manifest'][component]['Info']['Path'],
+				'path': '/'.join((tmpdir, identity['Manifest'][component]['Info']['Path']))
+			}
+
+			partialzip_extract(firm['url'], file['ipsw_path'], tmpdir)
+
+			decrypt(file['path'], file['path'] + '.raw', keys[f'{component.lower()}iv'] + keys[f'{component.lower()}key'])
+			patch_bootchain(file['path'] + '.raw', file['path'] + '.pwn')
+			create_im4p(file['path'] + '.pwn', file['path'] + '.im4p.pwn', component.lower())
+
+			bsdiff4.file_diff(file['path'], f"{file['path']}.im4p.pwn", '/'.join((bundle, file['name'] + '.patch')))
+
+		print('[3] Patching kernel...')
+		kernel = {
+			'name': identity['Manifest']['KernelCache']['Info']['Path'].split('/')[-1],
+			'ipsw_path': identity['Manifest']['KernelCache']['Info']['Path'],
+			'path': '/'.join((tmpdir, identity['Manifest']['KernelCache']['Info']['Path']))
+		}
+
+		partialzip_extract(firm['url'], kernel['ipsw_path'], tmpdir)
+
+		decrypt(kernel['path'], kernel['path'] + '.raw')
+		patch_kernel(kernel['path'] + '.raw', kernel['path'] + '.pwn')
+		diff_kernel(kernel['path'] + '.raw', kernel['path'] + '.pwn', kernel['path'] + '.diff')
+		create_im4p(kernel['path'], kernel['path'] + '.im4p.pwn', patch=kernel['path'] + '.diff')
+
+		bsdiff4.file_diff(kernel['path'], kernel['path'] + '.im4p.pwn', '/'.join((bundle, kernel['name'] + '.patch')))
+
+		print('[4] Patching ramdisk. This may take a while, so please wait...')
+		ramdisk = {
+			'name': identity['Manifest']['RestoreRamDisk']['Info']['Path'].split('/')[-1],
+			'ipsw_path': identity['Manifest']['RestoreRamDisk']['Info']['Path'],
+			'path': '/'.join((tmpdir, identity['Manifest']['RestoreRamDisk']['Info']['Path']))
+		}
+
+		partialzip_extract(firm['url'], ramdisk['ipsw_path'], tmpdir)
+		decrypt(ramdisk['path'], ramdisk['path'] + '_rdsk.dmg')
+
+		mount_rdsk(ramdisk['path'] + '_rdsk.dmg', tmpdir + '/ramdisk')
+		shutil.copyfile(tmpdir + '/ramdisk/usr/sbin/asr', tmpdir + '/asr')
+		unmount_rdsk(tmpdir + '/ramdisk')
+
+		patch_asr(tmpdir + '/asr', tmpdir + '/asr.pwn')
+
+		mount_rdsk(ramdisk['path'] + '_rdsk.dmg', tmpdir + '/ramdisk')
+		shutil.copyfile(tmpdir + '/asr.pwn', tmpdir + '/ramdisk/usr/sbin/asr')
+		unmount_rdsk(tmpdir + '/ramdisk')
+
+		create_im4p(ramdisk['path'] + '_rdsk.dmg', ramdisk['path'] + '.im4p', 'rdsk')
+		bsdiff4.file_diff(ramdisk['path'], ramdisk['path'] + '.im4p', '/'.join((bundle, ramdisk['name'] + '.asr.patch')))
+
+		print('[5] Making Firmware Bundle...')
+		info = {
+			'identifier': identifier,
+			'boards': [
+				boardconfig
+			],
+			'buildid': firm['buildid'],
+			'patches': {
+				'required': [
+					{
+						'file': identity['Manifest']['iBSS']['Info']['Path'],
+						'patch': identity['Manifest']['iBSS']['Info']['Path'].split('/')[-1] + '.patch'
+					},
+					{
+						'file': identity['Manifest']['iBEC']['Info']['Path'],
+						'patch': identity['Manifest']['iBEC']['Info']['Path'].split('/')[-1] + '.patch'
+					},
+					{
+						'file': ramdisk['ipsw_path'],
+						'patch': ramdisk['name'] + '.asr.patch'
+					},
+					{
+						'file': kernel['ipsw_path'],
+						'patch': kernel['name'] + '.patch'
+					}
+				]
+			}
+		}
+
+		with open('/'.join((bundle, 'Info.json')), 'w') as f:
+			json.dump(info, f, indent=4)
+
+		os.makedirs('FirmwareBundles/', exist_ok=True)
+		bundle_path = '/'.join(('FirmwareBundles', bundle_name))
+		if os.path.isdir(bundle_path):
+			shutil.rmtree(bundle_path)
+
+		shutil.copytree(bundle, bundle_path)
+
+	print(f"Finished creating Firmware Bundle for {identifier}, iOS {version}: '{bundle_path}'.")
+
+if __name__ == '__main__':
+	main()
