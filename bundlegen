@@ -314,13 +314,18 @@ def main():
 		decrypt(ramdisk['path'], ramdisk['path'] + '_rdsk.dmg')
 
 		mount_rdsk(ramdisk['path'] + '_rdsk.dmg', tmpdir + '/ramdisk')
-		shutil.copyfile(tmpdir + '/ramdisk/usr/sbin/asr', tmpdir + '/asr')
+		shutil.move(tmpdir + '/ramdisk/usr/sbin/asr', tmpdir + '/asr')
 		unmount_rdsk(tmpdir + '/ramdisk')
 
 		patch_asr(tmpdir + '/asr', tmpdir + '/asr.pwn')
 
 		mount_rdsk(ramdisk['path'] + '_rdsk.dmg', tmpdir + '/ramdisk')
-		shutil.copyfile(tmpdir + '/asr.pwn', tmpdir + '/ramdisk/usr/sbin/asr')
+		try:
+			shutil.move(tmpdir + '/asr.pwn', tmpdir + '/ramdisk/usr/sbin/asr')
+		except OSError:
+			unmount_rdsk(tmpdir + '/ramdisk')
+			sys.exit('[ERROR] Failed to place patched ASR back into ramdisk. Exiting.')
+
 		unmount_rdsk(tmpdir + '/ramdisk')
 
 		create_im4p(ramdisk['path'] + '_rdsk.dmg', ramdisk['path'] + '.im4p', 'rdsk')
