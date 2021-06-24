@@ -42,7 +42,7 @@ class Bundle(object):
 
 		self.bundle = output
 
-	def verify_bundle(self, bundle, boardconfig):
+	def verify_bundle(self, bundle, api, buildid, boardconfig):
 		if not os.path.isfile('/'.join((bundle, 'Info.json'))):
 			return False
 
@@ -53,7 +53,10 @@ class Bundle(object):
 				return False
 
 		try:
-			if not any(board['boardconfig'].lower() == boardconfig.lower() for board in bundle_data):
+			if not any(firm['buildid'] == buildid for firm in api.api['firmwares']):
+				return False
+
+			if not any(board['boardconfig'].lower() == boardconfig.lower() for board in bundle_data['boards']):
 				return False
 
 		except:
