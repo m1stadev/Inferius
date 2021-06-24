@@ -42,7 +42,7 @@ class Bundle(object):
 
 		self.bundle = output
 
-	def verify_bundle(self, bundle):
+	def verify_bundle(self, bundle, boardconfig):
 		if not os.path.isfile('/'.join((bundle, 'Info.json'))):
 			return False
 
@@ -52,14 +52,13 @@ class Bundle(object):
 			except:
 				return False
 
-		if 'patches' not in bundle_data.keys():
+		try:
+			if not any(board['boardconfig'].lower() == boardconfig.lower() for board in bundle_data):
+				return False
+
+		except:
 			return False
 
-		if 'required' not in bundle_data['patches'].keys():
-			return False
-
-		if len(bundle_data['patches']['required']) == 0:
-			return False
 
 		self.bundle = bundle
 		return True
