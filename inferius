@@ -136,9 +136,6 @@ def main():
 
 	if args.bundle:
 		bundle = args.bundle[0]
-		valid_bundle = Bundle().verify_bundle(bundle)
-		if valid_bundle == False:
-			sys.exit(f"[ERROR] Bundle '{bundle}' is invalid. Exiting.")
 	else:
 		bundle = None
 
