@@ -250,7 +250,7 @@ def main():
 
 	with TemporaryDirectory() as tmpdir:
 		firm = get_firm([firm for firm in ipsw_api['firmwares'] if firm['version'] == version])
-		bundle_name = f"{identifier}_{version}_{firm['buildid']}_bundle"
+		bundle_name = '_'.join((identifier, version, firm['buildid']))
 		bundle = '/'.join((tmpdir, bundle_name))
 		os.mkdir(bundle)
 
@@ -282,7 +282,7 @@ def main():
 			patch_bootchain(file['path'] + '.raw', file['path'] + '.pwn')
 			create_im4p(file['path'] + '.pwn', file['path'] + '.im4p.pwn', component.lower())
 
-			bsdiff4.file_diff(file['path'], f"{file['path']}.im4p.pwn", '/'.join((bundle, file['name'] + '.patch')))
+			bsdiff4.file_diff(file['path'], file['path'] + '.im4p.pwn', '/'.join((bundle, file['name'].rsplit('.', 1)[0] + '.patch')))
 
 		print('[3] Patching kernel...')
 		kernel = {
@@ -326,19 +326,19 @@ def main():
 		print('[5] Making Firmware Bundle...')
 		info = {
 			'identifier': identifier,
+			'buildid': firm['buildid'],
 			'boards': [
 				boardconfig
 			],
-			'buildid': firm['buildid'],
 			'patches': {
 				'required': [
 					{
 						'file': identity['Manifest']['iBSS']['Info']['Path'],
-						'patch': identity['Manifest']['iBSS']['Info']['Path'].split('/')[-1] + '.patch'
+						'patch': identity['Manifest']['iBSS']['Info']['Path'].split('/')[-1].rsplit('.', 1)[0] + '.patch'
 					},
 					{
 						'file': identity['Manifest']['iBEC']['Info']['Path'],
-						'patch': identity['Manifest']['iBEC']['Info']['Path'].split('/')[-1] + '.patch'
+						'patch': identity['Manifest']['iBEC']['Info']['Path'].split('/')[-1].rsplit('.', 1)[0] + '.patch'
 					},
 					{
 						'file': ramdisk['ipsw_path'],
@@ -357,12 +357,13 @@ def main():
 
 		os.makedirs('FirmwareBundles/', exist_ok=True)
 		bundle_path = '/'.join(('FirmwareBundles', bundle_name))
-		if os.path.isdir(bundle_path):
-			shutil.rmtree(bundle_path)
+		if os.path.isdir(bundle_path + '.bundle'):
+			shutil.rmtree(bundle_path + '.bundle')
 
-		shutil.copytree(bundle, bundle_path)
+		shutil.make_archive(bundle_path, 'zip', bundle)
+		os.rename(bundle_path + '.zip', bundle_path + '.bundle')
 
-	print(f"Finished creating Firmware Bundle for {identifier}, iOS {version}: '{bundle_path}'.")
+	print(f"Finished creating Firmware Bundle for {identifier}, iOS {version}: '{bundle_path + '.bundle'}'.")
 
 if __name__ == '__main__':
 	main()

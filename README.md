@@ -24,7 +24,7 @@ Inferius may not come with a firmware bundle compatible with your device. If you
 | `-f IPSW` | `--ipsw IPSW` | Path to IPSW |
 | `-c` | `--create` | Create custom IPSW |
 | `-r` | `--restore` | Restore custom IPSW |
-| `-b` | `--bundle BUNDLE` | (Optional) Specify path to local Firmware Bundle |
+| `-b` | `--bundle BUNDLE` | (Optional) Path to local Firmware Bundle |
 | `-u` | `--update` | Keep data while restoring custom IPSW |
 
 ## To-Do

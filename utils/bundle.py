@@ -28,10 +28,10 @@ class Bundle(object):
 		return 'UpdateRamdisk' in bundle_data['patches']['required']
 
 	def fetch_bundle(self, device, version, buildid, path):
-		bundle_name = f'{device}_{version}_{buildid}_bundle'
-		bundle = requests.get(f'https://github.com/m1stadev/inferius-ext/raw/master/bundles/{bundle_name}.zip')
+		bundle_name = f'{device}_{version}_{buildid}'
+		bundle = requests.get(f'https://github.com/m1stadev/inferius-ext/raw/master/bundles/{bundle_name}.bundle')
 		if bundle.status_code == 404:
-			sys.exit(f'[ERROR] A Firmware Bundle does not exist for ({device}, {version}). Exiting.')
+			sys.exit(f'[ERROR] A Firmware Bundle does not exist for ({device}, iOS {version}). Exiting.')
 
 		output = '/'.join((path, bundle_name))
 		with zipfile.ZipFile(io.BytesIO(bundle.content), 'r') as f:
@@ -42,17 +42,17 @@ class Bundle(object):
 
 		self.bundle = output
 
-	def verify_bundle(self, bundle, api, buildid, boardconfig):
-		if not os.path.isfile('/'.join((bundle, 'Info.json'))):
+	def verify_bundle(self, bundle, tmpdir, api, buildid, boardconfig):
+		if not zipfile.is_zipfile(bundle):
 			return False
 
-		with open('/'.join((bundle, 'Info.json')), 'r') as f:
-			try:
-				bundle_data = json.load(f)
-			except:
-				return False
-
 		try:
+			with zipfile.ZipFile(bundle, 'r') as f:
+				try:
+					bundle_data = json.loads(f.read('Info.json'))
+				except:
+					return False
+
 			if not any(firm['buildid'] == buildid for firm in api['firmwares']):
 				return False
 
@@ -62,6 +62,10 @@ class Bundle(object):
 		except:
 			return False
 
+		bundle_path = '/'.join((tmpdir, bundle.split('/')[-1].rsplit('.', 1)[0]))
+		os.mkdir(bundle_path)
+		with zipfile.ZipFile(bundle) as f:
+			f.extractall(bundle_path)
 
-		self.bundle = bundle
+		self.bundle = bundle_path
 		return True
