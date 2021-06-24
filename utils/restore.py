@@ -36,39 +36,24 @@ class Restore(object):
 			sys.exit('[ERROR] Restore failed. Exiting.')
 
 	def save_blobs(self, ecid, boardconfig, path, apnonce=None):
-		if apnonce:
-			args = (
-				'tsschecker',
-				'-d',
-				self.device,
-				'-B',
-				boardconfig,
-				'-e',
-				'0x' + ecid,
-				'--apnonce',
-				apnonce,
-				'-l',
-				'-s',
-				'--save-path',
-				path,
-				'--nocache'
-				)
+		args = [
+			'tsschecker',
+			'-d',
+			self.device,
+			'-B',
+			boardconfig,
+			'-e',
+			'0x' + ecid,
+			'-l',
+			'-s',
+			'--save-path',
+			path,
+			'--nocache'
+		]
 
-		else:
-			args = (
-				'tsschecker',
-				'-d',
-				self.device,
-				'-B',
-				boardconfig,
-				'-e',
-				'0x' + ecid,
-				'-l',
-				'-s',
-				'--save-path',
-				path,
-				'--nocache'
-				)
+		if apnonce:
+			args.append('--apnonce')
+			args.append(apnonce)
 
 		tsschecker = subprocess.check_output(args, universal_newlines=True)
 		if 'Saved shsh blobs!' not in tsschecker:
