@@ -28,7 +28,7 @@ class Restore(object):
 			args.append('--no-baseband')
 
 		args.append(ipsw)
-		futurerestore = subprocess.run(args, stderr=subprocess.DEVNULL, stdout=subprocess.DEVNULL, universal_newlines=True)
+		futurerestore = subprocess.run(args, stderr=subprocess.DEVNULL, stdout=subprocess.PIPE, universal_newlines=True)
 		if os.path.isdir(ipsw.rsplit('.', 1)[0]):
 			shutil.rmtree(ipsw.rsplit('.', 1)[0])
 
