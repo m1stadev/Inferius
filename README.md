@@ -14,15 +14,26 @@ Inferius may not come with a firmware bundle compatible with your device. If you
 [Pull requests](https://github.com/m1stadev/inferius-ext/compare) for new firmware bundles are welcome, as long as the firmware bundle you want to add can create a usable IPSW for the targeted version.
 
 ## Usage
-Currently, to use Inferius, you'll need
+```py
+./inferius -d 'identifier' -f 'IPSW' [-c/-r] [-v]
+```
+
+| Option (short) | Option (long) | Description |
+|----------------|---------------|-------------|
+| `-d IDENTIFIER` | `--device IDENTIFIER` | Device identifier |
+| `-f IPSW` | `--ipsw IPSW` | Path to IPSW |
+| `-c` | `--create` | Create custom IPSW |
+| `-r` | `--restore` | Restore custom IPSW |
+| `-b` | `--bundle BUNDLE` | (Optional) Specify path to local Firmware Bundle |
+| `-u` | `--update` | Keep data while restoring custom IPSW |
+
+## Requirements
 - A computer running macOS or Linux
 - At least **10gbs** of free space on your computer
 - An Internet Connection
 - A 64-bit device (vulnerable to [checkm8](https://github.com/axi0mX/ipwndfu))
 - A firmware bundle for your device & the iOS version to be downgraded to
 - A brain (Not completely necessary, but YMMV)
-
-## Requirements
 - [libusb](https://libusb.info/)
 - [My fork of futurerestore](https://github.com/m1stadev/futurerestore)
     - futurerestore must be compiled with [my fork of img4tool](https://github.com/m1stadev/img4tool), or else it can't be used with Inferius.
@@ -31,35 +42,9 @@ Currently, to use Inferius, you'll need
 - Pip dependencies:
     - `pip3 install -r requirements.txt`
 
-To create a custom IPSW:
-```py
-./inferius -d 'device' -f 'IPSW' -c [-v]
-```
-
-To create and restore a custom IPSW:
-```py
-./inferius -d 'device' -f 'IPSW' -c -r [-v]
-```
-
-To restore a custom IPSW:
-```py
-./inferius -d 'device' -f 'IPSW' -r [-v]
-```
-
-Below, you can find all the options Inferius has to offer
-
-| Option (short) | Option (long) | Description |
-|----------------|---------------|-------------|
-| `-d IDENTIFIER` | `--device IDENTIFIER` | Device identifier |
-| `-f IPSW` | `--ipsw IPSW` | Path to IPSW |
-| `-c` | `--create` | Create custom IPSW |
-| `-r` | `--restore` | Restore custom IPSW |
-| `-u` | `--update` | Keep data while restoring custom IPSW |
-
 ## To-Do
 - Re-implement iOS 10 downgrades for A7 devices.
 - Update bundle documentation
-- Reimplement logs for debugging
 
 ## Special thanks
 I'd like to thank the following people for their corresponding role in this project

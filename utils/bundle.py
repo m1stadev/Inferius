@@ -1,6 +1,7 @@
 import bsdiff4
 import io
 import json
+import os
 import requests
 import sys
 import zipfile
@@ -40,3 +41,25 @@ class Bundle(object):
 				sys.exit('[ERROR] Ran out of storage while extracting Firmware Bundle. Exiting.')
 
 		self.bundle = output
+
+	def verify_bundle(self, bundle):
+		if not os.path.isfile('/'.join((bundle, 'Info.json'))):
+			return False
+
+		with open('/'.join((bundle, 'Info.json')), 'r') as f:
+			try:
+				bundle_data = json.load(f)
+			except:
+				return False
+
+		if 'patches' not in bundle_data.keys():
+			return False
+
+		if 'required' not in bundle_data['patches'].keys():
+			return False
+
+		if len(bundle_data['patches']['required']) == 0:
+			return False
+
+		self.bundle = bundle
+		return True

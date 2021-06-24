@@ -14,7 +14,7 @@ import sys
 import tempfile
 
 
-def create_ipsw(identifier, buildmanifest, ipsw_path, tmpdir):
+def create_ipsw(identifier, buildmanifest, ipsw_path, tmpdir, bundle_path):
 	print('[0] Creating custom IPSW...')
 
 	api = API()
@@ -23,7 +23,14 @@ def create_ipsw(identifier, buildmanifest, ipsw_path, tmpdir):
 	ipsw = IPSW(ipsw_path)
 
 	print('[1] Grabbing Firmware Bundle...')
-	bundle.fetch_bundle(identifier, buildmanifest.version, buildmanifest.buildid, tmpdir)
+	if bundle_path is not None:
+		print('Note: Using user provided Firmware Bundle.')
+		valid_bundle = bundle.verify_bundle(bundle_path)
+		if valid_bundle == False:
+			sys.exit(f"[ERROR] Bundle '{bundle_path}' is invalid. Exiting.")
+
+	else:
+		bundle.fetch_bundle(identifier, buildmanifest.version, buildmanifest.buildid, tmpdir)
 
 	print('[2] Verifying IPSW...')
 	ipsw.verify_ipsw(api.fetch_sha1(buildmanifest.buildid))
@@ -92,11 +99,10 @@ def main():
 	parser.add_argument('-u', '--update', help='Keep data while restoring custom IPSW', action='store_true')
 	args = parser.parse_args()
 
-	if not args.device or not args.ipsw:
-		sys.exit(parser.print_help(sys.stderr))
-	elif not args.create and not args.restore:
-		sys.exit(parser.print_help(sys.stderr))
-	elif args.update and not args.restore:
+	if (not args.device or not args.ipsw) or \
+	(not args.create and not args.restore) or \
+	(args.update and not args.restore) or \
+	(args.bundle and not args.create):
 		sys.exit(parser.print_help(sys.stderr))
 
 	if platform.system() == 'Windows':
@@ -111,9 +117,7 @@ def main():
 
 	ipsw = IPSW(ipsw_path)
 	restoremanifest = manifest.RestoreManifest(ipsw.read_file('Restore.plist'), api.get_board())
-
-	supported_devices = (8960, 7000, 7001, 8000, 8001, 8003, 8010, 8011, 8015)
-	if restoremanifest.platform not in supported_devices:
+	if restoremanifest.platform not in (8960, 7000, 7001, 8000, 8001, 8003, 8010, 8011, 8015):
 		sys.exit(f"[ERROR] '{identifier}' is not supported by Inferius. Exiting.")
 
 	buildmanifest = manifest.Manifest(ipsw.read_file('BuildManifest.plist'))
@@ -128,11 +132,19 @@ def main():
 		sys.exit(f'[ERROR] iOS {buildmanifest.version} is not supported by Inferius. Exiting.')
 
 	if identifier not in buildmanifest.supported_devices:
-		sys.exit(f"[ERROR] IPSW '{ipsw_path}' does not support '{identifier}'. Exiting.")
+		sys.exit(f"[ERROR] IPSW '{ipsw_path}' does not support {identifier}. Exiting.")
+
+	if args.bundle:
+		bundle = args.bundle[0]
+		valid_bundle = Bundle().verify_bundle(bundle)
+		if valid_bundle == False:
+			sys.exit(f"[ERROR] Bundle '{bundle}' is invalid. Exiting.")
+	else:
+		bundle = None
 
 	with tempfile.TemporaryDirectory() as tmpdir:
 		if args.create:
-			custom_ipsw = create_ipsw(identifier, buildmanifest, ipsw_path, tmpdir)
+			custom_ipsw = create_ipsw(identifier, buildmanifest, ipsw_path, tmpdir, bundle)
 		else:
 			custom_ipsw = ipsw_path
 
