@@ -84,7 +84,7 @@ class Restore(object):
 		if component == 'iBSS' and self.platform in (8960, 8015): #TODO: Reset device via pyusb rather than call an external binary.
 			irecovery_reset = subprocess.run(('irecovery', '-f', file), stdout=subprocess.DEVNULL)
 			if irecovery_reset.returncode != 0:
-				sys.exit(f'[ERROR] Failed to reset connection. Exiting.')
+				sys.exit('[ERROR] Failed to reset device. Exiting.')
 
 		irecovery = subprocess.run(('irecovery', '-f', file), stdout=subprocess.DEVNULL)
 		if irecovery.returncode != 0:
