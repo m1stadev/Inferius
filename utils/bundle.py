@@ -18,7 +18,7 @@ class Bundle(object):
 					continue
 
 			for patch in bundle_data['patches'][patches]:
-				bsdiff4.file_patch_inplace('/'.join((ipsw, bundle_data['patches'][patches][patch]['file'])), '/'.join((self.bundle, bundle_data['patches'][patches][patch]['patch'])))
+				bsdiff4.file_patch_inplace('/'.join((ipsw, patch['file'])), '/'.join((self.bundle, patch['patch'])))
 
 	def check_update_support(self):
 		with open(f'{self.bundle}/Info.json', 'r') as f:
@@ -26,17 +26,17 @@ class Bundle(object):
 
 		return 'UpdateRamdisk' in bundle_data['patches']['required']
 
-	def fetch_bundle(self, device, version, buildid, tmpdir):
+	def fetch_bundle(self, device, version, buildid, path):
 		bundle_name = f'{device}_{version}_{buildid}_bundle'
 		bundle = requests.get(f'https://github.com/m1stadev/inferius-ext/raw/master/bundles/{bundle_name}.zip')
 		if bundle.status_code == 404:
 			sys.exit(f'[ERROR] A Firmware Bundle does not exist for ({device}, {version}). Exiting.')
 
-		bundle_path = '/'.join((tmpdir, bundle_name))
+		output = '/'.join((path, bundle_name))
 		with zipfile.ZipFile(io.BytesIO(bundle.content), 'r') as f:
 			try:
-				f.extractall(bundle_path)
+				f.extractall(output)
 			except OSError:
 				sys.exit('[ERROR] Ran out of storage while extracting Firmware Bundle. Exiting.')
 
-		self.bundle = bundle_path
+		self.bundle = output
