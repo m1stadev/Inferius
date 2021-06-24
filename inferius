@@ -44,8 +44,8 @@ def create_ipsw(identifier, buildmanifest, ipsw_path, tmpdir, bundle_path):
 	print('[4] Patching components...')
 	bundle.apply_patches(extracted_ipsw)
 
-	api.fetch_latest(buildmanifest.fetch_component_path(boardconfig, 'LLB'), extracted_ipsw)
-	bootloader_ver = api.fetch_latest(buildmanifest.fetch_component_path(boardconfig, 'iBoot'), extracted_ipsw)
+	api.fetch_component(buildmanifest.buildid, buildmanifest.fetch_component_path(boardconfig, 'LLB'), extracted_ipsw)
+	bootloader_ver = api.fetch_component(buildmanifest.buildid, buildmanifest.fetch_component_path(boardconfig, 'iBoot'), extracted_ipsw)
 
 	print('[5] Repacking IPSW...')
 	custom_ipsw = ipsw.create_ipsw(extracted_ipsw, ipsw_path.split('/')[-1].rsplit('.', 1)[0] + '_custom.ipsw', bundle.check_update_support(), bootloader_ver)

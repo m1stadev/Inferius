@@ -42,12 +42,12 @@ class API(object):
 
 		return boards[board]
 
-	def fetch_latest(self, component, path):
-		latest = self.api['firmwares'][0]
-		with remotezip.RemoteZip(latest['url']) as ipsw:
+	def fetch_component(self, buildid, component, path):
+		firm = next(firm for firm in self.api['firmwares'] if firm['buildid'] == buildid)
+		with remotezip.RemoteZip(firm['url']) as ipsw:
 			ipsw.extract(component, path)
 
-		return latest['version']
+		return firm['version']
 
 	def fetch_sha1(self, buildid):
 		return next(firm['sha1sum'] for firm in self.api['firmwares'] if firm['buildid'] == buildid)
