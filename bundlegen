@@ -217,7 +217,7 @@ def unmount_rdsk(mountpoint):
 		sys.exit(f'[ERROR] Unmounting ramdisk at {mountpoint} failed. Exiting.')
 
 def main():
-	parser = ArgumentParser(description='Inferius Bundle Generator', usage="bundlegen -d 'identifier' -i 'iOS version")
+	parser = ArgumentParser(description='Inferius Bundle Generator', usage="bundlegen -d 'identifier' -i 'iOS version'")
 	parser.add_argument('-d', '--device', help='Device identifier', nargs=1)
 	parser.add_argument('-i', '--version', help='iOS version', nargs=1)
 	args = parser.parse_args()
