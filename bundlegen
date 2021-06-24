@@ -319,7 +319,7 @@ def main():
 		unmount_rdsk(tmpdir + '/ramdisk')
 
 		patch_asr(tmpdir + '/asr', tmpdir + '/asr.pwn')
-		os.chmod(tmpdir + '/asr.pwn', '0775')
+		os.chmod(tmpdir + '/asr.pwn', 0o775)
 
 		mount_rdsk(ramdisk['path'] + '_rdsk.dmg', tmpdir + '/ramdisk')
 		try:
