@@ -53,7 +53,7 @@ class Bundle(object):
 				return False
 
 		try:
-			if not any(firm['buildid'] == buildid for firm in api.api['firmwares']):
+			if not any(firm['buildid'] == buildid for firm in api['firmwares']):
 				return False
 
 			if not any(board.lower() == boardconfig.lower() for board in bundle_data['boards']):
