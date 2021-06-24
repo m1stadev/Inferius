@@ -42,12 +42,17 @@ class API(object):
 
 		return boards[board]
 
-	def fetch_component(self, buildid, component, path):
+	def partialzip_extract(self, buildid, component, path):
 		firm = next(firm for firm in self.api['firmwares'] if firm['buildid'] == buildid)
 		with remotezip.RemoteZip(firm['url']) as ipsw:
 			ipsw.extract(component, path)
 
 		return firm['version']
+
+	def partialzip_read(self, buildid, component):
+		firm = next(firm for firm in self.api['firmwares'] if firm['buildid'] == buildid)
+		with remotezip.RemoteZip(firm['url']) as ipsw:
+			return ipsw.read(component)
 
 	def fetch_sha1(self, buildid):
 		return next(firm['sha1sum'] for firm in self.api['firmwares'] if firm['buildid'] == buildid)
