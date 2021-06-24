@@ -248,6 +248,9 @@ def main():
 	if not any(firm['version'] == version for firm in ipsw_api['firmwares']):
 		sys.exit(f"[ERROR] 'iOS {version}' is not a valid iOS version. Exiting.")
 
+	if int(version.split('.')[0]) < 10:
+		sys.exit(f"[ERROR] iOS {version} is not supported at this time for firmware bundle creation. Exiting.")
+
 	with TemporaryDirectory() as tmpdir:
 		firm = get_firm([firm for firm in ipsw_api['firmwares'] if firm['version'] == version])
 		bundle_name = '_'.join((identifier, version, firm['buildid']))
