@@ -28,7 +28,7 @@ class IPSW(object):
 			sys.exit('[ERROR] Failed to create custom IPSW. Exiting.')
 
 		os.rename(f'IPSW/{output}.zip', '/'.join(('IPSW', output)))
-		return '/'.join(('IPSWs', output))
+		return '/'.join(('IPSW', output))
 
 	def extract_file(self, file, output):
 		try:
