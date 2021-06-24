@@ -45,20 +45,21 @@ Inferius may not come with a firmware bundle compatible with your device. If you
 
 ## Requirements
 - A computer running macOS
-- At least **250mb** of free space on your computer
+- At least **250mbs** of free space on your computer
 - An Internet Connection
 - A brain (Not completely necessary, but YMMV)
 - [asr64_patcher](https://github.com/exploit3dguy/asr64_patcher)
 - [img4lib](https://github.com/xerub/img4lib)
-- [kairos](https://github.com/dayt0n/kairos)
+- [kairos](https://github.com/dayt0n/kairos/releases)
 - [Kernel64Patcher](https://github.com/Ralph0045/Kernel64Patcher)
-- [Link Identity Editor](https://github.com/sbingner/ldid)
+- [Link Identity Editor](https://github.com/sbingner/ldid/releases)
 - Pip dependencies:
     - `pip3 install -r requirements.txt`
 
 ## Special thanks
 I'd like to thank the following people for their corresponding role in this project
-- [NotHereForTheDong](https://github.com/NotHereForTheDong) for providing firmware bundles and beta testing
+- [exploit3d](https://twitter.com/exploit3dguy) for his [asr64_patcher](https://github.com/exploit3dguy/asr64_patcher) tool
+- [NotHereForTheDong](https://github.com/NotHereForTheDong) for creating many Firmware Bundles and beta testing
 - [tale](https://twitter.com/aarnavtale), [Chibibowa](https://twitter.com/Chibibowa), and [Moses](https://twitter.com/MosesBuckwalter) for beta testing
 
 Finally, if you need help or have any questions about Inferius, join my [Discord server](https://m1sta.xyz/discord).
