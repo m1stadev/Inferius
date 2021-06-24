@@ -53,6 +53,7 @@ By default, firmware bundles are automatically downloadeded from an [external re
 - An Internet Connection
 - A brain (Not completely necessary, but YMMV)
 - [asr64_patcher](https://github.com/exploit3dguy/asr64_patcher)
+    - Compiled binaries can be found [here](https://github.com/exploit3dguy/asr64_patcher/releases)
 - [img4lib](https://github.com/xerub/img4lib)
     - Compiled binaries can be found [here](https://github.com/xerub/img4lib/releases)
 - [kairos](https://github.com/dayt0n/kairos)
