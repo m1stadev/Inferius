@@ -9,13 +9,13 @@ Before using Inferius, keep in mind that
 - Restores are **not** untethered. This means that in order to boot your device, you're required to use [PyBoot](https://github.com/MatthewPierson/PyBoot), [ra1nsn0w](https://github.com/tihmstar/ra1nsn0w), or [Ramiel](https://ramiel.app/) to do just that (or if you want to boot jailbroken, [checkra1n](https://checkra.i/n) should work as well).
 - Downgrades are still limited to versions compatible with the latest signed SEP version. This will change when [checkra1n](https://checkra.in/) implements a nonce setter for the SEP.
 
-Inferius may not come with a firmware bundle compatible with your device. If you need to create your own firmware bundle, you can follow [this guide](https://github.com/m1stadev/Inferius/wiki/Creating-your-own-Firmware-Bundles).
+Inferius may not come with a firmware bundle compatible with your device. If you need to create your own firmware bundle, you can utilize [bundlegen](https://github.com/m1stadev/Inferius/blob/rewrite/bundlegen), or [this guide (DEPRECEATED)](https://github.com/m1stadev/Inferius/wiki/Creating-your-own-Firmware-Bundles).
 
 [Pull requests](https://github.com/m1stadev/inferius-ext/compare) for new firmware bundles are welcome, as long as the firmware bundle you want to add can create a usable IPSW for the targeted version.
 
 ## Usage
 ```py
-./inferius -d 'identifier' -f 'IPSW' [-c/-r] [-v]
+./inferius -d 'Identifier' -f 'IPSW' [-c/-r] [-v]
 ```
 
 | Option (short) | Option (long) | Description |
@@ -27,24 +27,34 @@ Inferius may not come with a firmware bundle compatible with your device. If you
 | `-b` | `--bundle BUNDLE` | (Optional) Specify path to local Firmware Bundle |
 | `-u` | `--update` | Keep data while restoring custom IPSW |
 
-## Requirements
-- A computer running macOS or Linux
-- At least **10gbs** of free space on your computer
-- An Internet Connection
-- A 64-bit device (vulnerable to [checkm8](https://github.com/axi0mX/ipwndfu))
-- A firmware bundle for your device & the iOS version to be downgraded to
-- A brain (Not completely necessary, but YMMV)
-- [libusb](https://libusb.info/)
-- [My fork of futurerestore](https://github.com/m1stadev/futurerestore)
-    - futurerestore must be compiled with [my fork of img4tool](https://github.com/m1stadev/img4tool), or else it can't be used with Inferius.
-- [libirecovery](https://github.com/libimobiledevice/libirecovery)
-- [tsschecker](https://github.com/1Conan/tsschecker)
-- Pip dependencies:
-    - `pip3 install -r requirements.txt`
-
 ## To-Do
 - Re-implement iOS 10 downgrades for A7 devices.
 - Update bundle documentation
+
+# Inferius Bundle Generator
+
+## Usage
+```py
+./bundlegen -d 'Identifier' -i 'iOS Version'
+```
+
+| Option (short) | Option (long) | Description |
+|----------------|---------------|-------------|
+| `-d IDENTIFIER` | `--device IDENTIFIER` | Device identifier |
+| `-i VERSION` | `--version VERSION` | iOS version |
+
+## Requirements
+- A computer running macOS
+- At least **6gbs** of free space on your computer
+- An Internet Connection
+- A brain (Not completely necessary, but YMMV)
+- [asr64_patcher](https://github.com/exploit3dguy/asr64_patcher)
+- [img4lib](https://github.com/xerub/img4lib)
+- [kairos](https://github.com/dayt0n/kairos)
+- [Kernel64Patcher](https://github.com/Ralph0045/Kernel64Patcher)
+- [Link Identity Editor](https://github.com/sbingner/ldid)
+- Pip dependencies:
+    - `pip3 install -r requirements.txt`
 
 ## Special thanks
 I'd like to thank the following people for their corresponding role in this project
