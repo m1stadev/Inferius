@@ -31,6 +31,22 @@ By default, firmware bundles are automatically downloadeded from an [external re
 | `-b` | `--bundle BUNDLE` | (Optional) Path to local Firmware Bundle |
 | `-u` | `--update` | Keep data while restoring custom IPSW |
 
+
+## Requirements
+- A computer running macOS or Linux
+- At least **10gbs** of free space on your computer
+- An Internet connection
+- A 64-bit device (vulnerable to [checkm8](https://github.com/axi0mX/ipwndfu))
+- A firmware bundle for your device & the iOS version to be downgraded to
+    - If there isn't a firmware bundle for your device + iOS version combo, look at the [bundle generator](https://github.com/m1stadev/Inferius#inferius-bundle-generator)
+- [libusb](https://libusb.info/)
+- [futurerestore](https://github.com/m1stadev/futurerestore)
+    - futurerestore must be compiled with [my fork of img4tool](https://github.com/m1stadev/img4tool), or else it can't be used with Inferius.
+- [libirecovery](https://github.com/libimobiledevice/libirecovery)
+- [tsschecker](https://github.com/1Conan/tsschecker)
+- Pip dependencies:
+    - `pip3 install -r requirements.txt`
+
 ## To-Do
 - Re-implement iOS 10 downgrades for A7 devices.
 - Update bundle documentation
@@ -50,8 +66,7 @@ By default, firmware bundles are automatically downloadeded from an [external re
 ## Requirements
 - A computer running macOS
 - At least **250mbs** of free space on your computer
-- An Internet Connection
-- A brain (Not completely necessary, but YMMV)
+- An Internet connection
 - [asr64_patcher](https://github.com/exploit3dguy/asr64_patcher)
     - Compiled binaries can be found [here](https://github.com/exploit3dguy/asr64_patcher/releases)
 - [img4lib](https://github.com/xerub/img4lib)
