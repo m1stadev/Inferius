@@ -13,7 +13,7 @@ Before using Inferius, keep in mind that
     - [PyBoot](https://github.com/MatthewPierson/PyBoot)
     - [ra1nsn0w](https://github.com/tihmstar/ra1nsn0w)
 
-By default, firmware bundles are automatically downloadeded from an [external repo](https://github.com/m1stadev/inferius-ext/tree/master/bundles). However, if there isn't a firmware bundle for the device+iOS version combo you're attempting to downgrade to, you'll need to create your own using [bundlegen](https://github.com/m1stadev/Inferius/blob/rewrite/bundlegen). More information on this script can be found below.
+By default, firmware bundles are automatically downloadeded from an [external repo](https://github.com/m1stadev/inferius-ext/tree/master/bundles). However, if there isn't a firmware bundle for the device+iOS version combo you're attempting to downgrade to, you'll need to create your own using [bundlegen](https://github.com/m1stadev/Inferius#inferius-bundle-generator).
 
 [Pull requests](https://github.com/m1stadev/inferius-ext/compare) for new firmware bundles are welcome, as long as the firmware bundle you want to add can create a usable IPSW for the targeted version.
 
@@ -38,7 +38,7 @@ By default, firmware bundles are automatically downloadeded from an [external re
 - An Internet connection
 - A 64-bit device (vulnerable to [checkm8](https://github.com/axi0mX/ipwndfu))
 - A firmware bundle for your device & the iOS version to be downgraded to
-    - If there isn't a firmware bundle for your device + iOS version combo, look at the [bundle generator](https://github.com/m1stadev/Inferius#inferius-bundle-generator)
+    - If there isn't a firmware bundle for your device + iOS version combo, look at [bundlegen](https://github.com/m1stadev/Inferius#inferius-bundle-generator)
 - [libusb](https://libusb.info/)
 - [futurerestore](https://github.com/m1stadev/futurerestore)
     - futurerestore must be compiled with [my fork of img4tool](https://github.com/m1stadev/img4tool), or else it can't be used with Inferius.
