@@ -122,7 +122,7 @@ def mount_rdsk(rdsk, mountpoint):
 
 	mount = subprocess.run(args, stdout=subprocess.DEVNULL)
 	if mount.returncode != 0:
-		sys.exit(f'[ERROR] Mounting {rdsk} to {mountpoint} failed. Exiting.')
+		sys.exit(f"[ERROR] Mounting '{rdsk}' to '{mountpoint}' failed. Exiting.")
 
 def parse_keys(page):
 	data = page.replace(' ', '').replace('|', '').splitlines()
@@ -205,6 +205,19 @@ def partialzip_read(url, file):
 	except:
 		sys.exit(f"[ERROR] Failed to read '{file}'. Exiting.")
 
+def resize_rdsk(rdsk):
+	args = (
+		'hdiutil',
+		'resize',
+		'-size',
+		f'{round(os.path.getsize(rdsk) / float(1<<20)) + 1}M',
+		rdsk
+	)
+
+	resize = subprocess.run(args, stdout=subprocess.DEVNULL)
+	if resize.returncode != 0:
+		sys.exit(f'[ERROR] Resizing ramdisk failed. Exiting.')
+	
 def unmount_rdsk(mountpoint):
 	args = (
 		'hdiutil',
@@ -214,7 +227,7 @@ def unmount_rdsk(mountpoint):
 
 	unmount = subprocess.run(args, stdout=subprocess.DEVNULL)
 	if unmount.returncode != 0:
-		sys.exit(f'[ERROR] Unmounting ramdisk at {mountpoint} failed. Exiting.')
+		sys.exit(f"[ERROR] Unmounting ramdisk at '{mountpoint}' failed. Exiting.")
 
 def main():
 	parser = ArgumentParser(description='Inferius Bundle Generator', usage="bundlegen -d 'identifier' -i 'iOS version'")
@@ -326,7 +339,9 @@ def main():
 			shutil.move(tmpdir + '/asr.pwn', tmpdir + '/ramdisk/usr/sbin/asr')
 		except OSError:
 			unmount_rdsk(tmpdir + '/ramdisk')
-			sys.exit('[ERROR] Failed to place patched ASR back into ramdisk. Exiting.')
+			resize_rdsk(ramdisk['path'] + '_rdsk.dmg')
+			mount_rdsk(ramdisk['path'] + '_rdsk.dmg', tmpdir + '/ramdisk')
+			shutil.move(tmpdir + '/asr.pwn', tmpdir + '/ramdisk/usr/sbin/asr')
 
 		unmount_rdsk(tmpdir + '/ramdisk')
 
