@@ -335,14 +335,16 @@ def main():
 		patch_asr(tmpdir + '/asr', tmpdir + '/asr.pwn')
 		os.chmod(tmpdir + '/asr.pwn', 0o775)
 
-		resize_rdsk(ramdisk['path'] + '_rdsk.dmg')
 		mount_rdsk(ramdisk['path'] + '_rdsk.dmg', tmpdir + '/ramdisk')
 		try:
 			shutil.move(tmpdir + '/asr.pwn', tmpdir + '/ramdisk/usr/sbin/asr')
 		except OSError:
-			sys.exit('[ERROR] Failed to place patched ASR back into ramdisk. Exiting.')
-		finally:
 			unmount_rdsk(tmpdir + '/ramdisk')
+			resize_rdsk(ramdisk['path'] + '_rdsk.dmg')
+			mount_rdsk(ramdisk['path'] + '_rdsk.dmg', tmpdir + '/ramdisk')
+			shutil.move(tmpdir + '/asr.pwn', tmpdir + '/ramdisk/usr/sbin/asr')
+
+		unmount_rdsk(tmpdir + '/ramdisk')
 
 		create_im4p(ramdisk['path'] + '_rdsk.dmg', ramdisk['path'] + '.im4p', 'rdsk')
 		bsdiff4.file_diff(ramdisk['path'], ramdisk['path'] + '.im4p', '/'.join((bundle, ramdisk['name'][:-4] + '.asr.patch')))
