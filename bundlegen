@@ -206,11 +206,12 @@ def partialzip_read(url, file):
 		sys.exit(f"[ERROR] Failed to read '{file}'. Exiting.")
 
 def resize_rdsk(rdsk):
+	new_size = round(os.path.getsize(rdsk) / float(1<<20)) + 1
 	args = (
 		'hdiutil',
 		'resize',
 		'-size',
-		f'{round(os.path.getsize(rdsk) / float(1<<20)) + 1}M',
+		f'{new_size}M',
 		rdsk
 	)
 
