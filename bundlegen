@@ -339,7 +339,7 @@ def main():
 		try:
 			shutil.move(tmpdir + '/asr.pwn', tmpdir + '/ramdisk/usr/sbin/asr')
 		except OSError:
-			sys.exit('[ERROR] Failed to place patched ASR back into ramdisk. Exiting.'))
+			sys.exit('[ERROR] Failed to place patched ASR back into ramdisk. Exiting.')
 		finally:
 			unmount_rdsk(tmpdir + '/ramdisk')
 
