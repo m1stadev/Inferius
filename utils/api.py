@@ -22,10 +22,14 @@ class API(object):
 	def fetch_api(self, identifier=None):
 		self.api = requests.get(f'https://api.ipsw.me/v4/device/{identifier if identifier else self.device}?type=ipsw').json()
 
+	def fetch_sha1(self, buildid):
+		return next(firm['sha1sum'] for firm in self.api['firmwares'] if firm['buildid'] == buildid)
+
 	def get_board(self):
 		boards = [board['boardconfig'] for board in self.api['boards']]
 		if len(boards) == 1:
-			return boards[0]
+			self.board = boards[0]
+			return
 		
 		print('There are multiple boardconfigs for your device! Please choose the correct boardconfig for your device:')
 		for board in range(len(boards)):
@@ -40,7 +44,7 @@ class API(object):
 			if board not in range(len(boards)):
 				sys.exit('[ERROR] Invalid input given. Exiting.')
 
-		return boards[board]
+		self.board = boards[board]
 
 	def partialzip_extract(self, buildid, component, path):
 		firm = next(firm for firm in self.api['firmwares'] if firm['buildid'] == buildid)
@@ -53,6 +57,3 @@ class API(object):
 		firm = next(firm for firm in self.api['firmwares'] if firm['buildid'] == buildid)
 		with remotezip.RemoteZip(firm['url']) as ipsw:
 			return ipsw.read(component)
-
-	def fetch_sha1(self, buildid):
-		return next(firm['sha1sum'] for firm in self.api['firmwares'] if firm['buildid'] == buildid)
