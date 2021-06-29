@@ -11,7 +11,7 @@ class Device(object):
 		self.baseband = self.check_baseband()
 		self.backend = self.get_backend()
 		self.platform = self.fetch_platform()
-		self.boardconfig = self.fetch_boardconfig()
+		self.board = self.fetch_boardconfig()
 		self.apnonce = self.fetch_apnonce()
 		self.ecid = self.fetch_ecid()
 
