@@ -48,7 +48,7 @@ By default, firmware bundles are automatically downloadeded from an [external re
     - `pip3 install -r requirements.txt`
 
 ## To-Do
-- Re-implement iOS 10 downgrades for A7 devices.
+- Implement iOS 10 downgrades for A7 devices.
 - Update bundle documentation
 
 # Inferius Bundle Generator
