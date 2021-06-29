@@ -92,7 +92,7 @@ def restore_ipsw(api, buildmanifest, ipsw_path, updating, tmpdir):
 	print(f'Finished restoring pwned iOS {buildmanifest.version} IPSW to your device. Please boot your iOS device using one of the tools listed in the README.')
 
 def main():
-	parser = argparse.ArgumentParser(description='Inferius - Create & Restore 64-bit custom IPSWs', usage="inferius -d 'identifier' -f 'IPSW' [-c/-r] [-v]")
+	parser = argparse.ArgumentParser(description='Inferius - Create & Restore 64-bit custom IPSWs', usage="inferius -d 'Identifier' -f 'IPSW' [-c/-r] [-b 'BUNDLE']")
 	parser.add_argument('-d', '--device', help='Device identifier', nargs=1)
 	parser.add_argument('-f', '--ipsw', help='Path to IPSW', nargs=1)
 	parser.add_argument('-c', '--create', help='Create custom IPSW', action='store_true')
