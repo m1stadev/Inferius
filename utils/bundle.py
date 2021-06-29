@@ -31,7 +31,7 @@ class Bundle(object):
 		bundle_name = f'{device}_{version}_{buildid}'
 		bundle = requests.get(f'https://github.com/m1stadev/inferius-ext/raw/master/bundles/{bundle_name}.bundle')
 		if bundle.status_code == 404:
-			sys.exit(f'[ERROR] A Firmware Bundle does not exist for ({device}, iOS {version}). Exiting.')
+			sys.exit(f'[ERROR] A Firmware Bundle does not exist for {device}, iOS {version}. Exiting.')
 
 		output = '/'.join((path, bundle_name))
 		with zipfile.ZipFile(io.BytesIO(bundle.content), 'r') as f:
