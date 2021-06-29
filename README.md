@@ -19,7 +19,7 @@ By default, firmware bundles are automatically downloadeded from an [external re
 
 ## Usage
 ```py
-./inferius -d 'Identifier' -f 'IPSW' [-c/-r] [-v]
+./inferius -d 'Identifier' -f 'IPSW' [-c/-r] [-b 'BUNDLE']
 ```
 
 | Option (short) | Option (long) | Description |
