@@ -33,7 +33,10 @@ class Restore(object):
 			shutil.rmtree(ipsw.rsplit('.', 1)[0])
 
 		if 'Done: restoring succeeded!' not in futurerestore.stdout:
-			sys.exit('[ERROR] Restore failed. Exiting.')
+			with open('futurerestore_error.log', 'w') as f:
+				f.write(futurerestore.stdout)
+
+			sys.exit("[ERROR] Restore failed. Log written to 'futurerestore_error.log'. Exiting.")
 
 	def save_blobs(self, ecid, boardconfig, path, apnonce=None):
 		args = [
