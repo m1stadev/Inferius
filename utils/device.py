@@ -55,7 +55,8 @@ class Device(object):
 
 	def fetch_apnonce(self):
 		irecv = subprocess.check_output(('irecovery', '-q'), universal_newlines=True)
-		return irecv.splitlines()[-3].split(' ')[-1]
+		line = next(l for l in irecv.splitlines() if 'NONC:' in l)
+		return line.split(' ')[1]
 
 	def get_backend(self): # Attempt to find a libusb 1.0 library to use as pyusb's backend, exit if one isn't found.
 		directories = ('/usr/lib', '/opt/procursus/lib', '/usr/local/lib') # Common library directories to search
