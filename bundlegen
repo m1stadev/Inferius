@@ -248,7 +248,6 @@ def main():
 	check_bin('Kernel64Patcher')
 	check_bin('ldid')
 
-
 	identifier = 'P'.join(args.device[0].lower().split('p'))
 	version = args.version[0]
 
