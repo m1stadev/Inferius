@@ -1,7 +1,6 @@
 # Inferius
 [![License](https://img.shields.io/github/license/m1stadev/Inferius)](https://github.com/m1stadev/Inferius)
 [![Stars](https://img.shields.io/github/stars/m1stadev/Inferius)]((https://github.com/m1stadev/Inferius))
-[![LoC](https://img.shields.io/tokei/lines/github/m1stadev/Inferius)](https://github.com/m1stadev/Inferius)
 
 Inferius is an [xpwn](https://github.com/m1stadev/xpwn)-like tool to create & restore custom IPSWs to 64-bit devices.
 
@@ -84,8 +83,7 @@ By default, firmware bundles are automatically downloadeded from an [external re
     - `pip3 install -r requirements.txt`
 
 ## Special thanks
-I'd like to thank the following people for their corresponding role in this project
-- [exploit3d](https://twitter.com/exploit3dguy) for his [asr64_patcher](https://github.com/exploit3dguy/asr64_patcher) tool
+- [exploit3d](https://twitter.com/exploit3dguy) for [asr64_patcher](https://github.com/exploit3dguy/asr64_patcher)
 - [NotHereForTheDong](https://github.com/NotHereForTheDong) for creating many Firmware Bundles and beta testing
 - [tale](https://twitter.com/aarnavtale), [Chibibowa](https://twitter.com/Chibibowa), and [Moses](https://twitter.com/MosesBuckwalter) for beta testing
 
