@@ -1,4 +1,8 @@
 # Inferius
+[![License](https://img.shields.io/github/license/m1stadev/Inferius)](https://github.com/m1stadev/Inferius)
+[![Stars](https://img.shields.io/github/stars/m1stadev/Inferius)]((https://github.com/m1stadev/Inferius))
+[![LoC](https://img.shields.io/tokei/lines/github/m1stadev/Inferius)](https://github.com/m1stadev/Inferius)
+
 Inferius is an [xpwn](https://github.com/m1stadev/xpwn)-like tool to create & restore custom IPSWs to 64-bit devices.
 
 Its current purpose is to downgrade devices (vulnerable to [checkm8](https://github.com/axi0mX/ipwndfu)) to previous iOS versions. However, there are other possible uses for this tool as well.
