@@ -9,7 +9,7 @@ Its current purpose is to downgrade devices (vulnerable to [checkm8](https://git
 ## Notes and Caveats
 Before using Inferius, keep in mind that
 - **No one but YOU** is fully responsible for any data loss or damage caused to your device
-- Downgrades are still limited to versions compatible with the latest signed SEP version. This will change when [checkra1n](https://checkra.in/) implements a nonce setter for the SEP.
+- Downgrades are currently limited to versions compatible with the latest signed SEP version.
 - Due to the downgrades being tethered, after restoring a custom IPSW you must patch the bootchain & send it to your device over pwned DFU manually to boot, as described [here](https://dualbootfun.github.io/), or use one of these tools to automate the process for you:
     - [Ramiel](https://ramiel.app/)
     - [checkra1n](https://checkra.in)
