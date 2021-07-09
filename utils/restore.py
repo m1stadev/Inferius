@@ -28,16 +28,19 @@ class Restore(object):
 			args.append('--no-baseband')
 
 		args.append(ipsw)
-		futurerestore = subprocess.run(args, stderr=subprocess.DEVNULL, stdout=subprocess.PIPE, universal_newlines=True)
+		with open('futurerestore_error.log', 'w') as f:
+			f.write(f"{' '.join(args)}\n\n")
+
+		with open('futurerestore_error.log', 'a') as f:
+			futurerestore = subprocess.run(args, stderr=subprocess.DEVNULL, stdout=f, universal_newlines=True)
+
 		if os.path.isdir(ipsw.rsplit('.', 1)[0]):
 			shutil.rmtree(ipsw.rsplit('.', 1)[0])
 
 		if 'Done: restoring succeeded!' not in futurerestore.stdout:
-			with open('futurerestore_error.log', 'w') as f:
-				f.write(f"{' '.join(args)}\n")
-				f.write(futurerestore.stdout)
-
 			sys.exit("[ERROR] Restore failed. Log written to 'futurerestore_error.log'. Exiting.")
+			
+		os.remove('futurerestore_error.log')
 
 	def save_blobs(self, ecid, boardconfig, path, apnonce=None):
 		args = [
