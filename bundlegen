@@ -81,7 +81,7 @@ def diff_kernel(original, patched, output):
 
 	with open(output, 'w') as f:
 		for line in diff:
-			f.write(' '.join(line) + '\n')
+			f.write(f"{' '.join(line)}\n")
 
 def get_board(boards):
 	if len(boards) == 1:
@@ -268,7 +268,7 @@ def main():
 	with TemporaryDirectory() as tmpdir:
 		firm = get_firm([firm for firm in ipsw_api['firmwares'] if firm['version'] == version])
 		bundle_name = '_'.join((identifier, version, firm['buildid']))
-		bundle = '/'.join((tmpdir, bundle_name))
+		bundle = f'{tmpdir}/{bundle_name}'
 		os.mkdir(bundle)
 
 		print(f"Creating Firmware Bundle for {identifier}, iOS {version}")
@@ -290,63 +290,62 @@ def main():
 			file = {
 				'name': identity['Manifest'][component]['Info']['Path'].split('/')[-1],
 				'ipsw_path': identity['Manifest'][component]['Info']['Path'],
-				'path': '/'.join((tmpdir, identity['Manifest'][component]['Info']['Path']))
+				'path': f"{tmpdir}/{identity['Manifest'][component]['Info']['Path']}"
 			}
 
 			partialzip_extract(firm['url'], file['ipsw_path'], tmpdir)
 
-			decrypt(file['path'], file['path'] + '.raw', keys[f'{component.lower()}iv'] + keys[f'{component.lower()}key'])
-			patch_bootchain(file['path'] + '.raw', file['path'] + '.pwn')
-			create_im4p(file['path'] + '.pwn', file['path'] + '.im4p.pwn', component.lower())
+			decrypt(file['path'], f"{file['path']}.raw", f"{keys[f'{component.lower()}iv']}{keys[f'{component.lower()}key']}")
+			patch_bootchain(f"{file['path']}.raw", f"{file['path']}.pwn")
+			create_im4p(f"{file['path']}.pwn", f"{file['path']}.im4p.pwn", component.lower())
 
-			bsdiff4.file_diff(file['path'], file['path'] + '.im4p.pwn', '/'.join((bundle, file['name'].rsplit('.', 1)[0] + '.patch')))
+			bsdiff4.file_diff(file['path'], f"{file['path']}.im4p.pwn", f"{bundle}/{file['name'].rsplit('.', 1)[0]}.patch") 
 
 		print('[3] Patching kernel...')
 		kernel = {
 			'name': identity['Manifest']['KernelCache']['Info']['Path'].split('/')[-1],
 			'ipsw_path': identity['Manifest']['KernelCache']['Info']['Path'],
-			'path': '/'.join((tmpdir, identity['Manifest']['KernelCache']['Info']['Path']))
+			'path': f"{tmpdir}/{identity['Manifest']['KernelCache']['Info']['Path']}"
 		}
 
 		partialzip_extract(firm['url'], kernel['ipsw_path'], tmpdir)
 
-		decrypt(kernel['path'], kernel['path'] + '.raw')
-		patch_kernel(kernel['path'] + '.raw', kernel['path'] + '.pwn')
-		diff_kernel(kernel['path'] + '.raw', kernel['path'] + '.pwn', kernel['path'] + '.diff')
-		create_im4p(kernel['path'], kernel['path'] + '.im4p.pwn', patch=kernel['path'] + '.diff')
+		decrypt(kernel['path'], f"{kernel['path']}.raw")
+		patch_kernel(f"{kernel['path']}.raw", f"{kernel['path']}.pwn")
+		diff_kernel(f"{kernel['path']}.raw", f"{kernel['path']}.pwn", f"{kernel['path']}.diff")
+		create_im4p(kernel['path'], f"{kernel['path']}.im4p.pwn", patch=f"{kernel['path']}.diff")
 
-		bsdiff4.file_diff(kernel['path'], kernel['path'] + '.im4p.pwn', '/'.join((bundle, kernel['name'] + '.patch')))
+		bsdiff4.file_diff(kernel['path'], f"{kernel['path']}.im4p.pwn", f"{bundle}/{kernel['name']}.patch")
 
-		print('[4] Patching ramdisk. This may take a while, so please wait...')
+		print('[4] Patching ramdisk. This may take a while, please wait...')
 		ramdisk = {
 			'name': identity['Manifest']['RestoreRamDisk']['Info']['Path'].split('/')[-1],
 			'ipsw_path': identity['Manifest']['RestoreRamDisk']['Info']['Path'],
-			'path': '/'.join((tmpdir, identity['Manifest']['RestoreRamDisk']['Info']['Path']))
+			'path': f"{tmpdir}/{identity['Manifest']['RestoreRamDisk']['Info']['Path']}"
 		}
 
 		partialzip_extract(firm['url'], ramdisk['ipsw_path'], tmpdir)
-		decrypt(ramdisk['path'], ramdisk['path'] + '_rdsk.dmg')
+		decrypt(ramdisk['path'], f"{ramdisk['path']}_rdsk.dmg")
 
-		mount_rdsk(ramdisk['path'] + '_rdsk.dmg', tmpdir + '/ramdisk')
-		shutil.move(tmpdir + '/ramdisk/usr/sbin/asr', tmpdir + '/asr')
-		unmount_rdsk(tmpdir + '/ramdisk')
+		mount_rdsk(f"{ramdisk['path']}_rdsk.dmg", f'{tmpdir}/ramdisk')
+		shutil.move(f'{tmpdir}/ramdisk/usr/sbin/asr', f'{tmpdir}/asr')
+		unmount_rdsk(f'{tmpdir}/ramdisk')
 
-		patch_asr(tmpdir + '/asr', tmpdir + '/asr.pwn')
-		os.chmod(tmpdir + '/asr.pwn', 0o775)
+		patch_asr(f'{tmpdir}/asr', f'{tmpdir}/asr.pwn')
+		os.chmod(f'{tmpdir}/asr.pwn', 0o755)
 
-		mount_rdsk(ramdisk['path'] + '_rdsk.dmg', tmpdir + '/ramdisk')
+		mount_rdsk(f"{ramdisk['path']}_rdsk.dmg", f'{tmpdir}/ramdisk')
 		try:
-			shutil.move(tmpdir + '/asr.pwn', tmpdir + '/ramdisk/usr/sbin/asr')
+			shutil.move(f'{tmpdir}/asr.pwn', f'{tmpdir}/ramdisk/usr/sbin/asr')
 		except OSError:
-			unmount_rdsk(tmpdir + '/ramdisk')
-			resize_rdsk(ramdisk['path'] + '_rdsk.dmg')
-			mount_rdsk(ramdisk['path'] + '_rdsk.dmg', tmpdir + '/ramdisk')
-			shutil.move(tmpdir + '/asr.pwn', tmpdir + '/ramdisk/usr/sbin/asr')
+			unmount_rdsk(f'{tmpdir}/ramdisk')
+			resize_rdsk(f"{ramdisk['path']}_rdsk.dmg")
+			mount_rdsk(f"{ramdisk['path']}_rdsk.dmg", f'{tmpdir}/ramdisk')
+			shutil.move(f'{tmpdir}/asr.pwn', f'{tmpdir}/ramdisk/usr/sbin/asr')
 
-		unmount_rdsk(tmpdir + '/ramdisk')
-
-		create_im4p(ramdisk['path'] + '_rdsk.dmg', ramdisk['path'] + '.im4p', 'rdsk')
-		bsdiff4.file_diff(ramdisk['path'], ramdisk['path'] + '.im4p', '/'.join((bundle, ramdisk['name'][:-4] + '.asr.patch')))
+		unmount_rdsk(f'{tmpdir}/ramdisk')
+		create_im4p(f"{ramdisk['path']}_rdsk.dmg", f"{ramdisk['path']}.im4p", 'rdsk')
+		bsdiff4.file_diff(ramdisk['path'], f"{ramdisk['path']}.im4p", f"{bundle}/{ramdisk['name'][:-4]}.asr.patch")
 
 		print('[5] Making Firmware Bundle...')
 		info = {
@@ -360,36 +359,36 @@ def main():
 				'required': [
 					{
 						'file': identity['Manifest']['iBSS']['Info']['Path'],
-						'patch': identity['Manifest']['iBSS']['Info']['Path'].split('/')[-1].rsplit('.', 1)[0] + '.patch'
+						'patch': f"{identity['Manifest']['iBSS']['Info']['Path'].split('/')[-1].rsplit('.', 1)[0]}.patch"
 					},
 					{
 						'file': identity['Manifest']['iBEC']['Info']['Path'],
-						'patch': identity['Manifest']['iBEC']['Info']['Path'].split('/')[-1].rsplit('.', 1)[0] + '.patch'
+						'patch': f"{identity['Manifest']['iBEC']['Info']['Path'].split('/')[-1].rsplit('.', 1)[0]}.patch"
 					},
 					{
 						'file': ramdisk['ipsw_path'],
-						'patch': ramdisk['name'][:-4] + '.asr.patch'
+						'patch': f"{ramdisk['name'][:-4]}.asr.patch"
 					},
 					{
 						'file': kernel['ipsw_path'],
-						'patch': kernel['name'] + '.patch'
+						'patch': f"{kernel['name']}.patch"
 					}
 				]
 			}
 		}
 
-		with open('/'.join((bundle, 'Info.json')), 'w') as f:
+		with open(f'{bundle}/Info.json', 'w') as f:
 			json.dump(info, f, indent=4)
 
-		os.makedirs('FirmwareBundles/', exist_ok=True)
-		bundle_path = '/'.join(('FirmwareBundles', bundle_name))
-		if os.path.isdir(bundle_path + '.bundle'):
-			shutil.rmtree(bundle_path + '.bundle')
+		os.makedirs('FirmwareBundles', exist_ok=True)
+		bundle_path = f'FirmwareBundles/{bundle_name}.bundle'
+		if os.path.isfile(bundle_path):
+			os.remove(bundle_path)
 
 		shutil.make_archive(bundle_path, 'zip', bundle)
-		os.rename(bundle_path + '.zip', bundle_path + '.bundle')
+		os.rename(f'{bundle_path}.zip', bundle_path)
 
-	print(f"Finished creating Firmware Bundle for {identifier}, iOS {version}: '{bundle_path + '.bundle'}'.")
+	print(f"Finished creating Firmware Bundle for {identifier}, iOS {version}: '{bundle_path}'.")
 
 if __name__ == '__main__':
 	main()
