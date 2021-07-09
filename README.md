@@ -25,15 +25,14 @@ By default, firmware bundles are automatically downloadeded from an [external re
 ./inferius -d 'Identifier' -f 'IPSW' [-c/-r] [-b 'BUNDLE']
 ```
 
-| Option (short) | Option (long) | Description |
-|----------------|---------------|-------------|
-| `-d IDENTIFIER` | `--device IDENTIFIER` | Device identifier |
-| `-f IPSW` | `--ipsw IPSW` | Path to IPSW |
-| `-c` | `--create` | Create custom IPSW |
-| `-r` | `--restore` | Restore custom IPSW |
-| `-b` | `--bundle BUNDLE` | (Optional) Path to local Firmware Bundle |
-| `-u` | `--update` | Keep data while restoring custom IPSW |
-
+| Option (short)  | Option (long)         | Description                              |
+|-----------------|-----------------------|------------------------------------------|
+| `-d IDENTIFIER` | `--device IDENTIFIER` | Device identifier                        |
+| `-f IPSW`       | `--ipsw IPSW`         | Path to IPSW                             |
+| `-c`            | `--create`            | Create custom IPSW                       |
+| `-r`            | `--restore`           | Restore custom IPSW                      |
+| `-b`            | `--bundle BUNDLE`     | (Optional) Path to local Firmware Bundle |
+| `-u`            | `--update`            | Keep data while restoring custom IPSW    |
 
 ## Requirements
 - A computer running macOS or Linux
@@ -47,7 +46,7 @@ By default, firmware bundles are automatically downloadeded from an [external re
     - futurerestore must be compiled with [my fork of img4tool](https://github.com/m1stadev/img4tool), or else it can't be used with Inferius.
 - [libirecovery](https://github.com/libimobiledevice/libirecovery)
 - [tsschecker](https://github.com/1Conan/tsschecker)
-- Pip dependencies:
+- Python dependencies:
     - `pip3 install -r requirements.txt`
 
 ## To-Do
@@ -61,25 +60,25 @@ By default, firmware bundles are automatically downloadeded from an [external re
 ./bundlegen -d 'Identifier' -i 'iOS Version'
 ```
 
-| Option (short) | Option (long) | Description |
-|----------------|---------------|-------------|
+| Option (short)  | Option (long)         | Description       |
+|-----------------|-----------------------|-------------------|
 | `-d IDENTIFIER` | `--device IDENTIFIER` | Device identifier |
-| `-i VERSION` | `--version VERSION` | iOS version |
+| `-i VERSION`    | `--version VERSION`   | iOS version       |
 
 ## Requirements
 - A computer running macOS
 - At least **250mbs** of free space on your computer
 - An Internet connection
 - [asr64_patcher](https://github.com/exploit3dguy/asr64_patcher)
-    - Compiled binaries can be found [here](https://github.com/exploit3dguy/asr64_patcher/releases)
+    - A compiled binary can be found [here](https://github.com/exploit3dguy/asr64_patcher/releases)
 - [img4lib](https://github.com/xerub/img4lib)
-    - Compiled binaries can be found [here](https://github.com/xerub/img4lib/releases)
+    - A compiled binary can be found [here](https://github.com/xerub/img4lib/releases)
 - [kairos](https://github.com/dayt0n/kairos)
-    - Compiled binaries can be found [here](https://github.com/dayt0n/kairos/releases)
+    - A compiled binary can be found [here](https://github.com/dayt0n/kairos/releases)
 - [Kernel64Patcher](https://github.com/Ralph0045/Kernel64Patcher)
 - [Link Identity Editor](https://github.com/sbingner/ldid)
-    - Compiled binaries can be found [here](https://github.com/sbingner/ldid/releases)
-- Pip dependencies:
+    - A compiled binary can be found [here](https://github.com/sbingner/ldid/releases)
+- Python dependencies:
     - `pip3 install -r requirements.txt`
 
 ## Special thanks
