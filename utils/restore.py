@@ -34,7 +34,7 @@ class Restore(object):
 
 		if 'Done: restoring succeeded!' not in futurerestore.stdout:
 			with open('futurerestore_error.log', 'w') as f:
-				f.write(' '.join(args) + '\n')
+				f.write(f"{' '.join(args)}\n")
 				f.write(futurerestore.stdout)
 
 			sys.exit("[ERROR] Restore failed. Log written to 'futurerestore_error.log'. Exiting.")
@@ -47,7 +47,7 @@ class Restore(object):
 			'-B',
 			boardconfig,
 			'-e',
-			'0x' + ecid,
+			f'0x{ecid}',
 			'-l',
 			'-s',
 			'--save-path',

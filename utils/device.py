@@ -63,7 +63,7 @@ class Device(object):
 
 		libusb1 = None
 		for libdir in directories:
-			for file in glob.glob(libdir + '/**', recursive=True):
+			for file in glob.glob(f'{libdir}/**', recursive=True):
 				if os.path.isdir(file) or (not any(ext in file for ext in ('so', 'dylib'))):
 					continue
 

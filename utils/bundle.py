@@ -19,7 +19,7 @@ class Bundle(object):
 					continue
 
 			for patch in bundle_data['patches'][patches]:
-				bsdiff4.file_patch_inplace('/'.join((ipsw, patch['file'])), '/'.join((self.bundle, patch['patch'])))
+				bsdiff4.file_patch_inplace(f"{ipsw}/{patch['file']}", f"{self.bundle}/{patch['patch']}")
 
 	def check_update_support(self):
 		with open(f'{self.bundle}/Info.json', 'r') as f:
@@ -33,7 +33,7 @@ class Bundle(object):
 		if bundle.status_code == 404:
 			sys.exit(f'[ERROR] A Firmware Bundle does not exist for {device}, iOS {version}. Exiting.')
 
-		output = '/'.join((path, bundle_name))
+		output = f'{path}/{bundle_name}'
 		with zipfile.ZipFile(io.BytesIO(bundle.content), 'r') as f:
 			try:
 				f.extractall(output)
@@ -62,7 +62,7 @@ class Bundle(object):
 		except:
 			return False
 
-		bundle_path = '/'.join((tmpdir, bundle.split('/')[-1].rsplit('.', 1)[0]))
+		bundle_path = f"{tmpdir}/{bundle.split('/')[-1].rsplit('.', 1)[0]}"
 		os.mkdir(bundle_path)
 		with zipfile.ZipFile(bundle) as f:
 			f.extractall(bundle_path)

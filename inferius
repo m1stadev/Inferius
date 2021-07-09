@@ -33,7 +33,7 @@ def create_ipsw(api, buildmanifest, ipsw_path, tmpdir, bundle_path):
 	ipsw.verify_ipsw(api.fetch_sha1(buildmanifest.buildid))
 
 	print('[3] Extracting IPSW...')
-	extracted_ipsw = '/'.join((tmpdir, 'ipsw'))
+	extracted_ipsw = f'{tmpdir}/ipsw'
 	os.mkdir(extracted_ipsw)
 	ipsw.extract_ipsw(extracted_ipsw)
 
@@ -46,7 +46,7 @@ def create_ipsw(api, buildmanifest, ipsw_path, tmpdir, bundle_path):
 	bootloader_ver = api.partialzip_extract(buildid, latest_manifest.fetch_component_path(api.board, 'iBoot'), extracted_ipsw)
 
 	print('[5] Repacking IPSW...')
-	custom_ipsw = ipsw.create_ipsw(extracted_ipsw, ipsw_path.split('/')[-1].rsplit('.', 1)[0] + '_custom.ipsw', bundle.check_update_support(), bootloader_ver)
+	custom_ipsw = ipsw.create_ipsw(extracted_ipsw, f"{ipsw_path.split('/')[-1].rsplit('.', 1)[0]}_custom.ipsw", bundle.check_update_support(), bootloader_ver)
 	print(f"Finished creating custom IPSW: '{custom_ipsw}'.")
 
 	return custom_ipsw
@@ -67,18 +67,18 @@ def restore_ipsw(api, buildmanifest, ipsw_path, updating, tmpdir):
 
 	print('[3] Extracting bootchain...')
 	ibss = buildmanifest.fetch_component_path(device.board, 'iBSS')
-	ipsw.extract_file(ibss, '/'.join((tmpdir, 'ibss.im4p')))
+	ipsw.extract_file(ibss, f'{tmpdir}/ibss.im4p')
 	ibec = buildmanifest.fetch_component_path(device.board, 'iBEC')
-	ipsw.extract_file(ibec, '/'.join((tmpdir, 'ibec.im4p')))
+	ipsw.extract_file(ibec, f'{tmpdir}/ibec.im4p')
 
 	print('[4] Signing bootchain...')
 	restore.save_blobs(device.ecid, device.board, tmpdir)
-	restore.sign_component('/'.join((tmpdir, 'ibss.im4p')), '/'.join((tmpdir, 'ibss.img4')))
-	restore.sign_component('/'.join((tmpdir, 'ibec.im4p')), '/'.join((tmpdir, 'ibec.img4')))
+	restore.sign_component(f'{tmpdir}/ibss.im4p', f'{tmpdir}/ibss.img4')
+	restore.sign_component(f'{tmpdir}/ibec.im4p', f'{tmpdir}/ibec.img4')
 
 	print('[5] Sending bootchain...')
-	restore.send_component('/'.join((tmpdir, 'ibss.img4')), 'iBSS')
-	restore.send_component('/'.join((tmpdir, 'ibec.img4')), 'iBEC')
+	restore.send_component(f'{tmpdir}/ibss.img4', 'iBSS')
+	restore.send_component(f'{tmpdir}/ibec.img4', 'iBEC')
 
 	print('[6] Saving SHSH blobs...')
 	restore.save_blobs(device.ecid, device.board, tmpdir, device.fetch_apnonce())
