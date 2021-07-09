@@ -16,7 +16,7 @@ Before using Inferius, keep in mind that
     - [PyBoot](https://github.com/MatthewPierson/PyBoot)
     - [ra1nsn0w](https://github.com/tihmstar/ra1nsn0w)
 
-By default, firmware bundles are automatically downloadeded from an [external repo](https://github.com/m1stadev/inferius-ext/tree/master/bundles). However, if there isn't a firmware bundle for the device+iOS version combo you're attempting to downgrade to, you'll need to create your own using [bundlegen](https://github.com/m1stadev/Inferius#inferius-bundle-generator).
+By default, firmware bundles are automatically downloaded from an [external repo](https://github.com/m1stadev/inferius-ext/tree/master/bundles). However, if there isn't a firmware bundle for the device+iOS version combo you're attempting to downgrade to, you'll need to create your own using [bundlegen](https://github.com/m1stadev/Inferius#inferius-bundle-generator).
 
 [Pull requests](https://github.com/m1stadev/inferius-ext/compare) for new firmware bundles are welcome, as long as the firmware bundle you want to add can create a usable IPSW for the targeted version.
 
