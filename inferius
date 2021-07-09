@@ -40,11 +40,7 @@ def create_ipsw(api, buildmanifest, ipsw_path, tmpdir, bundle_path):
 	print('[4] Patching components...')
 	bundle.apply_patches(extracted_ipsw)
 
-	if buildmanifest.version.startswith('10'):
-		buildid = '14G60'
-	else:
-		buildid = api.api['firmwares'][0]['buildid']
-
+	buildid = api.api['firmwares'][0]['buildid']
 	latest_manifest = Manifest(api.partialzip_read(buildid, 'BuildManifest.plist'))
 	api.partialzip_extract(buildid, latest_manifest.fetch_component_path(api.board, 'LLB'), extracted_ipsw)
 	bootloader_ver = api.partialzip_extract(buildid, latest_manifest.fetch_component_path(api.board, 'iBoot'), extracted_ipsw)

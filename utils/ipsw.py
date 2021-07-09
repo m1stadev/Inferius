@@ -92,9 +92,6 @@ class IPSW(object):
 		if (info['update_support'] == False) and (update == True):
 			sys.exit('[ERROR] This IPSW does not have support for update restores. Exiting.')
 
-		if info['bootloader'] == '10.3.3':
-			return
-
 		api = API()
 		api.fetch_api(device)
 		if api.is_signed(info['bootloader']) == False:
