@@ -82,8 +82,9 @@ class Device(object):
 		return usb.backend.libusb1.get_backend(find_library=lambda x:libusb1)
 
 	def fetch_boardconfig(self):
-		irecovery = subprocess.run(('irecovery', '-qv'), stdout=subprocess.DEVNULL, stderr=subprocess.PIPE, universal_newlines=True).stderr
-		return irecovery.splitlines()[4].split(', ')[1].replace('model ', '')
+		irecv = subprocess.run(('irecovery', '-qv'), stdout=subprocess.DEVNULL, stderr=subprocess.PIPE, universal_newlines=True).stderr
+		line = next(l for l in irecv.splitlines() if 'Connected to' in l)
+		return line.split(', ')[1].replace('model ', '')
 
 	def fetch_ecid(self):
 		device = usb.core.find(idVendor=0x5AC, idProduct=0x1227, backend=self.backend)
