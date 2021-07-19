@@ -16,7 +16,7 @@ class Checks(object):
 
 		if binary == 'futurerestore':
 			fr_ver = subprocess.run((binary), stdout=subprocess.PIPE, universal_newlines=True).stdout
-			if not fr_ver.splitlines()[1].endswith('-m1sta'):
+			if '-m1sta' not in fr_ver.splitlines()[1]:
 				sys.exit(f"[ERROR] This futurerestore cannot be used with Inferius. Exiting.")
 
 		elif binary == 'irecovery':
