@@ -17,378 +17,378 @@ import time
 
 
 def check_bin(binary):
-	if shutil.which(binary) is None:
-		sys.exit(f"[ERROR] '{binary}' was not found on your system. Exiting.")
+    if shutil.which(binary) is None:
+        sys.exit(f"[ERROR] '{binary}' was not found on your system. Exiting.")
 
 def create_im4p(file, output, tag=None, patch=None):
-	args = [
-		'img4',
-		'-i',
-		file,
-		'-o',
-		output
-	]
+    args = [
+        'img4',
+        '-i',
+        file,
+        '-o',
+        output
+    ]
 
-	if tag:
-		args.append('-A')
-		args.append('-T')
-		args.append(tag)
+    if tag:
+        args.append('-A')
+        args.append('-T')
+        args.append(tag)
 
-	if patch:
-		args.append('-P')
-		args.append(patch)
+    if patch:
+        args.append('-P')
+        args.append(patch)
 
-	img4 = subprocess.run(args, stdout=subprocess.DEVNULL)
-	if img4.returncode != 0:
-		sys.exit(f"[ERROR] Packing '{file}' into im4p container failed. Exiting.")
+    img4 = subprocess.run(args, stdout=subprocess.DEVNULL)
+    if img4.returncode != 0:
+        sys.exit(f"[ERROR] Packing '{file}' into im4p container failed. Exiting.")
 
 def decrypt(file, output, kbag=None):
-	args = [
-		'img4',
-		'-i',
-		file,
-		'-o',
-		output
-	]
+    args = [
+        'img4',
+        '-i',
+        file,
+        '-o',
+        output
+    ]
 
-	if kbag:
-		args.append('-k')
-		args.append(kbag)
+    if kbag:
+        args.append('-k')
+        args.append(kbag)
 
-	decrypt = subprocess.run(args, stdout=subprocess.DEVNULL)
-	if decrypt.returncode != 0:
-		sys.exit(f"[ERROR] Decrypting '{file}' failed. Exiting.")
+    decrypt = subprocess.run(args, stdout=subprocess.DEVNULL)
+    if decrypt.returncode != 0:
+        sys.exit(f"[ERROR] Decrypting '{file}' failed. Exiting.")
 
 def diff_kernel(original, patched, output):
-	with open(original, 'rb') as f:
-		original = f.read()
+    with open(original, 'rb') as f:
+        original = f.read()
 
-	with open(patched, 'rb') as f:
-		patched = f.read()
+    with open(patched, 'rb') as f:
+        patched = f.read()
 
-	diff = list()
-	start_time = time.time()
-	for i in range(len(original)):
-		if round(time.time() - start_time) > 60:
-			sys.exit("[ERROR] Failed to generate img4 patchfile for kernel. Exiting.")
+    diff = list()
+    start_time = time.time()
+    for i in range(len(original)):
+        if round(time.time() - start_time) > 60:
+            sys.exit("[ERROR] Failed to generate img4 patchfile for kernel. Exiting.")
 
-		originalByte = original[i]
-		patchedByte = patched[i]
+        originalByte = original[i]
+        patchedByte = patched[i]
 
-		if originalByte != patchedByte:
-			diff_info = (str(hex(i)), str(hex(originalByte)), str(hex(patchedByte)))
-			diff.append(diff_info)
+        if originalByte != patchedByte:
+            diff_info = (str(hex(i)), str(hex(originalByte)), str(hex(patchedByte)))
+            diff.append(diff_info)
 
-	with open(output, 'w') as f:
-		for line in diff:
-			f.write(f"{' '.join(line)}\n")
+    with open(output, 'w') as f:
+        for line in diff:
+            f.write(f"{' '.join(line)}\n")
 
 def get_board(boards):
-	if len(boards) == 1:
-		return boards[0]
-	
-	print('NOTE: There are multiple boardconfigs for your device! Please choose the correct boardconfig for your device:')
-	for board in range(len(boards)):
-		print(f"  {board + 1}: {boards[board]['boardconfig']}")
+    if len(boards) == 1:
+        return boards[0]
+    
+    print('NOTE: There are multiple boardconfigs for your device! Please choose the correct boardconfig for your device:')
+    for board in range(len(boards)):
+        print(f"  {board + 1}: {boards[board]['boardconfig']}")
 
-	board = input('Choice: ')
-	try:
-		return boards[int(board) - 1]
-	except:
-		sys.exit('[ERROR] Invalid input given. Exiting.')
+    board = input('Choice: ')
+    try:
+        return boards[int(board) - 1]
+    except:
+        sys.exit('[ERROR] Invalid input given. Exiting.')
 
 def get_firm(firms):
-	if len(firms) == 1:
-		return firms[0]
-	
-	print(f"NOTE: There are multiple builds for iOS {firms[0]['version']}! Please choose the version you wish to make a Firmware Bundle for:")
-	for firm in range(len(firms)):
-		print(f"  {firm + 1}: {firms[firm]['buildid']}")
+    if len(firms) == 1:
+        return firms[0]
+    
+    print(f"NOTE: There are multiple builds for iOS {firms[0]['version']}! Please choose the version you wish to make a Firmware Bundle for:")
+    for firm in range(len(firms)):
+        print(f"  {firm + 1}: {firms[firm]['buildid']}")
 
-	firm = input('Choice: ')
-	try:
-		return firms[int(firm) - 1]
-	except:
-		sys.exit('[ERROR] Invalid input given. Exiting.')
+    firm = input('Choice: ')
+    try:
+        return firms[int(firm) - 1]
+    except:
+        sys.exit('[ERROR] Invalid input given. Exiting.')
 
 def mount_rdsk(rdsk, mountpoint):
-	args = (
-		'hdiutil',
-		'attach',
-		rdsk,
-		'-mountpoint',
-		mountpoint
-	)
+    args = (
+        'hdiutil',
+        'attach',
+        rdsk,
+        '-mountpoint',
+        mountpoint
+    )
 
-	mount = subprocess.run(args, stdout=subprocess.DEVNULL)
-	if mount.returncode != 0:
-		sys.exit(f"[ERROR] Mounting '{rdsk}' to '{mountpoint}' failed. Exiting.")
+    mount = subprocess.run(args, stdout=subprocess.DEVNULL)
+    if mount.returncode != 0:
+        sys.exit(f"[ERROR] Mounting '{rdsk}' to '{mountpoint}' failed. Exiting.")
 
 def parse_keys(page):
-	data = page.replace(' ', '').replace('|', '').splitlines()
-	wiki_version = page.replace('|', '').splitlines()[1].split('=')[1][1:].replace('MasterGM', 'Master|GM')
-	wikikeys = dict()
+    data = page.replace(' ', '').replace('|', '').splitlines()
+    wiki_version = page.replace('|', '').splitlines()[1].split('=')[1][1:].replace('MasterGM', 'Master|GM')
+    wikikeys = dict()
 
-	for x in list(data):
-		if x in (str(), '}}', '{{keys'):
-			continue
+    for x in list(data):
+        if x in (str(), '}}', '{{keys'):
+            continue
 
-		new_str = x.split('=')
-		try:
-			wikikeys[new_str[0].lower()] = new_str[1]
-		except IndexError:
-			continue
+        new_str = x.split('=')
+        try:
+            wikikeys[new_str[0].lower()] = new_str[1]
+        except IndexError:
+            continue
 
-	wikikeys['version'] = wiki_version
+    wikikeys['version'] = wiki_version
 
-	return wikikeys
+    return wikikeys
 
 def patch_bootchain(file, output):
-	args = (
-		'kairos',
-		file,
-		output
-	)
+    args = (
+        'kairos',
+        file,
+        output
+    )
 
-	patch = subprocess.run(args, stdout=subprocess.DEVNULL)
-	if patch.returncode != 0:
-		sys.exit(f'[ERROR] Patching {file} failed. Exiting.')
+    patch = subprocess.run(args, stdout=subprocess.DEVNULL)
+    if patch.returncode != 0:
+        sys.exit(f'[ERROR] Patching {file} failed. Exiting.')
 
 def patch_kernel(file, output):
-	args = (
-		'Kernel64Patcher',
-		file,
-		output,
-		'-a'
-	)
+    args = (
+        'Kernel64Patcher',
+        file,
+        output,
+        '-a'
+    )
 
-	patch = subprocess.run(args, stdout=subprocess.DEVNULL)
-	if patch.returncode != 0:
-		sys.exit('[ERROR] Patching kernel failed. Exiting.')
+    patch = subprocess.run(args, stdout=subprocess.DEVNULL)
+    if patch.returncode != 0:
+        sys.exit('[ERROR] Patching kernel failed. Exiting.')
 
 def patch_asr(file, output):
-	args = (
-		'asr64_patcher',
-		file,
-		output
-	)
+    args = (
+        'asr64_patcher',
+        file,
+        output
+    )
 
-	patch = subprocess.run(args, stdout=subprocess.DEVNULL)
-	if patch.returncode != 0:
-		sys.exit(f"[ERROR] Patching '{file}' failed. Exiting.")
+    patch = subprocess.run(args, stdout=subprocess.DEVNULL)
+    if patch.returncode != 0:
+        sys.exit(f"[ERROR] Patching '{file}' failed. Exiting.")
 
-	extract_ents = subprocess.run(f"ldid -e {file} > {file}.ents.plist", stdout=subprocess.DEVNULL, shell=True)
-	if extract_ents.returncode != 0:
-		sys.exit(f'[ERROR] Extracting {file} entitlements failed. Exiting.')
+    extract_ents = subprocess.run(f"ldid -e {file} > {file}.ents.plist", stdout=subprocess.DEVNULL, shell=True)
+    if extract_ents.returncode != 0:
+        sys.exit(f'[ERROR] Extracting {file} entitlements failed. Exiting.')
 
-	args = (
-		'ldid',
-		f'-S{file}.ents.plist',
-		output
-	)
+    args = (
+        'ldid',
+        f'-S{file}.ents.plist',
+        output
+    )
 
-	resign = subprocess.run(args, stdout=subprocess.DEVNULL)
-	if resign.returncode != 0:
-		sys.exit(f'[ERROR] Resigning {output} failed. Exiting.')
+    resign = subprocess.run(args, stdout=subprocess.DEVNULL)
+    if resign.returncode != 0:
+        sys.exit(f'[ERROR] Resigning {output} failed. Exiting.')
 
 def partialzip_extract(url, file, path):
-	try:
-		with RemoteZip(url) as f:
-			f.extract(file, path)
-	except:
-		sys.exit(f"[ERROR] Failed to extract '{file}'. Exiting.")
+    try:
+        with RemoteZip(url) as f:
+            f.extract(file, path)
+    except:
+        sys.exit(f"[ERROR] Failed to extract '{file}'. Exiting.")
 
 def partialzip_read(url, file):
-	try:
-		with RemoteZip(url) as f:
-			return f.read(file)
-	except:
-		sys.exit(f"[ERROR] Failed to read '{file}'. Exiting.")
+    try:
+        with RemoteZip(url) as f:
+            return f.read(file)
+    except:
+        sys.exit(f"[ERROR] Failed to read '{file}'. Exiting.")
 
 def resize_rdsk(rdsk):
-	new_size = round(os.path.getsize(rdsk) / float(1<<20)) + 1
-	args = (
-		'hdiutil',
-		'resize',
-		'-size',
-		f'{new_size}M',
-		rdsk
-	)
+    new_size = round(os.path.getsize(rdsk) / float(1<<20)) + 1
+    args = (
+        'hdiutil',
+        'resize',
+        '-size',
+        f'{new_size}M',
+        rdsk
+    )
 
-	resize = subprocess.run(args, stdout=subprocess.DEVNULL)
-	if resize.returncode != 0:
-		sys.exit(f'[ERROR] Resizing ramdisk failed. Exiting.')
-	
+    resize = subprocess.run(args, stdout=subprocess.DEVNULL)
+    if resize.returncode != 0:
+        sys.exit(f'[ERROR] Resizing ramdisk failed. Exiting.')
+    
 def unmount_rdsk(mountpoint):
-	args = (
-		'hdiutil',
-		'detach',
-		mountpoint
-	)
+    args = (
+        'hdiutil',
+        'detach',
+        mountpoint
+    )
 
-	unmount = subprocess.run(args, stdout=subprocess.DEVNULL)
-	if unmount.returncode != 0:
-		sys.exit(f"[ERROR] Unmounting ramdisk at '{mountpoint}' failed. Exiting.")
+    unmount = subprocess.run(args, stdout=subprocess.DEVNULL)
+    if unmount.returncode != 0:
+        sys.exit(f"[ERROR] Unmounting ramdisk at '{mountpoint}' failed. Exiting.")
 
 def main():
-	parser = ArgumentParser(description='Inferius Bundle Generator', usage="bundlegen -d 'Identifier' -i 'iOS version'")
-	parser.add_argument('-d', '--device', help='Device identifier', nargs=1)
-	parser.add_argument('-i', '--version', help='iOS version', nargs=1)
-	args = parser.parse_args()
+    parser = ArgumentParser(description='Inferius Bundle Generator', usage="bundlegen -d 'Identifier' -i 'iOS version'")
+    parser.add_argument('-d', '--device', help='Device identifier', nargs=1)
+    parser.add_argument('-i', '--version', help='iOS version', nargs=1)
+    args = parser.parse_args()
 
-	if platform.system() != 'Darwin':
-		sys.exit('[ERROR] This script only works on macOS. Exiting.')
+    if platform.system() != 'Darwin':
+        sys.exit('[ERROR] This script only works on macOS. Exiting.')
 
-	if not args.device or not args.version:
-		sys.exit(parser.print_help(sys.stderr))
+    if not args.device or not args.version:
+        sys.exit(parser.print_help(sys.stderr))
 
-	check_bin('asr64_patcher')
-	check_bin('img4')
-	check_bin('kairos')
-	check_bin('Kernel64Patcher')
-	check_bin('ldid')
+    check_bin('asr64_patcher')
+    check_bin('img4')
+    check_bin('kairos')
+    check_bin('Kernel64Patcher')
+    check_bin('ldid')
 
-	identifier = 'P'.join(args.device[0].lower().split('p'))
-	version = args.version[0]
+    identifier = 'P'.join(args.device[0].lower().split('p'))
+    version = args.version[0]
 
-	try:
-		ipsw_api = requests.get(f'https://api.ipsw.me/v4/device/{identifier}?type=ipsw').json()
-	except:
-		sys.exit(f"[ERROR] '{identifier}' is not a valid device identifier. Exiting.")
+    try:
+        ipsw_api = requests.get(f'https://api.ipsw.me/v4/device/{identifier}?type=ipsw').json()
+    except:
+        sys.exit(f"[ERROR] '{identifier}' is not a valid device identifier. Exiting.")
 
-	if any(identifier.startswith(device) for device in ('iPhone8', 'iPad6,1')):
-		sys.exit('[ERROR] A9 devices are not currently supported. Exiting.')
+    if any(identifier.startswith(device) for device in ('iPhone8', 'iPad6,1')):
+        sys.exit('[ERROR] A9 devices are not currently supported. Exiting.')
 
-	if not any(firm['version'] == version for firm in ipsw_api['firmwares']):
-		sys.exit(f"[ERROR] 'iOS {version}' is not a valid iOS version. Exiting.")
+    if not any(firm['version'] == version for firm in ipsw_api['firmwares']):
+        sys.exit(f"[ERROR] 'iOS {version}' is not a valid iOS version. Exiting.")
 
-	if int(version.split('.')[0]) < 10:
-		sys.exit(f"[ERROR] iOS {version} is not supported at this time for firmware bundle creation. Exiting.")
+    if int(version.split('.')[0]) < 10:
+        sys.exit(f"[ERROR] iOS {version} is not supported at this time for firmware bundle creation. Exiting.")
 
-	with TemporaryDirectory() as tmpdir:
-		firm = get_firm([firm for firm in ipsw_api['firmwares'] if firm['version'] == version])
-		bundle_name = '_'.join((identifier, version, firm['buildid']))
-		bundle = f'{tmpdir}/{bundle_name}'
-		os.mkdir(bundle)
+    with TemporaryDirectory() as tmpdir:
+        firm = get_firm([firm for firm in ipsw_api['firmwares'] if firm['version'] == version])
+        bundle_name = '_'.join((identifier, version, firm['buildid']))
+        bundle = f'{tmpdir}/{bundle_name}'
+        os.mkdir(bundle)
 
-		print(f"Creating Firmware Bundle for {identifier}, iOS {version}")
-		bm = plistlib.loads(partialzip_read(firm['url'], 'BuildManifest.plist'))
-		boardconfig = get_board(ipsw_api['boards'])['boardconfig']
-		identity = next(identity for identity in bm['BuildIdentities'] if identity['Info']['DeviceClass'].lower() == boardconfig.lower())
+        print(f"Creating Firmware Bundle for {identifier}, iOS {version}")
+        bm = plistlib.loads(partialzip_read(firm['url'], 'BuildManifest.plist'))
+        boardconfig = get_board(ipsw_api['boards'])['boardconfig']
+        identity = next(identity for identity in bm['BuildIdentities'] if identity['Info']['DeviceClass'].lower() == boardconfig.lower())
 
-		print('[1] Grabbing decryption keys...')
-		keypage_title = f"{identity['Info']['BuildTrain']}_{firm['buildid']}_({identifier})"
-		keypage = Site('www.theiphonewiki.com').pages[keypage_title]
+        print('[1] Grabbing decryption keys...')
+        keypage_title = f"{identity['Info']['BuildTrain']}_{firm['buildid']}_({identifier})"
+        keypage = Site('www.theiphonewiki.com').pages[keypage_title]
 
-		if not keypage.exists:
-			sys.exit(f"[ERROR] Decryption keys for {identifier}, iOS {version} are not on The iPhone Wiki. Exiting.")
+        if not keypage.exists:
+            sys.exit(f"[ERROR] Decryption keys for {identifier}, iOS {version} are not on The iPhone Wiki. Exiting.")
 
-		keys = parse_keys(keypage.text())
+        keys = parse_keys(keypage.text())
 
-		print('[2] Patching bootchain...')
-		for component in ('iBSS', 'iBEC'):
-			file = {
-				'name': identity['Manifest'][component]['Info']['Path'].split('/')[-1],
-				'ipsw_path': identity['Manifest'][component]['Info']['Path'],
-				'path': f"{tmpdir}/{identity['Manifest'][component]['Info']['Path']}"
-			}
+        print('[2] Patching bootchain...')
+        for component in ('iBSS', 'iBEC'):
+            file = {
+                'name': identity['Manifest'][component]['Info']['Path'].split('/')[-1],
+                'ipsw_path': identity['Manifest'][component]['Info']['Path'],
+                'path': f"{tmpdir}/{identity['Manifest'][component]['Info']['Path']}"
+            }
 
-			partialzip_extract(firm['url'], file['ipsw_path'], tmpdir)
+            partialzip_extract(firm['url'], file['ipsw_path'], tmpdir)
 
-			decrypt(file['path'], f"{file['path']}.raw", f"{keys[f'{component.lower()}iv']}{keys[f'{component.lower()}key']}")
-			patch_bootchain(f"{file['path']}.raw", f"{file['path']}.pwn")
-			create_im4p(f"{file['path']}.pwn", f"{file['path']}.im4p.pwn", component.lower())
+            decrypt(file['path'], f"{file['path']}.raw", f"{keys[f'{component.lower()}iv']}{keys[f'{component.lower()}key']}")
+            patch_bootchain(f"{file['path']}.raw", f"{file['path']}.pwn")
+            create_im4p(f"{file['path']}.pwn", f"{file['path']}.im4p.pwn", component.lower())
 
-			bsdiff4.file_diff(file['path'], f"{file['path']}.im4p.pwn", f"{bundle}/{file['name'].rsplit('.', 1)[0]}.patch") 
+            bsdiff4.file_diff(file['path'], f"{file['path']}.im4p.pwn", f"{bundle}/{file['name'].rsplit('.', 1)[0]}.patch") 
 
-		print('[3] Patching kernel...')
-		kernel = {
-			'name': identity['Manifest']['KernelCache']['Info']['Path'].split('/')[-1],
-			'ipsw_path': identity['Manifest']['KernelCache']['Info']['Path'],
-			'path': f"{tmpdir}/{identity['Manifest']['KernelCache']['Info']['Path']}"
-		}
+        print('[3] Patching kernel...')
+        kernel = {
+            'name': identity['Manifest']['KernelCache']['Info']['Path'].split('/')[-1],
+            'ipsw_path': identity['Manifest']['KernelCache']['Info']['Path'],
+            'path': f"{tmpdir}/{identity['Manifest']['KernelCache']['Info']['Path']}"
+        }
 
-		partialzip_extract(firm['url'], kernel['ipsw_path'], tmpdir)
+        partialzip_extract(firm['url'], kernel['ipsw_path'], tmpdir)
 
-		decrypt(kernel['path'], f"{kernel['path']}.raw")
-		patch_kernel(f"{kernel['path']}.raw", f"{kernel['path']}.pwn")
-		diff_kernel(f"{kernel['path']}.raw", f"{kernel['path']}.pwn", f"{kernel['path']}.diff")
-		create_im4p(kernel['path'], f"{kernel['path']}.im4p.pwn", patch=f"{kernel['path']}.diff")
+        decrypt(kernel['path'], f"{kernel['path']}.raw")
+        patch_kernel(f"{kernel['path']}.raw", f"{kernel['path']}.pwn")
+        diff_kernel(f"{kernel['path']}.raw", f"{kernel['path']}.pwn", f"{kernel['path']}.diff")
+        create_im4p(kernel['path'], f"{kernel['path']}.im4p.pwn", patch=f"{kernel['path']}.diff")
 
-		bsdiff4.file_diff(kernel['path'], f"{kernel['path']}.im4p.pwn", f"{bundle}/{kernel['name']}.patch")
+        bsdiff4.file_diff(kernel['path'], f"{kernel['path']}.im4p.pwn", f"{bundle}/{kernel['name']}.patch")
 
-		print('[4] Patching ramdisk. This may take a while, please wait...')
-		ramdisk = {
-			'name': identity['Manifest']['RestoreRamDisk']['Info']['Path'].split('/')[-1],
-			'ipsw_path': identity['Manifest']['RestoreRamDisk']['Info']['Path'],
-			'path': f"{tmpdir}/{identity['Manifest']['RestoreRamDisk']['Info']['Path']}"
-		}
+        print('[4] Patching ramdisk. This may take a while, please wait...')
+        ramdisk = {
+            'name': identity['Manifest']['RestoreRamDisk']['Info']['Path'].split('/')[-1],
+            'ipsw_path': identity['Manifest']['RestoreRamDisk']['Info']['Path'],
+            'path': f"{tmpdir}/{identity['Manifest']['RestoreRamDisk']['Info']['Path']}"
+        }
 
-		partialzip_extract(firm['url'], ramdisk['ipsw_path'], tmpdir)
-		decrypt(ramdisk['path'], f"{ramdisk['path']}_rdsk.dmg")
+        partialzip_extract(firm['url'], ramdisk['ipsw_path'], tmpdir)
+        decrypt(ramdisk['path'], f"{ramdisk['path']}_rdsk.dmg")
 
-		mount_rdsk(f"{ramdisk['path']}_rdsk.dmg", f'{tmpdir}/ramdisk')
-		shutil.move(f'{tmpdir}/ramdisk/usr/sbin/asr', f'{tmpdir}/asr')
-		unmount_rdsk(f'{tmpdir}/ramdisk')
+        mount_rdsk(f"{ramdisk['path']}_rdsk.dmg", f'{tmpdir}/ramdisk')
+        shutil.move(f'{tmpdir}/ramdisk/usr/sbin/asr', f'{tmpdir}/asr')
+        unmount_rdsk(f'{tmpdir}/ramdisk')
 
-		patch_asr(f'{tmpdir}/asr', f'{tmpdir}/asr.pwn')
-		os.chmod(f'{tmpdir}/asr.pwn', 0o755)
+        patch_asr(f'{tmpdir}/asr', f'{tmpdir}/asr.pwn')
+        os.chmod(f'{tmpdir}/asr.pwn', 0o755)
 
-		mount_rdsk(f"{ramdisk['path']}_rdsk.dmg", f'{tmpdir}/ramdisk')
-		try:
-			shutil.move(f'{tmpdir}/asr.pwn', f'{tmpdir}/ramdisk/usr/sbin/asr')
-		except OSError:
-			unmount_rdsk(f'{tmpdir}/ramdisk')
-			resize_rdsk(f"{ramdisk['path']}_rdsk.dmg")
-			mount_rdsk(f"{ramdisk['path']}_rdsk.dmg", f'{tmpdir}/ramdisk')
-			shutil.move(f'{tmpdir}/asr.pwn', f'{tmpdir}/ramdisk/usr/sbin/asr')
+        mount_rdsk(f"{ramdisk['path']}_rdsk.dmg", f'{tmpdir}/ramdisk')
+        try:
+            shutil.move(f'{tmpdir}/asr.pwn', f'{tmpdir}/ramdisk/usr/sbin/asr')
+        except OSError:
+            unmount_rdsk(f'{tmpdir}/ramdisk')
+            resize_rdsk(f"{ramdisk['path']}_rdsk.dmg")
+            mount_rdsk(f"{ramdisk['path']}_rdsk.dmg", f'{tmpdir}/ramdisk')
+            shutil.move(f'{tmpdir}/asr.pwn', f'{tmpdir}/ramdisk/usr/sbin/asr')
 
-		unmount_rdsk(f'{tmpdir}/ramdisk')
-		create_im4p(f"{ramdisk['path']}_rdsk.dmg", f"{ramdisk['path']}.im4p", 'rdsk')
-		bsdiff4.file_diff(ramdisk['path'], f"{ramdisk['path']}.im4p", f"{bundle}/{ramdisk['name'][:-4]}.asr.patch")
+        unmount_rdsk(f'{tmpdir}/ramdisk')
+        create_im4p(f"{ramdisk['path']}_rdsk.dmg", f"{ramdisk['path']}.im4p", 'rdsk')
+        bsdiff4.file_diff(ramdisk['path'], f"{ramdisk['path']}.im4p", f"{bundle}/{ramdisk['name'][:-4]}.asr.patch")
 
-		print('[5] Making Firmware Bundle...')
-		info = {
-			'identifier': identifier,
-			'buildid': firm['buildid'],
-			'update_support': False,
-			'boards': [
-				boardconfig
-			],
-			'patches': {
-				'required': [
-					{
-						'file': identity['Manifest']['iBSS']['Info']['Path'],
-						'patch': f"{identity['Manifest']['iBSS']['Info']['Path'].split('/')[-1].rsplit('.', 1)[0]}.patch"
-					},
-					{
-						'file': identity['Manifest']['iBEC']['Info']['Path'],
-						'patch': f"{identity['Manifest']['iBEC']['Info']['Path'].split('/')[-1].rsplit('.', 1)[0]}.patch"
-					},
-					{
-						'file': ramdisk['ipsw_path'],
-						'patch': f"{ramdisk['name'][:-4]}.asr.patch"
-					},
-					{
-						'file': kernel['ipsw_path'],
-						'patch': f"{kernel['name']}.patch"
-					}
-				]
-			}
-		}
+        print('[5] Making Firmware Bundle...')
+        info = {
+            'identifier': identifier,
+            'buildid': firm['buildid'],
+            'update_support': False,
+            'boards': [
+                boardconfig
+            ],
+            'patches': {
+                'required': [
+                    {
+                        'file': identity['Manifest']['iBSS']['Info']['Path'],
+                        'patch': f"{identity['Manifest']['iBSS']['Info']['Path'].split('/')[-1].rsplit('.', 1)[0]}.patch"
+                    },
+                    {
+                        'file': identity['Manifest']['iBEC']['Info']['Path'],
+                        'patch': f"{identity['Manifest']['iBEC']['Info']['Path'].split('/')[-1].rsplit('.', 1)[0]}.patch"
+                    },
+                    {
+                        'file': ramdisk['ipsw_path'],
+                        'patch': f"{ramdisk['name'][:-4]}.asr.patch"
+                    },
+                    {
+                        'file': kernel['ipsw_path'],
+                        'patch': f"{kernel['name']}.patch"
+                    }
+                ]
+            }
+        }
 
-		with open(f'{bundle}/Info.json', 'w') as f:
-			json.dump(info, f, indent=4)
+        with open(f'{bundle}/Info.json', 'w') as f:
+            json.dump(info, f, indent=4)
 
-		os.makedirs('FirmwareBundles', exist_ok=True)
-		bundle_path = f'FirmwareBundles/{bundle_name}.bundle'
-		if os.path.isfile(bundle_path):
-			os.remove(bundle_path)
+        os.makedirs('FirmwareBundles', exist_ok=True)
+        bundle_path = f'FirmwareBundles/{bundle_name}.bundle'
+        if os.path.isfile(bundle_path):
+            os.remove(bundle_path)
 
-		shutil.make_archive(bundle_path, 'zip', bundle)
-		os.rename(f'{bundle_path}.zip', bundle_path)
+        shutil.make_archive(bundle_path, 'zip', bundle)
+        os.rename(f'{bundle_path}.zip', bundle_path)
 
-	print(f"Finished creating Firmware Bundle for {identifier}, iOS {version}: '{bundle_path}'.")
+    print(f"Finished creating Firmware Bundle for {identifier}, iOS {version}: '{bundle_path}'.")
 
 if __name__ == '__main__':
-	main()
+    main()
