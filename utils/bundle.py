@@ -7,7 +7,7 @@ import sys
 import zipfile
 
 
-class Bundle(object):
+class Bundle:
     def apply_patches(self, ipsw):
         with open(f'{self.bundle}/Info.json', 'r') as f:
             bundle_data = json.load(f)

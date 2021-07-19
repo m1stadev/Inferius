@@ -1,7 +1,7 @@
 import plistlib
 
 
-class Manifest(object):
+class Manifest:
     def __init__(self, manifest):
         self.manifest = plistlib.loads(manifest)
         self.version = self.fetch_version()
@@ -17,7 +17,7 @@ class Manifest(object):
 
     def fetch_version(self): return self.manifest['ProductVersion']
 
-class RestoreManifest(object):
+class RestoreManifest:
     def __init__(self, manifest, boardconfig):
         self.platform = self.fetch_platform(boardconfig, plistlib.loads(manifest))
 

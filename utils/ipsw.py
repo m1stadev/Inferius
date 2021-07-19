@@ -7,7 +7,7 @@ import sys
 import zipfile
 
 
-class IPSW(object):
+class IPSW:
     def __init__(self, ipsw):
         self.ipsw = ipsw
 

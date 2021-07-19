@@ -5,7 +5,7 @@ import sys
 import usb, usb.backend.libusb1
 
 
-class Device(object):
+class Device:
     def __init__(self, identifier):
         self.device = identifier
         self.baseband = self.check_baseband()

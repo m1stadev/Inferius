@@ -6,7 +6,7 @@ import sys
 import time
 
 
-class Restore(object):
+class Restore:
     def __init__(self, identifier, platform):
         self.device = identifier
         self.platform = platform

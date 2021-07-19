@@ -3,7 +3,7 @@ import subprocess
 import sys
 
 
-class Checks(object):
+class Checks:
     def __init__(self):
         self.check_bin('futurerestore')
         self.check_bin('tsschecker')

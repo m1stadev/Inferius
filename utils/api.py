@@ -3,7 +3,7 @@ import requests
 import sys
 
 
-class API(object):
+class API:
     def check_device(self, identifier):
         api = requests.get('https://api.ipsw.me/v4/devices').json()
 
