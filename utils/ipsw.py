@@ -22,14 +22,12 @@ class IPSW:
         with open(f'{path}/.Inferius', 'w') as f:
             json.dump(info, f)
 
-
         custom_ipsw = f'IPSW/{output}'
         try:
             shutil.make_archive(custom_ipsw, 'zip', path)
         except:
             sys.exit('[ERROR] Failed to create custom IPSW. Exiting.')
 
-        
         os.rename(f'{custom_ipsw}.zip', custom_ipsw)
         return custom_ipsw
 
