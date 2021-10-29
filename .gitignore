@@ -1,5 +1,6 @@
 __pycache__/
 FirmwareBundles/
 IPSW/
+SHSH/
 .DS_Store
 futurerestore_error.log
