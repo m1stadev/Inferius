@@ -33,6 +33,8 @@ By default, firmware bundles are automatically downloaded from an [external repo
 | `-r`            | `--restore`           | Restore custom IPSW                      |
 | `-b`            | `--bundle BUNDLE`     | (Optional) Path to local Firmware Bundle |
 | `-u`            | `--update`            | Keep data while restoring custom IPSW    |
+| `-s`            | `--blob`              | SHSH blobs with apnonce                  |
+| `-S`            | `--signing-blob`      | SHSH noapnonce blobs                     |
 
 ## Requirements
 - A computer running macOS or Linux
