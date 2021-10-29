@@ -1,4 +1,5 @@
 bsdiff4
+xdelta3
 mwclient
 remotezip
 requests

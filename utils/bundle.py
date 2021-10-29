@@ -1,4 +1,5 @@
 import bsdiff4
+import xdelta3
 import io
 import json
 import os
@@ -19,7 +20,12 @@ class Bundle:
                     continue
 
             for patch in bundle_data['patches'][patches]:
-                bsdiff4.file_patch_inplace(f"{ipsw}/{patch['file']}", f"{self.bundle}/{patch['patch']}")
+                if patch['patch'].split('.')[-1] == "delta":
+                    with open(f"{ipsw}/{patch['file']}", "r+b") as ipsw_file, \
+                         open(f"{self.bundle}/{patch['patch']}", "rb") as delta:
+                        ipsw_file.write(xdelta3.decode(ipsw_file.read(), delta.read()))
+                else:
+                    bsdiff4.file_patch_inplace(f"{ipsw}/{patch['file']}", f"{self.bundle}/{patch['patch']}")
 
     def check_update_support(self):
         with open(f'{self.bundle}/Info.json', 'r') as f:

@@ -4,7 +4,7 @@ from argparse import ArgumentParser
 from mwclient import Site
 from remotezip import RemoteZip
 from tempfile import TemporaryDirectory
-import bsdiff4
+import xdelta3
 import json
 import os
 import platform
@@ -299,7 +299,10 @@ def main():
             patch_bootchain(f"{file['path']}.raw", f"{file['path']}.pwn")
             create_im4p(f"{file['path']}.pwn", f"{file['path']}.im4p.pwn", component.lower())
 
-            bsdiff4.file_diff(file['path'], f"{file['path']}.im4p.pwn", f"{bundle}/{file['name'].rsplit('.', 1)[0]}.patch") 
+            with open(file['path'], "rb") as original, \
+                 open(f"{file['path']}.im4p.pwn", "rb") as new_file, \
+                 open(f"{bundle}/{file['name'].rsplit('.', 1)[0]}.delta", "wb") as delta:
+                delta.write(xdelta3.encode(original.read(), new_file.read()))
 
         print('[3] Patching kernel...')
         kernel = {
@@ -315,7 +318,11 @@ def main():
         diff_kernel(f"{kernel['path']}.raw", f"{kernel['path']}.pwn", f"{kernel['path']}.diff")
         create_im4p(kernel['path'], f"{kernel['path']}.im4p.pwn", patch=f"{kernel['path']}.diff")
 
-        bsdiff4.file_diff(kernel['path'], f"{kernel['path']}.im4p.pwn", f"{bundle}/{kernel['name']}.patch")
+        with open(kernel['path'], "rb") as original, \
+             open(f"{kernel['path']}.im4p.pwn", "rb") as new_file, \
+             open(f"{bundle}/{kernel['name']}.delta", "wb") as delta:
+            delta.write(xdelta3.encode(original.read(), new_file.read()))
+
 
         print('[4] Patching ramdisk. This may take a while, please wait...')
         ramdisk = {
@@ -362,8 +369,13 @@ def main():
         print(f"    Creating {ramdisk['path'].split('/')[-1]}.im4p from {ramdisk['path'].split('/')[-1]}_rdsk.dmg...")
         create_im4p(f"{ramdisk['path']}_rdsk.dmg", f"{ramdisk['path']}.im4p", 'rdsk')
         print(f"    Calculating {ramdisk['path'].split('/')[-1]} | {ramdisk['path'].split('/')[-1]}.im4p diff...")
-        bsdiff4.file_diff(ramdisk['path'], f"{ramdisk['path']}.im4p", f"{bundle}/{ramdisk['name'][:-4]}.asr.patch")
-        print(f"    Saving diff as {ramdisk['name'][:-4]}.asr.patch")
+
+        with open(ramdisk['path'], "rb") as original, \
+             open(f"{ramdisk['path']}.im4p", "rb") as new_file, \
+             open(f"{bundle}/{ramdisk['name'][:-4]}.asr.delta", "wb") as delta:
+            delta.write(xdelta3.encode(original.read(), new_file.read()))
+
+        print(f"    Saving diff as {ramdisk['name'][:-4]}.asr.delta")
 
         print('[5] Making Firmware Bundle...')
         info = {
@@ -377,19 +389,16 @@ def main():
                 'required': [
                     {
                         'file': identity['Manifest']['iBSS']['Info']['Path'],
-                        'patch': f"{identity['Manifest']['iBSS']['Info']['Path'].split('/')[-1].rsplit('.', 1)[0]}.patch"
-                    },
-                    {
+                        'patch': f"{identity['Manifest']['iBSS']['Info']['Path'].split('/')[-1].rsplit('.', 1)[0]}.delta"
+                    }, {
                         'file': identity['Manifest']['iBEC']['Info']['Path'],
-                        'patch': f"{identity['Manifest']['iBEC']['Info']['Path'].split('/')[-1].rsplit('.', 1)[0]}.patch"
-                    },
-                    {
+                        'patch': f"{identity['Manifest']['iBEC']['Info']['Path'].split('/')[-1].rsplit('.', 1)[0]}.delta"
+                    }, {
                         'file': ramdisk['ipsw_path'],
-                        'patch': f"{ramdisk['name'][:-4]}.asr.patch"
-                    },
-                    {
+                        'patch': f"{ramdisk['name'][:-4]}.asr.delta"
+                    }, {
                         'file': kernel['ipsw_path'],
-                        'patch': f"{kernel['name']}.patch"
+                        'patch': f"{kernel['name']}.delta"
                     }
                 ]
             }
