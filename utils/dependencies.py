@@ -5,21 +5,23 @@ import sys
 
 class Checks:
     def __init__(self):
-        self.check_bin('futurerestore')
-        self.check_bin('tsschecker')
-        self.check_bin('irecovery')
-        self.check_bin('img4tool')
+        self.check_bin('./bin/futurerestore')
+        self.check_bin('./bin/tsschecker')
+        self.check_bin('./bin/irecovery')
+        self.check_bin('./bin/img4tool')
 
     def check_bin(self, binary):
         if shutil.which(binary) is None:
-            sys.exit(f"[ERROR] '{binary}' is not installed on your system. Exiting.")
+            sys.exit(f"[ERROR] '{binary}' not found. Exiting.")
 
-        if binary == 'futurerestore':
-            fr_ver = subprocess.run((binary), stdout=subprocess.PIPE, universal_newlines=True).stdout
-            if '-m1sta' not in fr_ver.splitlines()[1]:
-                sys.exit(f"[ERROR] This futurerestore cannot be used with Inferius. Exiting.")
+        binary_name = binary.split('/')[-1]
 
-        elif binary == 'irecovery':
+        # if binary_name == 'futurerestore':
+        #     fr_ver = subprocess.run((binary), stdout=subprocess.PIPE, universal_newlines=True).stdout
+        #     if '-m1sta' not in fr_ver.splitlines()[1]:
+        #         sys.exit(f"[ERROR] This futurerestore cannot be used with Inferius. Exiting.")
+
+        if binary_name == 'irecovery':
             irec_ver = subprocess.run((binary, '-V'), stdout=subprocess.PIPE, universal_newlines=True).stdout
 
             if 'unrecognized option' in irec_ver:

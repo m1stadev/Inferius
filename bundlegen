@@ -22,11 +22,9 @@ def check_bin(binary):
 
 def create_im4p(file, output, tag=None, patch=None):
     args = [
-        'img4',
-        '-i',
-        file,
-        '-o',
-        output
+        './bin/img4',
+        '-i', file,
+        '-o', output
     ]
 
     if tag:
@@ -44,11 +42,9 @@ def create_im4p(file, output, tag=None, patch=None):
 
 def decrypt(file, output, kbag=None):
     args = [
-        'img4',
-        '-i',
-        file,
-        '-o',
-        output
+        './bin/img4',
+        '-i', file,
+        '-o', output
     ]
 
     if kbag:
@@ -114,10 +110,8 @@ def get_firm(firms):
 def mount_rdsk(rdsk, mountpoint):
     args = (
         'hdiutil',
-        'attach',
-        rdsk,
-        '-mountpoint',
-        mountpoint
+        'attach', rdsk,
+        '-mountpoint', mountpoint
     )
 
     mount = subprocess.run(args, stdout=subprocess.DEVNULL)
@@ -145,7 +139,7 @@ def parse_keys(page):
 
 def patch_bootchain(file, output):
     args = (
-        'kairos',
+        './bin/kairos',
         file,
         output
     )
@@ -156,7 +150,7 @@ def patch_bootchain(file, output):
 
 def patch_kernel(file, output):
     args = (
-        'Kernel64Patcher',
+        './bin/Kernel64Patcher',
         file,
         output,
         '-a'
@@ -168,7 +162,7 @@ def patch_kernel(file, output):
 
 def patch_asr(file, output):
     args = (
-        'asr64_patcher',
+        './bin/asr64_patcher',
         file,
         output
     )
@@ -182,7 +176,7 @@ def patch_asr(file, output):
         sys.exit(f'[ERROR] Extracting {file} entitlements failed. Exiting.')
 
     args = (
-        'ldid',
+        './bin/ldid',
         f'-S{file}.ents.plist',
         output
     )
@@ -209,10 +203,8 @@ def resize_rdsk(rdsk):
     new_size = round(os.path.getsize(rdsk) / float(1<<20)) + 1
     args = (
         'hdiutil',
-        'resize',
-        '-size',
-        f'{new_size}M',
-        rdsk
+        'resize', rdsk,
+        '-size', f'{new_size}M'
     )
 
     resize = subprocess.run(args, stdout=subprocess.DEVNULL)
@@ -222,8 +214,7 @@ def resize_rdsk(rdsk):
 def unmount_rdsk(mountpoint):
     args = (
         'hdiutil',
-        'detach',
-        mountpoint
+        'detach', mountpoint
     )
 
     unmount = subprocess.run(args, stdout=subprocess.DEVNULL)
@@ -242,11 +233,11 @@ def main():
     if not args.device or not args.version:
         sys.exit(parser.print_help(sys.stderr))
 
-    check_bin('asr64_patcher')
-    check_bin('img4')
-    check_bin('kairos')
-    check_bin('Kernel64Patcher')
-    check_bin('ldid')
+    check_bin('./bin/asr64_patcher')
+    check_bin('./bin/img4')
+    check_bin('./bin/kairos')
+    check_bin('./bin/Kernel64Patcher')
+    check_bin('./bin/ldid')
 
     identifier = 'P'.join(args.device[0].lower().split('p'))
     version = args.version[0]

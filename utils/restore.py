@@ -13,9 +13,8 @@ class Restore:
 
     def restore(self, ipsw, cellular, update):
         args = [
-            'futurerestore',
-            '-t',
-            self.blob,
+            './bin/futurerestore',
+            '-t', self.signing_blob,
             '--latest-sep'
         ]
 
@@ -44,17 +43,13 @@ class Restore:
 
     def save_blobs(self, ecid, boardconfig, path, apnonce=None):
         args = [
-            'tsschecker',
-            '-d',
-            self.device,
-            '-B',
-            boardconfig,
-            '-e',
-            f'0x{ecid}',
+            './bin/tsschecker',
+            '-d', self.device,
+            '-B', boardconfig,
+            '-e', f'0x{ecid}',
             '-l',
             '-s',
-            '--save-path',
-            path,
+            '--save-path', path,
             '--nocache'
         ]
 
@@ -80,7 +75,7 @@ class Restore:
             if irecovery_reset.returncode != 0:
                 sys.exit('[ERROR] Failed to reset device. Exiting.')
 
-        irecovery = subprocess.run(('irecovery', '-f', file), stdout=subprocess.DEVNULL)
+        irecovery = subprocess.run(('./bin/irecovery', '-f', file), stdout=subprocess.DEVNULL)
         if irecovery.returncode != 0:
             sys.exit(f"[ERROR] Failed to send '{component}'. Exiting.")
 
@@ -94,14 +89,11 @@ class Restore:
 
     def sign_component(self, file, output):
         args = (
-            'img4tool',
-            '-c',
-            output,
-            '-p',
-            file,
-            '-s',
-            self.signing_blob
-            )
+            './bin/img4tool',
+            '-c', output,
+            '-p', file,
+            '-s', self.signing_blob
+        )
             
         img4tool = subprocess.run(args, stdout=subprocess.DEVNULL)
         if img4tool.returncode != 0:

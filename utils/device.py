@@ -54,7 +54,7 @@ class Device:
             sys.exit('[ERROR] Attempting to restore a device not in Pwned DFU mode. Exiting.')
 
     def fetch_apnonce(self):
-        irecv = subprocess.check_output(('irecovery', '-q'), universal_newlines=True)
+        irecv = subprocess.check_output(('./bin/irecovery', '-q'), universal_newlines=True)
         line = next(l for l in irecv.splitlines() if 'NONC:' in l)
         return line.split(' ')[1]
 
@@ -82,7 +82,7 @@ class Device:
         return usb.backend.libusb1.get_backend(find_library=lambda x:libusb1)
 
     def fetch_boardconfig(self):
-        irecv = subprocess.run(('irecovery', '-qv'), stdout=subprocess.DEVNULL, stderr=subprocess.PIPE, universal_newlines=True).stderr
+        irecv = subprocess.run(('./bin/irecovery', '-qv'), stdout=subprocess.DEVNULL, stderr=subprocess.PIPE, universal_newlines=True).stderr
         line = next(l for l in irecv.splitlines() if 'Connected to' in l)
         return line.split(', ')[1].replace('model ', '')
 
