@@ -324,28 +324,46 @@ def main():
             'path': f"{tmpdir}/{identity['Manifest']['RestoreRamDisk']['Info']['Path']}"
         }
 
+        print(f"    Extracting {ramdisk['ipsw_path'].split('/')[-1]}...")
         partialzip_extract(firm['url'], ramdisk['ipsw_path'], tmpdir)
+        print(f"    Decrypting {ramdisk['path'].split('/')[-1]}_rdsk.dmg...")
         decrypt(ramdisk['path'], f"{ramdisk['path']}_rdsk.dmg")
 
+        print(f"    Mounting {ramdisk['path'].split('/')[-1]}_rdsk.dmg...")
         mount_rdsk(f"{ramdisk['path']}_rdsk.dmg", f'{tmpdir}/ramdisk')
+        print(f"    Copying ramdisk/usr/sbin/asr to asr")
         shutil.move(f'{tmpdir}/ramdisk/usr/sbin/asr', f'{tmpdir}/asr')
+        print(f"    Unmounting {ramdisk['path'].split('/')[-1]}_rdsk.dmg...")
         unmount_rdsk(f'{tmpdir}/ramdisk')
 
+        print(f"    Patching asr -> asr.pwn")
         patch_asr(f'{tmpdir}/asr', f'{tmpdir}/asr.pwn')
+        print(f"    Setting permissions 755 for asr.pwn")
         os.chmod(f'{tmpdir}/asr.pwn', 0o755)
 
+        print(f"    Mounting {ramdisk['path'].split('/')[-1]}_rdsk.dmg...")
         mount_rdsk(f"{ramdisk['path']}_rdsk.dmg", f'{tmpdir}/ramdisk')
         try:
+            print(f"    Copying asr.pwn to ramdisk/usr/sbin/asr")
             shutil.move(f'{tmpdir}/asr.pwn', f'{tmpdir}/ramdisk/usr/sbin/asr')
         except OSError:
+            print(f"    Copying failed, resizing image...")
+            print(f"    Unmounting {ramdisk['path'].split('/')[-1]}_rdsk.dmg...")
             unmount_rdsk(f'{tmpdir}/ramdisk')
+            print(f"    Resizing {ramdisk['path'].split('/')[-1]}_rdsk.dmg...")
             resize_rdsk(f"{ramdisk['path']}_rdsk.dmg")
+            print(f"    Mounting {ramdisk['path'].split('/')[-1]}_rdsk.dmg...")
             mount_rdsk(f"{ramdisk['path']}_rdsk.dmg", f'{tmpdir}/ramdisk')
+            print(f"    Copying asr.pwn to ramdisk/usr/sbin/asr")
             shutil.move(f'{tmpdir}/asr.pwn', f'{tmpdir}/ramdisk/usr/sbin/asr')
 
+        print(f"    Unmounting {ramdisk['path'].split('/')[-1]}_rdsk.dmg...")
         unmount_rdsk(f'{tmpdir}/ramdisk')
+        print(f"    Creating {ramdisk['path'].split('/')[-1]}.im4p from {ramdisk['path'].split('/')[-1]}_rdsk.dmg...")
         create_im4p(f"{ramdisk['path']}_rdsk.dmg", f"{ramdisk['path']}.im4p", 'rdsk')
+        print(f"    Calculating {ramdisk['path'].split('/')[-1]} | {ramdisk['path'].split('/')[-1]}.im4p diff...")
         bsdiff4.file_diff(ramdisk['path'], f"{ramdisk['path']}.im4p", f"{bundle}/{ramdisk['name'][:-4]}.asr.patch")
+        print(f"    Saving diff as {ramdisk['name'][:-4]}.asr.patch")
 
         print('[5] Making Firmware Bundle...')
         info = {
