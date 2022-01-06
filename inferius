@@ -88,7 +88,7 @@ def restore_ipsw(api, buildmanifest, ipsw_path, updating, tmpdir):
     print(f'Finished restoring pwned iOS {buildmanifest.version} IPSW to your device. Please boot your iOS device using one of the tools listed in the README.')
 
 def main():
-    parser = argparse.ArgumentParser(description='Inferius - Create & Restore 64-bit custom IPSWs', usage="inferius -d 'Identifier' -f 'IPSW' [-c/-r] [-b 'BUNDLE']")
+    parser = argparse.ArgumentParser(description='Inferius - Create & Restore 64-bit custom IPSWs', usage="inferius -d 'identifier' -f 'IPSW' [-c/-r] [-b 'BUNDLE']")
     parser.add_argument('-d', '--device', help='Device identifier', nargs=1)
     parser.add_argument('-f', '--ipsw', help='Path to IPSW', nargs=1)
     parser.add_argument('-c', '--create', help='Create custom IPSW', action='store_true')
@@ -116,18 +116,16 @@ def main():
 
     ipsw = IPSW(ipsw_path)
     restoremanifest = RestoreManifest(ipsw.read_file('Restore.plist'), api.board)
-    if restoremanifest.platform not in (8960, 7000, 7001, 8000, 8001, 8003, 8010, 8011, 8015):
+    if restoremanifest.platform not in (0x8960, 0x7000, 0x7001, 0x8000, 0x8001, 0x8003, 0x8010, 0x8011, 0x8015):
         sys.exit(f"[ERROR] '{identifier}' is not supported by Inferius. Exiting.")
 
     buildmanifest = Manifest(ipsw.read_file('BuildManifest.plist'))
 
     ver_major = int(buildmanifest.version.split('.')[0])
-    if len(buildmanifest.version.split('.')) == 3:
-        ver_major_minor = float(buildmanifest.version.rsplit('.', 1)[0])
-    else:
-        ver_major_minor = float(buildmanifest.version)
+    if ver_major == 10 and restoremanifest.platform != 0x8960:
+        sys.exit(f'[ERROR] iOS 10 downgrades are only supported on A7 devices. Exiting.')
 
-    if not 11 <= ver_major <= 14:
+    elif not 11 <= ver_major <= 14:
         sys.exit(f'[ERROR] iOS {buildmanifest.version} is not supported by Inferius. Exiting.')
 
     if identifier not in buildmanifest.supported_devices:
