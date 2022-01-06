@@ -17,10 +17,10 @@ class Checks:
         if binary == 'futurerestore':
             fr_ver = subprocess.run((binary), stdout=subprocess.PIPE, universal_newlines=True).stdout
             if '-m1sta' not in fr_ver.splitlines()[1]:
-                sys.exit(f"[ERROR] This futurerestore cannot be used with Inferius. Exiting.")
+                sys.exit(f"[ERROR] This futurerestore build cannot be used with Inferius. Exiting.")
 
         elif binary == 'irecovery':
-            irec_ver = subprocess.run((binary, '-V'), stdout=subprocess.PIPE, universal_newlines=True).stdout
-
-            if 'unrecognized option' in irec_ver:
-                sys.exit(f"[ERROR] Your futurerestore version is too old. Exiting.")
+            try:
+                subprocess.check_call((binary, '-V'), stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
+            except subprocess.CalledProcessError:
+                sys.exit(f"[ERROR] Your irecovery version is too old. Exiting.")
