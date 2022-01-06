@@ -27,7 +27,7 @@ class RestoreManifest:
                 continue
 
             if device['Platform'].startswith('s5l89'):
-                return int(device['Platform'][3:-1])
+                return int(device['Platform'][3:-1], 16)
 
             else:
-                return int(device['Platform'][-4:])
+                return int(device['Platform'][-4:], 16)
