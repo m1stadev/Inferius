@@ -33,11 +33,8 @@ class IPSW:
 
     def extract_file(self, file, output):
         try:
-            with zipfile.ZipFile(self.ipsw, 'r') as ipsw:
-                fbuf = ipsw.read(file)
-            
-            with open(output, 'wb') as f:
-                f.write(fbuf)
+            with zipfile.ZipFile(self.ipsw, 'r') as ipsw, open(output, 'wb') as f:
+                f.write(ipsw.read(file))
         except:
             sys.exit(f"[ERROR] Failed to extract '{file}' from IPSW. Exiting.")
 
