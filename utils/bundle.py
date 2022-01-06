@@ -42,6 +42,17 @@ class Bundle:
 
         self.bundle = output
 
+    def fetch_ota_manifest(self, device, path):
+        manifest = requests.get(f'https://raw.githubusercontent.com/m1stadev/inferius-ext/master/manifests/BuildManifest_{device}.plist')
+        if manifest.status_code == 404:
+            sys.exit(f'[ERROR] An OTA manifest does not exist for {device}. Exiting.')
+
+        with open(path, 'wb') as f:
+            try:
+                f.write(manifest.content)
+            except OSError:
+                sys.exit('[ERROR] Ran out of storage while writing OTA manifest. Exiting.')
+
     def verify_bundle(self, bundle, tmpdir, api, buildid, boardconfig):
         if not zipfile.is_zipfile(bundle):
             return False
