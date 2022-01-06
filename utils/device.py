@@ -19,7 +19,7 @@ class Device:
         if self.device.startswith('iPhone'):
             return True
 
-        cellular_ipads = [ # All (current) 64-bit cellular iPads vulerable to checkm8.
+        return self.device in ( # All (current) 64-bit cellular iPads vulerable to checkm8.
             'iPad4,2',
             'iPad4,3',
             'iPad4,5',
@@ -38,12 +38,10 @@ class Device:
             'iPad8,8',
             'iPad8,10',
             'iPad8,12',
-            'iPad11,2'
+            'iPad11,2',
             'iPad11,4',
             'iPad13,2',
-            ]
-
-        return self.device in cellular_ipads
+            )
 
     def check_pwndfu(self):
         device = usb.core.find(idVendor=0x5AC, idProduct=0x1227, backend=self.backend)
