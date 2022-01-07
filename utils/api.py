@@ -1,8 +1,8 @@
 from pathlib import Path
+from remotezip import RemoteZip
 from typing import Optional
 from utils import errors
 
-import remotezip
 import requests
 
 
@@ -56,7 +56,7 @@ class API:
         except StopIteration:
             raise errors.NotFoundError(f'Buildid does not exist: {buildid}.')
 
-        with remotezip.RemoteZip(firm['url']) as ipsw:
+        with RemoteZip(firm['url']) as ipsw:
             try:
                 ipsw.extract(component, path)
             except KeyError:
@@ -72,7 +72,7 @@ class API:
         except StopIteration:
             raise errors.NotFoundError(f'Buildid does not exist: {buildid}.')
 
-        with remotezip.RemoteZip(firm['url']) as ipsw:
+        with RemoteZip(firm['url']) as ipsw:
             try:
                 return ipsw.read(component)
             except KeyError:
