@@ -1,15 +1,18 @@
+from pathlib import Path
+from remotezip import RemoteZip, RemoteIOError
+from typing import Optional
+from utils.api import API
+from utils import errors
+
 import bsdiff4
-import io
 import json
-import os
 import requests
-import sys
 import zipfile
 
 
 class Bundle:
-    def apply_patches(self, ipsw):
-        with open(f'{self.bundle}/Info.json', 'r') as f:
+    def apply_patches(self, ipsw: Path) -> None:
+        with (self.bundle / Path('Info.json')).open('r') as f:
             bundle_data = json.load(f)
 
         for patches in bundle_data['patches']:
@@ -19,64 +22,70 @@ class Bundle:
                     continue
 
             for patch in bundle_data['patches'][patches]:
-                bsdiff4.file_patch_inplace(f"{ipsw}/{patch['file']}", f"{self.bundle}/{patch['patch']}")
+                bsdiff4.file_patch_inplace(ipsw / Path(patch['file']), self.bundle / Path(patch['patch']))
 
     def check_update_support(self):
-        with open(f'{self.bundle}/Info.json', 'r') as f:
+        with (self.bundle / Path('Info.json')).open('r') as f:
             bundle_data = json.load(f)
 
         return bundle_data['update_support']
 
-    def fetch_bundle(self, device, version, buildid, path):
-        bundle_name = f'{device}_{version}_{buildid}'
-        bundle = requests.get(f'https://github.com/m1stadev/inferius-ext/raw/master/bundles/{bundle_name}.bundle')
-        if bundle.status_code == 404:
-            sys.exit(f'[ERROR] A Firmware Bundle does not exist for {device}, iOS {version}. Exiting.')
+    def fetch_bundle(self, device: str, version: tuple, buildid: str, path: Path) -> Optional[Path]:
+        bundle_name = '_'.join(device, '.'.join(version), buildid)
 
-        output = f'{path}/{bundle_name}'
-        with zipfile.ZipFile(io.BytesIO(bundle.content), 'r') as f:
-            try:
-                f.extractall(output)
-            except OSError:
-                sys.exit('[ERROR] Ran out of storage while extracting Firmware Bundle. Exiting.')
-
-        self.bundle = output
-
-    def fetch_ota_manifest(self, device, path):
-        manifest = requests.get(f'https://raw.githubusercontent.com/m1stadev/inferius-ext/master/manifests/BuildManifest_{device}.plist')
-        if manifest.status_code == 404:
-            sys.exit(f'[ERROR] An OTA manifest does not exist for {device}. Exiting.')
-
-        with open(path, 'wb') as f:
-            try:
-                f.write(manifest.content)
-            except OSError:
-                sys.exit('[ERROR] Ran out of storage while writing OTA manifest. Exiting.')
-
-    def verify_bundle(self, bundle, tmpdir, api, buildid, boardconfig):
-        if not zipfile.is_zipfile(bundle):
-            return False
+        bundle = path / Path(bundle_name)
+        bundle.mkdir()
 
         try:
-            with zipfile.ZipFile(bundle, 'r') as f:
+            with RemoteZip(f'https://github.com/m1stadev/inferius-ext/raw/master/bundles/{bundle_name}.bundle') as rz:
+                try:
+                    rz.extractall(bundle)
+                except OSError:
+                    raise OSError(f'Failed to extract Firmware Bundle to: {bundle}.')
+
+        except RemoteIOError:
+            raise errors.NotFoundError(f'A bundle does not exist for device: {device}, OS: {version}.')
+
+        return bundle
+
+    def fetch_ota_manifest(self, device: str, path: Path) -> Optional[Path]:
+        r = requests.get(f'https://github.com/m1stadev/inferius-ext/raw/master/manifests/BuildManifest_{device}.plist')
+        if r.status_code == 404:
+            raise errors.NotFoundError(f'An OTA manifest does not exist for device: {device}.')
+
+        manifest = path / Path('otamanifest.plist')
+        with manifest.open('wb') as f:
+            try:
+                f.write(r.content)
+            except OSError:
+                raise OSError(f'Failed to write OTA manifest to: {manifest}.')
+
+        return manifest
+
+    def verify_bundle(self, local_bundle: Path, path: Path, api: API, buildid: str, boardconfig: str) -> Optional[Path]:
+        if not zipfile.is_zipfile(local_bundle):
+            return
+
+        try:
+            with zipfile.ZipFile(local_bundle, 'r') as f:
                 try:
                     bundle_data = json.loads(f.read('Info.json'))
                 except:
-                    return False
+                    return
 
             if not any(firm['buildid'] == buildid for firm in api['firmwares']):
-                return False
+                return
 
             if not any(board.lower() == boardconfig.lower() for board in bundle_data['boards']):
-                return False
+                return
 
         except:
-            return False
+            return
 
-        bundle_path = f"{tmpdir}/{bundle.split('/')[-1].rsplit('.', 1)[0]}"
-        os.mkdir(bundle_path)
-        with zipfile.ZipFile(bundle) as f:
-            f.extractall(bundle_path)
+        bundle = path / local_bundle.stem
+        bundle.mkdir()
 
-        self.bundle = bundle_path
-        return True
+        with zipfile.ZipFile(local_bundle) as f:
+            f.extractall(bundle)
+
+        return bundle
