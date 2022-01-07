@@ -58,7 +58,7 @@ class API:
 
         return path / Path(component)
 
-    def partialzip_read(self, buildid: str, component: str) -> bytes:
+    def partialzip_read(self, buildid: str, component: str) -> Optional[bytes]:
         try:
             firm = next(firm for firm in self.api['firmwares'] if firm['buildid'] == buildid)
         except StopIteration:
