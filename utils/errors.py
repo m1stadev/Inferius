@@ -1,6 +1,9 @@
 class InferiusError(Exception):
     pass
 
+class DependencyError(InferiusError):
+    pass
+
 class NotFoundError(InferiusError):
     pass
 
