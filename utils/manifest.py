@@ -11,6 +11,7 @@ class Manifest:
     def fetch_component_path(self, boardconfig: str, component: str) -> str:
         return next(identity['Manifest'][component]['Info']['Path'] for identity in self.manifest['BuildIdentities'] if identity['Info']['DeviceClass'].lower() == boardconfig.lower())
 
+
 class RestoreManifest:
     def __init__(self, manifest, boardconfig):
         self.platform = self.fetch_platform(boardconfig, plistlib.loads(manifest))
