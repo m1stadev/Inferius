@@ -4,18 +4,12 @@ import plistlib
 class Manifest:
     def __init__(self, manifest):
         self.manifest = plistlib.loads(manifest)
-        self.version = self.fetch_version()
-        self.buildid = self.fetch_buildid()
-        self.supported_devices = self.fetch_supported_devices()
+        self.version = (int(_) for _ in self.manifest['ProductVersion'].split('.'))
+        self.buildid = self.manifest['ProductBuildVersion']
+        self.supported_devices = self.manifest['SupportedProductTypes']
 
-    def fetch_buildid(self): return self.manifest['ProductBuildVersion']
-
-    def fetch_component_path(self, boardconfig, component):
+    def fetch_component_path(self, boardconfig: str, component: str) -> str:
         return next(identity['Manifest'][component]['Info']['Path'] for identity in self.manifest['BuildIdentities'] if identity['Info']['DeviceClass'].lower() == boardconfig.lower())
-
-    def fetch_supported_devices(self): return self.manifest['SupportedProductTypes']
-
-    def fetch_version(self): return self.manifest['ProductVersion']
 
 class RestoreManifest:
     def __init__(self, manifest, boardconfig):
