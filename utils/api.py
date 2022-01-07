@@ -50,11 +50,19 @@ class API:
     def fetch_sha1(self, buildid: str) -> str:
         return next(firm['sha1sum'] for firm in self.api['firmwares'] if firm['buildid'] == buildid)
 
-    def partialzip_extract(self, buildid: str, component: str, path: Path) -> Path:
-        firm = next(firm for firm in self.api['firmwares'] if firm['buildid'] == buildid)
+    def partialzip_extract(self, buildid: str, component: str, path: Path) -> Optional[Path]:
+        try:
+            firm = next(firm for firm in self.api['firmwares'] if firm['buildid'] == buildid)
+        except StopIteration:
+            raise errors.NotFoundError(f'Buildid does not exist: {buildid}.')
 
         with remotezip.RemoteZip(firm['url']) as ipsw:
-            ipsw.extract(component, path)
+            try:
+                ipsw.extract(component, path)
+            except KeyError:
+                raise errors.NotFoundError(f'Component does not exist: {component}.')
+            except OSError:
+                raise OSError(f'Failed to partialzip component: {component}.')
 
         return path / Path(component)
 
