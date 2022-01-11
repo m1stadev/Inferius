@@ -12,7 +12,7 @@ import zipfile
 
 class Bundle:
     def apply_patches(self, ipsw: Path) -> None:
-        with (self.bundle / Path('Info.json')).open('r') as f:
+        with (self.bundle / 'Info.json').open('r') as f:
             bundle_data = json.load(f)
 
         for patches in bundle_data['patches']:
@@ -22,10 +22,10 @@ class Bundle:
                     continue
 
             for patch in bundle_data['patches'][patches]:
-                bsdiff4.file_patch_inplace(ipsw / Path(patch['file']), self.bundle / Path(patch['patch']))
+                bsdiff4.file_patch_inplace(ipsw / patch['file'], self.bundle / patch['patch'])
 
     def check_update_support(self):
-        with (self.bundle / Path('Info.json')).open('r') as f:
+        with (self.bundle / 'Info.json').open('r') as f:
             bundle_data = json.load(f)
 
         return bundle_data['update_support']
@@ -33,7 +33,7 @@ class Bundle:
     def fetch_bundle(self, device: str, version: tuple, buildid: str, path: Path) -> Optional[Path]:
         bundle_name = '_'.join(device, '.'.join(version), buildid)
 
-        bundle = path / Path(bundle_name)
+        bundle = path / bundle_name
         bundle.mkdir()
 
         try:
@@ -53,7 +53,7 @@ class Bundle:
         if r.status_code == 404:
             raise errors.NotFoundError(f'An OTA manifest does not exist for device: {device}.')
 
-        manifest = path / Path('otamanifest.plist')
+        manifest = path / 'otamanifest.plist'
         with manifest.open('wb') as f:
             try:
                 f.write(r.content)
