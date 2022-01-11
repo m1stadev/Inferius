@@ -17,14 +17,18 @@ class Bundle:
 
         for patches in bundle_data['patches']:
             if patches != 'required':
-                apply_patch = input(f"[NOTE] Would you like to apply '{patches}' patch to your custom IPSW? [Y\\N]: ").lower()
-                if (apply_patch not in ('y', 'n')) or (apply_patch == 'n'):
+                apply_patch = input(f"[NOTE] Would you like to apply '{patches}' patch to your custom IPSW? [Y/N]: ").lower()
+                if apply_patch == 'n':
+                    continue
+
+                elif apply_patch not in ('y', 'n'):
+                    print('[WARN] Invalid input, skipping patch...')
                     continue
 
             for patch in bundle_data['patches'][patches]:
                 bsdiff4.file_patch_inplace(ipsw / patch['file'], self.bundle / patch['patch'])
 
-    def check_update_support(self):
+    def check_update_support(self) -> bool:
         with (self.bundle / 'Info.json').open('r') as f:
             bundle_data = json.load(f)
 
@@ -41,10 +45,10 @@ class Bundle:
                 try:
                     rz.extractall(bundle)
                 except OSError:
-                    raise OSError(f'Failed to extract Firmware Bundle to: {bundle}.')
+                    raise errors.IOError(f'Failed to download firmware bundle to: {bundle}.')
 
         except RemoteIOError:
-            raise errors.NotFoundError(f'A bundle does not exist for device: {device}, OS: {version}.')
+            raise errors.NotFoundError(f'A firmware bundle does not exist for device: {device}, OS: {version}.')
 
         return bundle
 
@@ -58,26 +62,22 @@ class Bundle:
             try:
                 f.write(r.content)
             except OSError:
-                raise OSError(f'Failed to write OTA manifest to: {manifest}.')
+                raise errors.IOError(f'Failed to write OTA manifest to: {manifest}.')
 
         return manifest
 
-    def verify_bundle(self, local_bundle: Path, path: Path, api: API, buildid: str, boardconfig: str) -> Optional[Path]:
+    def verify_bundle(self, local_bundle: Path, path: Path, api: dict, buildid: str, boardconfig: str) -> Optional[Path]:
         if not zipfile.is_zipfile(local_bundle):
+            return
+
+        if not any(_['buildid'] == buildid for _ in api['firmwares']):
             return
 
         try:
             with zipfile.ZipFile(local_bundle, 'r') as f:
-                try:
-                    bundle_data = json.loads(f.read('Info.json'))
-                except:
-                    return
+                bundle_data = json.loads(f.read('Info.json'))
 
-            if not any(firm['buildid'] == buildid for firm in api['firmwares']):
-                return
-
-            if not any(board.lower() == boardconfig.lower() for board in bundle_data['boards']):
-                return
+            next(_.lower() == boardconfig.lower() for _ in bundle_data['boards'])
 
         except:
             return
