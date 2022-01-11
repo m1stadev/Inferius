@@ -24,4 +24,4 @@ class Checks:
             try:
                 subprocess.check_call((binary, '-V'), stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
             except subprocess.CalledProcessError:
-                raise errors.DependencyError('iRecovery build is too old to be used with Inferius.')
+                raise errors.DependencyError('This iRecovery build is too old to be used with Inferius.')
