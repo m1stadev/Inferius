@@ -7,7 +7,7 @@ import usb, usb.backend.libusb1
 
 class Device:
     def __init__(self, identifier):
-        self.device = identifier
+        self.identifier = identifier
         self.baseband = self.check_baseband()
         self.backend = self.get_backend()
         self.platform = self.fetch_platform()
@@ -16,10 +16,10 @@ class Device:
         self.ecid = self.fetch_ecid()
 
     def check_baseband(self):
-        if self.device.startswith('iPhone'):
+        if self.identifier.startswith('iPhone'):
             return True
 
-        return self.device in ( # All (current) 64-bit cellular iPads vulerable to checkm8.
+        return self.identifier in ( # All (current) 64-bit cellular iPads vulerable to checkm8.
             'iPad4,2',
             'iPad4,3',
             'iPad4,5',
