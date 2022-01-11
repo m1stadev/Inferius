@@ -64,7 +64,7 @@ class API:
             except OSError:
                 raise OSError(f'Failed to partialzip component: {component}.')
 
-        return path / Path(component)
+        return path / component
 
     def partialzip_read(self, buildid: str, component: str) -> Optional[bytes]:
         try:
