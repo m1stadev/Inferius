@@ -10,7 +10,7 @@ class API:
     def __init__(self, identifier: str) -> None:
         self.device = identifier
         self.api = self.fetch_api()
-        self.board = self.get_board()
+        self.board = self.fetch_board()
 
     def is_signed(self, version: str) -> bool: return any(firm['signed'] == True for firm in self.api['firmwares'] if firm['version'] == version)
 
