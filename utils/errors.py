@@ -7,8 +7,8 @@ class DependencyError(InferiusError):
 class NotFoundError(InferiusError):
     pass
 
-class InvalidChoiceError(ValueError):
+class InvalidChoiceError(InferiusError, ValueError):
     pass
 
-class InvalidTypeError(TypeError):
+class InvalidTypeError(InferiusError, TypeError):
     pass
