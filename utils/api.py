@@ -12,7 +12,12 @@ class API:
         self.api = self.fetch_api()
         self.board = self.fetch_board()
 
-    def is_signed(self, version: str) -> bool: return any(firm['signed'] == True for firm in self.api['firmwares'] if firm['version'] == version)
+    def is_signed(self, version: str) -> bool:
+        return any(
+            firm['signed'] == True
+            for firm in self.api['firmwares']
+            if firm['version'] == version
+        )
 
     def fetch_api(self) -> Optional[dict]:
         try:
@@ -21,12 +26,18 @@ class API:
             raise errors.NotFoundError(f"Device does not exist: {self.device}.")
 
     def fetch_board(self) -> Optional[str]:
-        boards = [board['boardconfig'].lower() for board in self.api['boards'] if board['boardconfig'].lower().endswith('ap')]
+        boards = [
+            board['boardconfig'].lower()
+            for board in self.api['boards']
+            if board['boardconfig'].lower().endswith('ap')
+        ]
         if len(boards) == 1:
             return boards[0]
 
         else:
-            print('There are multiple board configs for your device! Please choose the correct board config for your device:')
+            print(
+                'There are multiple board configs for your device! Please choose the correct board config for your device:'
+            )
             for b in range(len(boards)):
                 print(f"  {b + 1}: {boards[b]}")
 
@@ -43,17 +54,31 @@ class API:
 
     def fetch_sha1(self, buildid: str) -> str:
         try:
-            sha1 = next(firm['sha1sum'] for firm in self.api['firmwares'] if firm['buildid'] == buildid)
+            sha1 = next(
+                firm['sha1sum']
+                for firm in self.api['firmwares']
+                if firm['buildid'] == buildid
+            )
         except StopIteration:
-            raise errors.NotFoundError(f'Firmware does not exist with buildid: {buildid}.')
+            raise errors.NotFoundError(
+                f'Firmware does not exist with buildid: {buildid}.'
+            )
 
         return sha1
 
-    def partialzip_extract(self, buildid: str, component: str, path: Path) -> Optional[Path]:
+    def partialzip_extract(
+        self, buildid: str, component: str, path: Path
+    ) -> Optional[Path]:
         try:
-            url = next(firm['url'] for firm in self.api['firmwares'] if firm['buildid'] == buildid)
+            url = next(
+                firm['url']
+                for firm in self.api['firmwares']
+                if firm['buildid'] == buildid
+            )
         except StopIteration:
-            raise errors.NotFoundError(f'Firmware does not exist with buildid: {buildid}.')
+            raise errors.NotFoundError(
+                f'Firmware does not exist with buildid: {buildid}.'
+            )
 
         with RemoteZip(url) as ipsw:
             try:
@@ -61,15 +86,21 @@ class API:
             except KeyError:
                 raise errors.NotFoundError(f'Component does not exist: {component}.')
             except OSError:
-                raise errors.IOError(f'Failed to partialzip component: {component}.')
+                raise IOError(f'Failed to partialzip component: {component}.')
 
         return path / component
 
     def partialzip_read(self, buildid: str, component: str) -> Optional[bytes]:
         try:
-            url = next(firm['url'] for firm in self.api['firmwares'] if firm['buildid'] == buildid)
+            url = next(
+                firm['url']
+                for firm in self.api['firmwares']
+                if firm['buildid'] == buildid
+            )
         except StopIteration:
-            raise errors.NotFoundError(f'Firmware does not exist with buildid: {buildid}.')
+            raise errors.NotFoundError(
+                f'Firmware does not exist with buildid: {buildid}.'
+            )
 
         with RemoteZip(url) as ipsw:
             try:
