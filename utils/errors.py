@@ -18,5 +18,13 @@ class InvalidTypeError(InferiusError, TypeError):
     pass
 
 
-class IOError(InferiusError, OSError):
+class InferiusIOError(InferiusError, OSError):
+    pass
+
+
+class DeviceError(InferiusError):
+    pass
+
+
+class CorruptError(InferiusError):
     pass

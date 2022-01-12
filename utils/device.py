@@ -1,73 +1,52 @@
-import glob
-import os
-import subprocess
-import sys
-import usb, usb.backend.libusb1
+from pathlib import Path
+from typing import Optional
+from utils import errors
+
+import json
+import usb, usb.backend.libusb1, usb.util
 
 
 class Device:
     def __init__(self, identifier):
         self.identifier = identifier
-        self.baseband = self.check_baseband()
-        self.backend = self.get_backend()
-        self.platform = self.fetch_platform()
         self.board = self.fetch_boardconfig()
-        self.apnonce = self.fetch_apnonce()
-        self.ecid = self.fetch_ecid()
+        self.data = self.get_dfu_data()
 
-    def check_baseband(self):
+    @property
+    def baseband(self) -> bool:
         if self.identifier.startswith('iPhone'):
             return True
 
-        return self.identifier in ( # All (current) 64-bit cellular iPads vulerable to checkm8.
-            'iPad4,2',
-            'iPad4,3',
-            'iPad4,5',
-            'iPad4,6',
-            'iPad4,8',
-            'iPad4,9',
-            'iPad5,2',
-            'iPad5,4',
-            'iPad6,8',
-            'iPad6,4',
-            'iPad7,2',
-            'iPad7,4',
-            'iPad8,3',
-            'iPad8,4',
-            'iPad8,7',
-            'iPad8,8',
-            'iPad8,10',
-            'iPad8,12',
-            'iPad11,2',
-            'iPad11,4',
-            'iPad13,2',
-            )
+        else:
+            return self.identifier in ( # All (current) 64-bit cellular iPads vulerable to checkm8.
+                'iPad4,2',
+                'iPad4,3',
+                'iPad4,5',
+                'iPad4,6',
+                'iPad4,8',
+                'iPad4,9',
+                'iPad5,2',
+                'iPad5,4',
+                'iPad6,4',
+                'iPad6,8',
+                'iPad6,12',
+                'iPad7,2',
+                'iPad7,4',
+                'iPad7,6',
+                'iPad7,12'
+                )
 
-    def check_pwndfu(self):
-        device = usb.core.find(idVendor=0x5AC, idProduct=0x1227, backend=self.backend)
-        if device is None:
-            sys.exit('[ERROR] Device in DFU mode not found. Exiting.')
-
-        if 'PWND:' not in device.serial_number:
-            sys.exit('[ERROR] Attempting to restore a device not in Pwned DFU mode. Exiting.')
-
-    def fetch_apnonce(self):
-        irecv = subprocess.check_output(('irecovery', '-q'), universal_newlines=True)
-        line = next(l for l in irecv.splitlines() if 'NONC:' in l)
-        return line.split(' ')[1]
-
-    def get_backend(self): # Attempt to find a libusb 1.0 library to use as pyusb's backend, exit if one isn't found.
-        directories = ('/usr/lib', '/opt/procursus/lib', '/usr/local/lib') # Common library directories to search
+    def get_backend(self) -> Optional[usb.backend.libusb1._LibUSB]: # Attempt to find a libusb 1.0 library to use as pyusb's backend, exit if one isn't found.
+        directories = ('/usr/local/lib', '/opt/procursus/lib', '/usr/lib') # Common library directories to search
 
         libusb1 = None
         for libdir in directories:
-            for file in glob.glob(f'{libdir}/**', recursive=True):
-                if os.path.isdir(file) or (not any(ext in file for ext in ('so', 'dylib'))):
+            for file in Path(libdir).glob('libusb-1.0.0.*'):
+                if file.is_dir() or (file.suffix not in ('.so', '.dylib')):
                     continue
 
-                if 'libusb-1.0' in file:
-                    libusb1 = file
-                    break
+                libusb1 = file
+                break
 
             else:
                 continue
@@ -75,33 +54,36 @@ class Device:
             break
 
         if libusb1 is None:
-            sys.exit('[ERROR] libusb is not installed. Install libusb. Exiting.')
+            raise errors.DependencyError('libusb not found on your PC.')
 
-        return usb.backend.libusb1.get_backend(find_library=lambda x:libusb1)
+        return usb.backend.libusb1.get_backend(find_library=lambda _:libusb1)
 
-    def fetch_boardconfig(self):
-        irecv = subprocess.run(('irecovery', '-qv'), stdout=subprocess.DEVNULL, stderr=subprocess.PIPE, universal_newlines=True).stderr
-        line = next(l for l in irecv.splitlines() if 'Connected to' in l)
-        return line.split(', ')[1].replace('model ', '')
-
-    def fetch_ecid(self):
-        device = usb.core.find(idVendor=0x5AC, idProduct=0x1227, backend=self.backend)
+    def get_dfu_data(self) -> Optional[dict]:
+        device = usb.core.find(idVendor=0x5AC, idProduct=0x1227, backend=self.get_backend())
         if device is None:
-            sys.exit('[ERROR] Device in DFU mode not found. Exiting.')
+            raise errors.DeviceError('Device in DFU mode not found.')
 
-        ecid = device.serial_number.split(' ')[5].split(':')[1]
+        device_data = dict()
+        for item in device.serial_number.split():
+            device_data[item.split(':')[0]] = item.split(':')[1]
 
-        for x in ecid:
-            if x == '0':
-                ecid = ecid[1:]
-            else:
-                break
+        device_data['ECID'] = hex(int(device_data['ECID'], 16))
 
-        return ecid
+        for i in ('CPID', 'CPRV', 'BDID', 'CPFM', 'SCEP', 'IBFL'):
+            device_data[i] = int(device_data[i], 16)
 
-    def fetch_platform(self):
-        device = usb.core.find(idVendor=0x5AC, idProduct=0x1227, backend=self.backend)
-        if device is None:
-            sys.exit('[ERROR] Device in DFU mode not found. Exiting.')
+        for item in usb.util.get_string(device, device.bDescriptorType).split():
+            device_data[item.split(':')[0]] = item.split(':')[1]
 
-        return int(device.serial_number.split(' ')[0].split(':')[1])
+        return device_data
+
+    def fetch_board(self) -> Optional[str]:
+        device_info = Path('utils/devices.json')
+        try:
+            with device_info.open('r') as f:
+                data = json.load(f)
+        
+        except FileNotFoundError:
+            raise errors.CorruptError(f'File missing from Inferius: {device_info}')
+
+        return next(_['boardconfig'] for _ in data if _['identifier'] == self.identifier and _['bdid'] == self.data['BDID'] and _['cpid'] == self.data['CPID'])
