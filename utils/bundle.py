@@ -52,15 +52,15 @@ class Bundle:
             ) as rz:
                 try:
                     rz.extractall(bundle)
-                except OSError:
-                    raise errors.IOError(
+                except OSError as e:
+                    raise IOError(
                         f'Failed to download firmware bundle to: {bundle}.'
-                    )
+                    ) from e
 
-        except RemoteIOError:
+        except RemoteIOError as e:
             raise errors.NotFoundError(
                 f'A firmware bundle does not exist for device: {device}, OS: {version}.'
-            )
+            ) from e
 
         return bundle
 
@@ -77,8 +77,8 @@ class Bundle:
         with manifest.open('wb') as f:
             try:
                 f.write(r.content)
-            except OSError:
-                raise errors.IOError(f'Failed to write OTA manifest to: {manifest}.')
+            except OSError as e:
+                raise IOError(f'Failed to write OTA manifest to: {manifest}.') from e
 
         return manifest
 

@@ -96,8 +96,10 @@ class Device:
             with device_info.open('r') as f:
                 data = json.load(f)
 
-        except FileNotFoundError:
-            raise errors.CorruptError(f'File missing from Inferius: {device_info}')
+        except FileNotFoundError as e:
+            raise errors.CorruptError(
+                f'File missing from Inferius: {device_info}'
+            ) from e
 
         return next(
             _['boardconfig']

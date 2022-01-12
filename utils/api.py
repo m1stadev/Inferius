@@ -22,8 +22,8 @@ class API:
     def fetch_api(self) -> Optional[dict]:
         try:
             return requests.get(f'https://api.ipsw.me/v4/device/{self.device}').json()
-        except requests.exceptions.JSONDecodeError:
-            raise errors.NotFoundError(f"Device does not exist: {self.device}.")
+        except requests.exceptions.JSONDecodeError as e:
+            raise errors.NotFoundError(f"Device does not exist: {self.device}.") from e
 
     def fetch_board(self) -> Optional[str]:
         boards = [
@@ -59,10 +59,10 @@ class API:
                 for firm in self.api['firmwares']
                 if firm['buildid'] == buildid
             )
-        except StopIteration:
+        except StopIteration as e:
             raise errors.NotFoundError(
                 f'Firmware does not exist with buildid: {buildid}.'
-            )
+            ) from e
 
         return sha1
 
@@ -75,18 +75,20 @@ class API:
                 for firm in self.api['firmwares']
                 if firm['buildid'] == buildid
             )
-        except StopIteration:
+        except StopIteration as e:
             raise errors.NotFoundError(
                 f'Firmware does not exist with buildid: {buildid}.'
-            )
+            ) from e
 
         with RemoteZip(url) as ipsw:
             try:
                 ipsw.extract(component, path)
-            except KeyError:
-                raise errors.NotFoundError(f'Component does not exist: {component}.')
-            except OSError:
-                raise IOError(f'Failed to partialzip component: {component}.')
+            except KeyError as e:
+                raise errors.NotFoundError(
+                    f'Component does not exist: {component}.'
+                ) from e
+            except OSError as e:
+                raise IOError(f'Failed to partialzip component: {component}.') from e
 
         return path / component
 
@@ -97,13 +99,15 @@ class API:
                 for firm in self.api['firmwares']
                 if firm['buildid'] == buildid
             )
-        except StopIteration:
+        except StopIteration as e:
             raise errors.NotFoundError(
                 f'Firmware does not exist with buildid: {buildid}.'
-            )
+            ) from e
 
         with RemoteZip(url) as ipsw:
             try:
                 return ipsw.read(component)
-            except KeyError:
-                raise errors.NotFoundError(f'File does not exist in IPSW: {component}.')
+            except KeyError as e:
+                raise errors.NotFoundError(
+                    f'File does not exist in IPSW: {component}.'
+                ) from e
