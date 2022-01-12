@@ -1,96 +1,107 @@
+from pathlib import Path
+from typing import Optional
 from utils.api import API
+from utils import errors
+
 import hashlib
 import json
-import os
 import shutil
-import sys
 import zipfile
 
 
 class IPSW:
-    def __init__(self, ipsw):
+    def __init__(self, ipsw: Path):
         self.ipsw = ipsw
 
-    def create_ipsw(self, path, output, update, bootloader):
-        os.makedirs('IPSW', exist_ok=True)
+    def __str__(self) -> str:
+        return str(self.ipsw)
 
-        info = {
-            'update_support': update,
-            'bootloader': bootloader
-        }
+    def create_ipsw(
+        self, path: Path, filename: str, update: bool, bootloader: str
+    ) -> Optional[Path]:
+        ipsw = Path(f'IPSW/{filename}')
+        ipsw.parent.mkdir(exist_ok=True)
 
-        with open(f'{path}/.Inferius', 'w') as f:
+        info = {'update_support': update, 'bootloader': bootloader}
+
+        with (Path / '.Inferius').open('w') as f:
             json.dump(info, f)
 
-        custom_ipsw = f'IPSW/{output}'
         try:
-            shutil.make_archive(custom_ipsw, 'zip', path)
+            shutil.make_archive(ipsw, 'zip', path)
         except:
-            sys.exit('[ERROR] Failed to create custom IPSW. Exiting.')
+            raise OSError(f'Failed to create custom IPSW at path: {ipsw}.')
 
-        os.rename(f'{custom_ipsw}.zip', custom_ipsw)
-        return custom_ipsw
+        return ipsw.rename(ipsw.with_suffix('.ipsw'))
 
-    def extract_file(self, file, output):
+    def extract_file(self, file: str, output: Path) -> Path:
         try:
-            with zipfile.ZipFile(self.ipsw, 'r') as ipsw, open(output, 'wb') as f:
+            with zipfile.ZipFile(self.ipsw, 'r') as ipsw, (output / file).open(
+                'wb'
+            ) as f:
                 f.write(ipsw.read(file))
-        except:
-            sys.exit(f"[ERROR] Failed to extract '{file}' from IPSW. Exiting.")
 
-    def extract_ipsw(self, path):
+        except KeyError as e:
+            raise errors.NotFoundError(f'File not in IPSW: {file}.') from e
+
+        except OSError as e:
+            raise IOError(f'Failed to extract file from IPSW: {file}.')
+
+    def extract_ipsw(self, path: Path) -> None:
         with zipfile.ZipFile(self.ipsw, 'r') as ipsw:
             try:
                 ipsw.extractall(path)
-            except:
-                sys.exit(f"[ERROR] Failed to extract '{self.ipsw}'. Exiting.")
+            except OSError as e:
+                raise OSError(f'Failed to extract IPSW: {self.ipsw}.') from e
 
-    def read_file(self, file):
+    def read_file(self, file: str) -> Optional[bytes]:
         try:
             with zipfile.ZipFile(self.ipsw, 'r') as ipsw:
                 return ipsw.read(file)
 
-        except:
-            sys.exit(f"[ERROR] Failed to read '{file}' from IPSW. Exiting.")
+        except KeyError as e:
+            raise errors.NotFoundError(f'File not in IPSW: {file}.') from e
 
-    def verify_ipsw(self, ipsw_sha1):
-        if not os.path.isfile(self.ipsw):
-            sys.exit(f"[ERROR] '{self.ipsw}' does not exist. Exiting.")
+    def verify_ipsw(self, sha1: str) -> None:
+        if not self.ipsw.is_file():
+            raise errors.NotFoundError(f'IPSW does not exist: {self.ipsw}.')
 
         if not zipfile.is_zipfile(self.ipsw):
-            sys.exit(f"[ERROR] '{self.ipsw}' is not a valid IPSW. Exiting.")
+            raise errors.BadIPSWError(f'IPSW is corrupt: {self.ipsw}.')
 
         with zipfile.ZipFile(self.ipsw, 'r') as ipsw:
             if '.Inferius' in ipsw.namelist():
-                sys.exit(f"[ERROR] '{self.ipsw}' is not a stock IPSW. Exiting.")
+                raise errors.BadIPSWError(f'IPSW has been modified: {self.ipsw}.')
 
-        sha1 = hashlib.sha1()
-        with open(self.ipsw, 'rb') as ipsw:
-            fbuf = ipsw.read(8192)
-            while len(fbuf) != 0:
-                sha1.update(fbuf)
-                fbuf = ipsw.read(8192)
+        hash = hashlib.sha1()
+        with self.ipsw.open('rb') as ipsw:
+            fbuf = ipsw.read(65536)
+            while len(fbuf) > 0:
+                hash.update(fbuf)
+                fbuf = ipsw.read(65536)
 
-        if ipsw_sha1 != sha1.hexdigest():
-            sys.exit(f"[ERROR] '{self.ipsw}' is not a valid IPSW. Exiting.")
+        if sha1 != hash.hexdigest():
+            raise errors.BadIPSWError(f'IPSW is corrupt: {self.ipsw}.')
 
-    def verify_custom_ipsw(self, device, update):
-        if not os.path.isfile(self.ipsw):
-            sys.exit(f"[ERROR] '{self.ipsw}' does not exist. Exiting.")
+    def verify_custom_ipsw(self, api: API, update: bool) -> None:
+        if not self.ipsw.is_file():
+            raise errors.NotFoundError(f'IPSW does not exist: {self.ipsw}.')
 
         if not zipfile.is_zipfile(self.ipsw):
-            sys.exit(f"[ERROR] '{self.ipsw}' is not a valid IPSW. Exiting.")
+            raise errors.BadIPSWError(f'IPSW is corrupt: {self.ipsw}.')
 
         with zipfile.ZipFile(self.ipsw, 'r') as ipsw:
             if '.Inferius' not in ipsw.namelist():
-                sys.exit(f"[ERROR] '{self.ipsw}' is not a custom IPSW. Exiting.")
+                raise errors.BadIPSWError(f'IPSW is not custom: {self.ipsw}.')
 
             info = json.loads(ipsw.read('.Inferius'))
 
         if (info['update_support'] == False) and (update == True):
-            sys.exit('[ERROR] This IPSW does not have support for update restores. Exiting.')
+            raise errors.BadIPSWError(
+                f'IPSW does not support update restores: {self.ipsw}.'
+            )
 
-        api = API()
-        api.fetch_api(device)
         if api.is_signed(info['bootloader']) == False:
-            sys.exit('[ERROR] This IPSW is too old to be used with Inferius. Create a new custom IPSW. Exiting.')
+            raise errors.BadIPSWError(
+                f'IPSW is too old to be used with Inferius: {self.ipsw}. A new custom IPSW must be created.'
+            )
