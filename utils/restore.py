@@ -107,16 +107,15 @@ class Restore:
             self.signing_blob = path.glob('*.shsh*')[0]
 
     def send_bootchain(self, ibss: Path, ibec: Path) -> None:
-        if self.device.platform in (
-            0x8960,
-            0x8015,
-        ): # Reset device
-            usb.reset_device(usb.get_device())
+        # Reset device
+        device = usb.get_device()
+        usb.reset_device(device)
+        usb.release_device(device)
 
         self._irecv_send_file(ibss)
         self._irecv_send_file(ibec)
 
-        if 8010 <= self.device.data['CPID'] <= 0x8015:
+        if 0x8010 <= self.device.data['CPID'] <= 0x8015:
             self._irecv_send_cmd('go')
             time.sleep(3)
 
