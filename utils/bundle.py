@@ -6,11 +6,13 @@ from utils import errors
 
 import bsdiff4
 import json
-import requests
 import zipfile
 
 
 class Bundle:
+    def __init__(self, bundle: Optional[Path]=None):
+        self.bundle = bundle
+
     def apply_patches(self, ipsw: Path) -> None:
         with (self.bundle / 'Info.json').open('r') as f:
             bundle_data = json.load(f)
@@ -40,8 +42,8 @@ class Bundle:
 
     def fetch_bundle(
         self, device: str, version: tuple, buildid: str, path: Path
-    ) -> Optional[Path]:
-        bundle_name = '_'.join(device, '.'.join(version), buildid)
+    ) -> None:
+        bundle_name = '_'.join([device, '.'.join([str(_) for _ in version]), buildid])
 
         bundle = path / bundle_name
         bundle.mkdir()
@@ -62,30 +64,33 @@ class Bundle:
                 f'A firmware bundle does not exist for device: {device}, OS: {version}.'
             ) from e
 
-        return bundle
+        self.bundle = bundle
 
     def verify_bundle(
-        self, local_bundle: Path, path: Path, api: dict, buildid: str, boardconfig: str
-    ) -> Optional[Path]:
-        if not zipfile.is_zipfile(local_bundle):
-            return
+        self, path: Path, api: dict, buildid: str, boardconfig: str
+    ) -> None:
+        if not self.bundle.exists():
+            raise errors.NotFoundError(f'Firmware bundle does not exist: {self.bundle}.')
+
+        if not zipfile.is_zipfile(self.bundle):
+            raise errors.CorruptError(f'Firmware bundle is corrupt: {self.bundle}.')
 
         if not any(_['buildid'] == buildid for _ in api['firmwares']):
             return
 
         try:
-            with zipfile.ZipFile(local_bundle, 'r') as f:
+            with zipfile.ZipFile(self.bundle, 'r') as f:
                 bundle_data = json.loads(f.read('Info.json'))
 
             next(_.lower() == boardconfig.lower() for _ in bundle_data['boards'])
 
-        except:
+        except StopIteration:
             return
 
-        bundle = path / local_bundle.stem
+        bundle = path / self.bundle.stem
         bundle.mkdir()
 
-        with zipfile.ZipFile(local_bundle) as f:
+        with zipfile.ZipFile(self.bundle) as f:
             f.extractall(bundle)
 
-        return bundle
+        self.bundle = bundle
