@@ -24,7 +24,7 @@ class IPSW:
 
         info = {'update_support': update, 'bootloader': bootloader}
 
-        with (Path / '.Inferius').open('w') as f:
+        with (path / '.Inferius').open('w') as f:
             json.dump(info, f)
 
         try:
@@ -32,7 +32,7 @@ class IPSW:
         except:
             raise OSError(f'Failed to create custom IPSW at path: {ipsw}.')
 
-        return ipsw.rename(ipsw.with_suffix('.ipsw'))
+        return ipsw.with_suffix(ipsw.suffix + '.zip').rename(ipsw.with_suffix('.ipsw'))
 
     def extract_file(self, file: str, output: Path) -> Path:
         try:
