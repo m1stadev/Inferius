@@ -52,6 +52,24 @@ class API:
 
             return boards[board]
 
+    def fetch_ota_manifest(self, device: str, path: Path) -> Optional[Path]:
+        r = requests.get(
+            f'https://github.com/m1stadev/inferius-ext/raw/master/manifests/BuildManifest_{device}.plist'
+        )
+        if r.status_code == 404:
+            raise errors.NotFoundError(
+                f'An OTA manifest does not exist for device: {device}.'
+            )
+
+        manifest = path / 'otamanifest.plist'
+        with manifest.open('wb') as f:
+            try:
+                f.write(r.content)
+            except OSError as e:
+                raise IOError(f'Failed to write OTA manifest to: {manifest}.') from e
+
+        return manifest
+
     def fetch_sha1(self, buildid: str) -> str:
         try:
             sha1 = next(
