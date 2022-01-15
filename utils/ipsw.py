@@ -36,7 +36,7 @@ class IPSW:
 
     def extract_file(self, file: str, output: Path) -> Path:
         try:
-            with zipfile.ZipFile(self.ipsw, 'r') as ipsw, (output / file).open(
+            with zipfile.ZipFile(self.ipsw, 'r') as ipsw, output.open(
                 'wb'
             ) as f:
                 f.write(ipsw.read(file))
