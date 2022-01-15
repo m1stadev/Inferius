@@ -20,3 +20,7 @@ class CorruptError(InferiusError):
 
 class BadIPSWError(CorruptError):
     pass
+
+
+class RestoreError(InferiusError):
+    pass

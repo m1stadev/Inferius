@@ -1,62 +1,94 @@
-import glob
+from pathlib import Path
+from utils.device import Device
+from utils import errors, usb
+
 import shutil
 import subprocess
-import os
-import sys
 import time
 
 
 class Restore:
-    def __init__(self, identifier, platform):
-        self.device = identifier
-        self.platform = platform
+    def __init__(self, device: Device):
+        self.device = device
 
-    def restore(self, ipsw, cellular, update):
-        args = [
-            'futurerestore',
-            '-t',
-            self.blob,
-            '--latest-sep'
-        ]
+    def _irecv_send_file(self, file: Path) -> None:
+        try:
+            subprocess.check_call(
+                ('irecovery', '-f', file), stdout=subprocess.DEVNULL
+            )
+        except:
+            raise errors.RestoreError(f"Failed to send file to device: {file}.")
 
-        if update:
-            args.append('-u')
+    def _irecv_send_cmd(self, cmd: str) -> None:
+        try:
+            subprocess.check_call(
+                ('irecovery', '-c', cmd), stdout=subprocess.DEVNULL
+            )
+        except:
+            raise errors.RestoreError(f"Failed to send command to device: '{cmd}'.")
+
+    def restore(self, ipsw: Path, cellular: bool, update: bool, *, sep: Path=None, manifest: Path=None) -> None:
+        args = ['futurerestore', '-t', self.blob]
+
+        if sep and manifest:
+            args.append('-s')
+            args.append(sep)
+
+            args.append('-m')
+            args.append(manifest)
+
+        else:
+            args.append('--latest-sep')
 
         if cellular:
             args.append('--latest-baseband')
         else:
             args.append('--no-baseband')
 
+        if update:
+            args.append('-u')
+
         args.append(ipsw)
-        with open('futurerestore_error.log', 'w') as f:
-            f.write(f"{' '.join(args)}\n\n")
 
-        with open('futurerestore_error.log', 'a') as f:
-            futurerestore = subprocess.run(args, stderr=subprocess.DEVNULL, stdout=f, universal_newlines=True)
+        Path('restore.log').unlink(missing_ok=True)
+        try:
+            futurerestore = subprocess.check_output(
+                args, stderr=subprocess.STDOUT, universal_newlines=True
+            )
 
-        if os.path.isdir(ipsw.rsplit('.', 1)[0]):
-            shutil.rmtree(ipsw.rsplit('.', 1)[0])
+        except subprocess.CalledProcessError as process:
+            with open('restore.log', 'w') as f:
+                f.write(f"{' '.join(args)}\n\n")
+                f.write(process.stdout)
+
+        if Path(ipsw.stem).is_dir():
+            shutil.rmtree(ipsw.stem)
 
         if 'Done: restoring succeeded!' not in futurerestore.stdout:
-            sys.exit("[ERROR] Restore failed. Log written to 'futurerestore_error.log'. Exiting.")
-            
-        os.remove('futurerestore_error.log')
+            with open('restore.log', 'w') as f:
+                f.write(f"{' '.join(args)}\n\n")
+                f.write(process.stdout)
 
-    def save_blobs(self, ecid, boardconfig, path, apnonce=None):
+            raise errors.RestoreError(
+                "[ERROR] Restore failed. Log written to 'restore.log'. Exiting."
+            )
+
+    def save_blobs(self, ecid: str, boardconfig: str, path: Path, *, manifest: Path=None, apnonce: str=None) -> None:
         args = [
             'tsschecker',
-            '-d',
-            self.device,
-            '-B',
-            boardconfig,
-            '-e',
-            f'0x{ecid}',
-            '-l',
+            '-d', self.device.identifier,
+            '-B', boardconfig,
+            '-e', ecid,
+            '--save-path', path,
             '-s',
-            '--save-path',
-            path,
-            '--nocache'
         ]
+
+        if manifest:
+            args.append('-m')
+            args.append(manifest)
+        else:
+            args.append('-l')
+            args.append('--nocache')
 
         if apnonce:
             args.append('--apnonce')
@@ -64,45 +96,34 @@ class Restore:
 
         tsschecker = subprocess.check_output(args, universal_newlines=True)
         if 'Saved shsh blobs!' not in tsschecker:
-            sys.exit('[ERROR] Failed to save blobs. Exiting.')
+            raise errors.RestoreError('Failed to save SHSH blobs.')
 
         if apnonce:
-            for blob in glob.glob(f'{path}/*.shsh*'):
+            for blob in path.glob('*.shsh*'):
                 if blob != self.signing_blob:
                     self.blob = blob
                     break
         else:
-            self.signing_blob = glob.glob(f'{path}/*.shsh*')[0]
+            self.signing_blob = path.glob('*.shsh*')[0]
 
-    def send_component(self, file, component):
-        if component == 'iBSS' and self.platform in (8960, 8015): #TODO: Reset device via pyusb rather than call an external binary.
-            irecovery_reset = subprocess.run(('irecovery', '-f', file), stdout=subprocess.DEVNULL)
-            if irecovery_reset.returncode != 0:
-                sys.exit('[ERROR] Failed to reset device. Exiting.')
+    def send_bootchain(self, ibss: Path, ibec: Path) -> None:
+        if self.device.platform in (
+            0x8960,
+            0x8015,
+        ): # Reset device
+            usb.reset_device(usb.get_device())
 
-        irecovery = subprocess.run(('irecovery', '-f', file), stdout=subprocess.DEVNULL)
-        if irecovery.returncode != 0:
-            sys.exit(f"[ERROR] Failed to send '{component}'. Exiting.")
+        self._irecv_send_file(ibss)
+        self._irecv_send_file(ibec)
 
-        if component == 'iBEC':
-            if 8010 <= self.platform <= 8015:
-                irecovery_jump = subprocess.run(('irecovery', '-c', 'go'), stdout=subprocess.DEVNULL)
-                if irecovery_jump.returncode != 0:
-                    sys.exit(f"[ERROR] Failed to boot '{component}'. Exiting.")
-
+        if 8010 <= self.device.data['CPID'] <= 0x8015:
+            self._irecv_send_cmd('go')
             time.sleep(3)
 
-    def sign_component(self, file, output):
-        args = (
-            'img4tool',
-            '-c',
-            output,
-            '-p',
-            file,
-            '-s',
-            self.signing_blob
-            )
-            
-        img4tool = subprocess.run(args, stdout=subprocess.DEVNULL)
-        if img4tool.returncode != 0:
-            sys.exit(f"[ERROR] Failed to sign '{file.split('/')[-1]}'. Exiting.")
+    def sign_component(self, file: Path, output: Path) -> None:
+        args = ('img4tool', '-c', output, '-p', file, '-s', self.signing_blob)
+
+        try:
+            subprocess.check_call(args, stdout=subprocess.DEVNULL)
+        except subprocess.CalledProcessError:
+            raise errors.RestoreError(f"Failed to sign component: {file}.")
