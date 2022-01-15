@@ -1,5 +1,7 @@
 #!/usr/bin/env python3
 
+from pathlib import Path
+
 from utils.api import API
 from utils.bundle import Bundle
 from utils.dependencies import Checks
@@ -7,34 +9,38 @@ from utils.device import Device
 from utils.ipsw import IPSW
 from utils.manifest import Manifest, RestoreManifest
 from utils.restore import Restore
+
 import argparse
 import platform
-import os
 import sys
 import tempfile
 
 
-def create_ipsw(api, buildmanifest, ipsw_path, tmpdir, bundle_path):
+def create_ipsw(
+    api: API, buildmanifest: Manifest, bundle: Bundle, ipsw: IPSW, tmpdir: Path
+):
     print('Creating custom IPSW')
 
-    bundle = Bundle()
-    ipsw = IPSW(ipsw_path)
-
     print('[1] Grabbing Firmware Bundle...')
-    if bundle_path is not None:
+    if bundle.bundle is not None:
         print('Note: Using user provided Firmware Bundle.')
-        if bundle.verify_bundle(bundle_path, tmpdir, api.api, buildmanifest.buildid, api.board) == False:
-            sys.exit(f"[ERROR] Bundle '{bundle_path}' is invalid. Exiting.")
+        try:
+            bundle.verify_bundle(tmpdir, api.api, buildmanifest.buildid, api.board)
+        except:
+            sys.exit(f"[ERROR] Bundle is invalid: {bundle.bundle}. Exiting.")
 
     else:
-        bundle.fetch_bundle(api.device, buildmanifest.version, buildmanifest.buildid, tmpdir)
+        bundle.fetch_bundle(
+            api.device, buildmanifest.version, buildmanifest.buildid, tmpdir
+        )
 
     print('[2] Verifying IPSW...')
     ipsw.verify_ipsw(api.fetch_sha1(buildmanifest.buildid))
 
     print('[3] Extracting IPSW...')
-    extracted_ipsw = f'{tmpdir}/ipsw'
-    os.mkdir(extracted_ipsw)
+    extracted_ipsw = tmpdir / 'ipsw'
+    extracted_ipsw.mkdir()
+
     ipsw.extract_ipsw(extracted_ipsw)
 
     print('[4] Patching components...')
@@ -42,105 +48,176 @@ def create_ipsw(api, buildmanifest, ipsw_path, tmpdir, bundle_path):
 
     buildid = api.api['firmwares'][0]['buildid']
     latest_manifest = Manifest(api.partialzip_read(buildid, 'BuildManifest.plist'))
-    api.partialzip_extract(buildid, latest_manifest.fetch_component_path(api.board, 'LLB'), extracted_ipsw)
-    bootloader_ver = api.partialzip_extract(buildid, latest_manifest.fetch_component_path(api.board, 'iBoot'), extracted_ipsw)
+    api.partialzip_extract(
+        buildid, latest_manifest.get_path(api.board, 'LLB'), extracted_ipsw
+    )
+    api.partialzip_extract(
+        buildid, latest_manifest.get_path(api.board, 'iBoot'), extracted_ipsw
+    )
 
     print('[5] Repacking IPSW...')
-    custom_ipsw = ipsw.create_ipsw(extracted_ipsw, f"{ipsw_path.split('/')[-1].rsplit('.', 1)[0]}_custom.ipsw", bundle.check_update_support(), bootloader_ver)
-    print(f"Finished creating custom IPSW: '{custom_ipsw}'.")
+    ipsw.ipsw = ipsw.create_ipsw(
+        extracted_ipsw,
+        f'{ipsw.ipsw.stem}_custom.ipsw',
+        bundle.check_update_support(),
+        api.api['firmwares'][0]['version'],
+    )
+    print(f"Finished creating custom IPSW: '{ipsw.ipsw}'.")
 
-    return custom_ipsw
+    return ipsw
 
-def restore_ipsw(api, buildmanifest, ipsw_path, updating, tmpdir):
+def restore_ipsw(api: API, buildmanifest: Manifest, ipsw: IPSW, updating: bool, tmpdir: Path):
     print('Restoring custom IPSW')
 
     Checks()
     device = Device(api.device)
-    ipsw = IPSW(ipsw_path)
-    restore = Restore(api.device, device.platform)
+    restore = Restore(device)
 
     print('[1] Verifying custom IPSW...')
-    ipsw.verify_custom_ipsw(api.device, updating)
+    ipsw.verify_custom_ipsw(api, updating)
 
     print('[2] Checking for device in pwned DFU...')
-    device.check_pwndfu()
+    if 'PWND' not in device.data.keys():
+        sys.exit(
+            '[ERROR] Attempting to restore a device not in Pwned DFU mode. Exiting.'
+        )
 
     print('[3] Extracting bootchain...')
-    ibss = buildmanifest.fetch_component_path(device.board, 'iBSS')
-    ipsw.extract_file(ibss, f'{tmpdir}/ibss.im4p')
-    ibec = buildmanifest.fetch_component_path(device.board, 'iBEC')
-    ipsw.extract_file(ibec, f'{tmpdir}/ibec.im4p')
+    ibss = buildmanifest.get_path(device.board, 'iBSS')
+    ipsw.extract_file(ibss, tmpdir / 'ibss.im4p')
+
+    ibec = buildmanifest.get_path(device.board, 'iBEC')
+    ipsw.extract_file(ibec, tmpdir / 'ibec.im4p')
 
     print('[4] Signing bootchain...')
-    restore.save_blobs(device.ecid, device.board, tmpdir)
-    restore.sign_component(f'{tmpdir}/ibss.im4p', f'{tmpdir}/ibss.img4')
-    restore.sign_component(f'{tmpdir}/ibec.im4p', f'{tmpdir}/ibec.img4')
+    if buildmanifest.version[0] == 10:
+        otamanifest = api.fetch_ota_manifest(api.device, tmpdir)
+        restore.save_blobs(device.data['ECID'], device.board, tmpdir, manifest=otamanifest)
+    else:
+        restore.save_blobs(device.data['ECID'], device.board, tmpdir)
+
+    restore.sign_component(tmpdir / 'ibss.im4p', tmpdir / 'ibss.img4')
+    restore.sign_component(tmpdir / 'ibec.im4p', tmpdir / 'ibec.img4')
 
     print('[5] Sending bootchain...')
-    restore.send_component(f'{tmpdir}/ibss.img4', 'iBSS')
-    restore.send_component(f'{tmpdir}/ibec.img4', 'iBEC')
+    restore.send_bootchain(tmpdir / 'ibss.img4', tmpdir / 'ibec.img4')
 
     print('[6] Saving SHSH blobs...')
-    restore.save_blobs(device.ecid, device.board, tmpdir, device.fetch_apnonce())
+    if buildmanifest.version[0] == 10:
+        restore.save_blobs(
+            device.data['ECID'],
+            device.board,
+            tmpdir,
+            manifest=otamanifest,
+            apnonce=device.data['NONC'],
+        )
+    else:
+        restore.save_blobs(
+            device.data['ECID'], device.board, tmpdir, apnonce=device.data['NONC']
+        )
 
     print('[7] Restoring...')
-    restore.restore(ipsw_path, device.baseband, updating)
-    print(f'Finished restoring pwned iOS {buildmanifest.version} IPSW to your device. Please boot your iOS device using one of the tools listed in the README.')
+    if buildmanifest.version[0] == 10:
+        manifest = Manifest(api.partialzip_read('14G60', 'BuildManifest.plist'))
 
-def main():
-    parser = argparse.ArgumentParser(description='Inferius - Create & Restore 64-bit custom IPSWs', usage="inferius -d 'identifier' -f 'IPSW' [-c/-r] [-b 'BUNDLE']")
+        sep = api.partialzip_extract(
+            '14G60', manifest.get_path(api.board, 'RestoreSEP'), tmpdir
+        )
+
+        restore.restore(
+            ipsw.ipsw, device.baseband, updating, sep=sep, manifest=otamanifest
+        )
+
+    else:
+        restore.restore(ipsw.ipsw, device.baseband, updating)
+
+    print(
+        f'Finished restoring custom IPSW to your device. Please boot your device using one of the tools listed in the README.'
+    )
+
+
+def main() -> None:
+    parser = argparse.ArgumentParser(
+        description='Inferius - Create & Restore 64-bit custom IPSWs',
+        usage="inferius -d 'identifier' -f 'IPSW' [-c/-r] [-b 'BUNDLE']",
+    )
     parser.add_argument('-d', '--device', help='Device identifier', nargs=1)
-    parser.add_argument('-f', '--ipsw', help='Path to IPSW', nargs=1)
-    parser.add_argument('-c', '--create', help='Create custom IPSW', action='store_true')
-    parser.add_argument('-r', '--restore', help='Restore custom IPSW', action='store_true')
-    parser.add_argument('-b', '--bundle', help='(Optional) Path to local Firmware Bundle', nargs=1)
-    parser.add_argument('-u', '--update', help='Keep data while restoring custom IPSW', action='store_true')
+    parser.add_argument('-f', '--ipsw', help='Path to IPSW', nargs=1, type=Path)
+    parser.add_argument(
+        '-c', '--create', help='Create custom IPSW', action='store_true'
+    )
+    parser.add_argument(
+        '-r', '--restore', help='Restore custom IPSW', action='store_true'
+    )
+    parser.add_argument(
+        '-b',
+        '--bundle',
+        help='(Optional) Path to local Firmware Bundle',
+        nargs=1,
+        type=Path,
+    )
+    parser.add_argument(
+        '-u',
+        '--update',
+        help='Keep data while restoring custom IPSW',
+        action='store_true',
+    )
     args = parser.parse_args()
 
-    if (not args.device or not args.ipsw) or \
-    (not args.create and not args.restore) or \
-    (args.update and not args.restore) or \
-    (args.bundle and not args.create):
+    if (
+        (not args.device or not args.ipsw)
+        or (not args.create and not args.restore)
+        or (args.update and not args.restore)
+        or (args.bundle and not args.create)
+    ):
         sys.exit(parser.print_help(sys.stderr))
 
     if platform.system() == 'Windows':
         sys.exit('[ERROR] Inferius does not support Windows. Exiting.')
 
-    identifier = args.device[0]
-    ipsw_path = args.ipsw[0]
-
-    api = API()
-    api.check_device(identifier)
+    api = API(args.device[0])
     api.fetch_api()
-    api.get_board()
+    api.fetch_board()
 
-    ipsw = IPSW(ipsw_path)
+    ipsw = IPSW(args.ipsw[0])
     restoremanifest = RestoreManifest(ipsw.read_file('Restore.plist'), api.board)
-    if restoremanifest.platform not in (0x8960, 0x7000, 0x7001, 0x8000, 0x8001, 0x8003, 0x8010, 0x8011, 0x8015):
-        sys.exit(f"[ERROR] '{identifier}' is not supported by Inferius. Exiting.")
+    if restoremanifest.platform not in (
+        0x8960,
+        0x7000,
+        0x7001,
+        0x8000,
+        0x8001,
+        0x8003,
+        0x8010,
+        0x8011,
+        0x8015,
+    ):
+        sys.exit(f"[ERROR] '{api.device}' is not supported by Inferius. Exiting.")
 
     buildmanifest = Manifest(ipsw.read_file('BuildManifest.plist'))
 
-    ver_major = int(buildmanifest.version.split('.')[0])
-    if ver_major == 10 and restoremanifest.platform != 0x8960:
-        sys.exit(f'[ERROR] iOS 10 downgrades are only supported on A7 devices. Exiting.')
+    if not 10 <= buildmanifest.version[0] <= 13:
+        sys.exit(
+            f'[ERROR] iOS {buildmanifest.version} is not supported by Inferius. Exiting.'
+        )
 
-    elif not 11 <= ver_major <= 14:
-        sys.exit(f'[ERROR] iOS {buildmanifest.version} is not supported by Inferius. Exiting.')
+    if buildmanifest.version[0] == 10 and restoremanifest.platform != 0x8960:
+        sys.exit(
+            f'[ERROR] iOS 10 downgrades are only supported on A7 devices. Exiting.'
+        )
 
-    if identifier not in buildmanifest.supported_devices:
-        sys.exit(f"[ERROR] IPSW '{ipsw_path}' does not support {identifier}. Exiting.")
+    if args.device[0] not in buildmanifest.supported_devices:
+        sys.exit(f"[ERROR] IPSW: {ipsw} does not support {api.device}. Exiting.")
 
-    if args.bundle:
-        bundle = args.bundle[0]
-    else:
-        bundle = None
+    bundle = Bundle(args.bundle[0] if args.bundle else None)
 
     with tempfile.TemporaryDirectory() as tmpdir:
+        tmpdir = Path(tmpdir)
+
         if args.create:
-            custom_ipsw = create_ipsw(api, buildmanifest, ipsw_path, tmpdir, bundle)
+            custom_ipsw = create_ipsw(api, buildmanifest, bundle, ipsw, tmpdir)
         else:
-            custom_ipsw = ipsw_path
+            custom_ipsw = ipsw
 
         if args.restore:
             restore_ipsw(api, buildmanifest, custom_ipsw, args.update, tmpdir)
