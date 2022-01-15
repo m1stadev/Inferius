@@ -14,7 +14,7 @@ class Restore:
     def _irecv_send_file(self, file: Path) -> None:
         try:
             subprocess.check_call(
-                ('irecovery', '-f', file), stdout=subprocess.DEVNULL
+                ('irecovery', '-f', str(file)), stdout=subprocess.DEVNULL
             )
         except:
             raise errors.RestoreError(f"Failed to send file to device: {file}.")
@@ -28,14 +28,14 @@ class Restore:
             raise errors.RestoreError(f"Failed to send command to device: '{cmd}'.")
 
     def restore(self, ipsw: Path, cellular: bool, update: bool, *, sep: Path=None, manifest: Path=None) -> None:
-        args = ['futurerestore', '-t', self.blob]
+        args = ['futurerestore', '-d', '-t', str(self.blob)]
 
         if sep and manifest:
             args.append('-s')
-            args.append(sep)
+            args.append(str(sep))
 
             args.append('-m')
-            args.append(manifest)
+            args.append(str(manifest))
 
         else:
             args.append('--latest-sep')
@@ -48,7 +48,7 @@ class Restore:
         if update:
             args.append('-u')
 
-        args.append(ipsw)
+        args.append(str(ipsw))
 
         Path('restore.log').unlink(missing_ok=True)
         try:
@@ -58,16 +58,20 @@ class Restore:
 
         except subprocess.CalledProcessError as process:
             with open('restore.log', 'w') as f:
-                f.write(f"{' '.join(args)}\n\n")
+                f.write(f"{' '.join([str(_) for _ in args])}\n\n")
                 f.write(process.stdout)
+
+            raise errors.RestoreError(
+                "[ERROR] Restore failed. Log written to 'restore.log'. Exiting."
+            ) from process
 
         if Path(ipsw.stem).is_dir():
             shutil.rmtree(ipsw.stem)
 
-        if 'Done: restoring succeeded!' not in futurerestore.stdout:
+        if 'Done: restoring succeeded!' not in futurerestore:
             with open('restore.log', 'w') as f:
-                f.write(f"{' '.join(args)}\n\n")
-                f.write(process.stdout)
+                f.write(f"{' '.join([str(_) for _ in args])}\n\n")
+                f.write(futurerestore)
 
             raise errors.RestoreError(
                 "[ERROR] Restore failed. Log written to 'restore.log'. Exiting."
@@ -79,13 +83,13 @@ class Restore:
             '-d', self.device.identifier,
             '-B', boardconfig,
             '-e', ecid,
-            '--save-path', path,
+            '--save-path', str(path),
             '-s',
         ]
 
         if manifest:
             args.append('-m')
-            args.append(manifest)
+            args.append(str(manifest))
         else:
             args.append('-l')
             args.append('--nocache')
@@ -104,7 +108,7 @@ class Restore:
                     self.blob = blob
                     break
         else:
-            self.signing_blob = path.glob('*.shsh*')[0]
+            self.signing_blob = tuple(path.glob('*.shsh*'))[0]
 
     def send_bootchain(self, ibss: Path, ibec: Path) -> None:
         # Reset device
