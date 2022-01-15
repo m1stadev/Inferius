@@ -10,7 +10,30 @@ class Device:
     def __init__(self, identifier):
         self.identifier = identifier
         self.board = self.fetch_boardconfig()
-        self.data = self.get_dfu_data()
+        self.data = self._get_dfu_data()
+
+    def _get_dfu_data(self) -> Optional[dict]:
+        device: usb.core.Device = usb.core.find(
+            idVendor=0x5AC, idProduct=0x1227, backend=self.get_backend()
+        )
+        if device is None:
+            raise errors.DeviceError('Device in DFU mode not found.')
+
+        device_data = dict()
+        for item in device.serial_number.split():
+            device_data[item.split(':')[0]] = item.split(':')[1]
+
+        device_data['ECID'] = hex(int(device_data['ECID'], 16))
+
+        for i in ('CPID', 'CPRV', 'BDID', 'CPFM', 'SCEP', 'IBFL'):
+            device_data[i] = int(device_data[i], 16)
+
+        for item in usb.util.get_string(device, device.bDescriptorType).split():
+            device_data[item.split(':')[0]] = item.split(':')[1]
+
+        usb.util.dispose_resources(device)
+
+        return device_data
 
     @property
     def baseband(self) -> bool:
@@ -68,27 +91,6 @@ class Device:
             raise errors.DependencyError('libusb not found on your PC.')
 
         return usb.backend.libusb1.get_backend(find_library=lambda _: libusb1)
-
-    def get_dfu_data(self) -> Optional[dict]:
-        device = usb.core.find(
-            idVendor=0x5AC, idProduct=0x1227, backend=self.get_backend()
-        )
-        if device is None:
-            raise errors.DeviceError('Device in DFU mode not found.')
-
-        device_data = dict()
-        for item in device.serial_number.split():
-            device_data[item.split(':')[0]] = item.split(':')[1]
-
-        device_data['ECID'] = hex(int(device_data['ECID'], 16))
-
-        for i in ('CPID', 'CPRV', 'BDID', 'CPFM', 'SCEP', 'IBFL'):
-            device_data[i] = int(device_data[i], 16)
-
-        for item in usb.util.get_string(device, device.bDescriptorType).split():
-            device_data[item.split(':')[0]] = item.split(':')[1]
-
-        return device_data
 
     def fetch_board(self) -> Optional[str]:
         device_info = Path('utils/devices.json')
