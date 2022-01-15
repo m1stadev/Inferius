@@ -5,9 +5,7 @@ from utils import errors
 import usb, usb.backend.libusb1, usb.util
 
 
-def _get_backend(
-    self,
-) -> Optional[
+def _get_backend() -> Optional[
     usb.backend.libusb1._LibUSB
 ]:  # Attempt to find a libusb 1.0 library to use as pyusb's backend, exit if one isn't found.
     directories = (
@@ -19,7 +17,7 @@ def _get_backend(
     libusb1 = None
     for libdir in directories:
         for file in Path(libdir).glob('libusb-1.0.0.*'):
-            if file.is_dir() or (file.suffix not in ('.so', '.dylib')):
+            if not file.is_file() or (file.suffix not in ('.so', '.dylib')):
                 continue
 
             libusb1 = file
@@ -35,20 +33,20 @@ def _get_backend(
 
     return usb.backend.libusb1.get_backend(find_library=lambda _: libusb1)
 
-def get_device(self) -> Optional[usb.core.Device]:
+def get_device() -> Optional[usb.core.Device]:
     device: usb.core.Device = usb.core.find(
         idVendor=0x5AC, idProduct=0x1227, backend=_get_backend()
     )
     if device is None:
         raise errors.DeviceError('Device in DFU mode not found.')
 
-    return
+    return device
 
-def get_string(self, device: usb.core.Device, index: int) -> Optional[str]:
+def get_string(device: usb.core.Device, index: int) -> Optional[str]:
     return usb.util.get_string(device, index)
 
-def release_device(self, device: usb.core.Device) -> None:
+def release_device(device: usb.core.Device) -> None:
     usb.util.dispose_resources(device)
 
-def reset_device(self, device: usb.core.Device) -> None:
+def reset_device(device: usb.core.Device) -> None:
     device.reset()
