@@ -6,14 +6,14 @@ import plistlib
 class Manifest:
     def __init__(self, manifest: bytes):
         self._manifest = plistlib.loads(manifest)
-        self.version = (int(_) for _ in self._manifest['ProductVersion'].split('.'))
+        self.version = tuple(int(_) for _ in self._manifest['ProductVersion'].split('.'))
         self.buildid = self._manifest['ProductBuildVersion']
         self.supported_devices = self._manifest['SupportedProductTypes']
 
-    def fetch_component_path(self, boardconfig: str, component: str) -> str:
+    def get_path(self, boardconfig: str, component: str) -> str:
         return next(
             identity['Manifest'][component]['Info']['Path']
-            for identity in self.manifest['BuildIdentities']
+            for identity in self._manifest['BuildIdentities']
             if identity['Info']['DeviceClass'].lower() == boardconfig.lower()
         )
 
