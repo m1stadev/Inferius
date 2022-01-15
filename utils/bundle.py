@@ -61,7 +61,7 @@ class Bundle:
 
         except RemoteIOError as e:
             raise errors.NotFoundError(
-                f'A firmware bundle does not exist for device: {device}, OS: {version}.'
+                f"A firmware bundle does not exist for device: {device}, OS: {'.'.join([str(_) for _ in version])}."
             ) from e
 
         self.bundle = bundle
