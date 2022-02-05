@@ -12,7 +12,7 @@ class Device:
         self.board = self.fetch_board()
 
     def _get_dfu_data(self) -> Optional[dict]:
-        device = usb.get_device()
+        device = usb.get_device(usb.DFU)
 
         device_data = dict()
         for item in device.serial_number.split():

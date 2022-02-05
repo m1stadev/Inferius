@@ -112,7 +112,7 @@ class Restore:
 
     def send_bootchain(self, ibss: Path, ibec: Path) -> None:
         # Reset device
-        device = usb.get_device()
+        device = usb.get_device(usb.DFU)
         usb.reset_device(device)
         usb.release_device(device)
 
@@ -120,7 +120,10 @@ class Restore:
         self._irecv_send_file(ibec)
 
         if 0x8010 <= self.device.data['CPID'] <= 0x8015:
-            self._irecv_send_cmd('go')
+            device = usb.get_device(usb.RECOVERY)
+            usb.send_cmd('go')
+            usb.release_device(device)
+
             time.sleep(3)
 
     def sign_component(self, file: Path, output: Path) -> None:

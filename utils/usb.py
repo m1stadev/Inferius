@@ -5,6 +5,10 @@ from utils import errors
 import usb, usb.backend.libusb1, usb.util
 
 
+RECOVERY = 0x1281
+DFU = 0x1227
+
+
 def _get_backend() -> Optional[
     usb.backend.libusb1._LibUSB
 ]:  # Attempt to find a libusb 1.0 library to use as pyusb's backend, exit if one isn't found.
@@ -33,20 +37,37 @@ def _get_backend() -> Optional[
 
     return usb.backend.libusb1.get_backend(find_library=lambda _: libusb1)
 
-def get_device() -> Optional[usb.core.Device]:
+
+def get_device(mode: int) -> Optional[usb.core.Device]:
+    if mode not in (DFU, RECOVERY):
+        raise errors.DeviceError(f'Invalid mode specified: {mode}.')
+
     device: usb.core.Device = usb.core.find(
-        idVendor=0x5AC, idProduct=0x1227, backend=_get_backend()
+        idVendor=0x5AC, idProduct=mode, backend=_get_backend()
     )
+
     if device is None:
-        raise errors.DeviceError('Device in DFU mode not found.')
+        raise errors.DeviceError(f'Device not found.')
 
     return device
+
 
 def get_string(device: usb.core.Device, index: int) -> Optional[str]:
     return usb.util.get_string(device, index)
 
+
+def send_cmd(device: usb.core.Device, cmd: str) -> None:
+    if device.idProduct != RECOVERY:
+        raise errors.DeviceError(
+            'Commands can only be send to a device in Recovery mode.'
+        )
+
+    device.ctrl_transfer(0x40, 1, 0, 0, cmd)
+
+
 def release_device(device: usb.core.Device) -> None:
     usb.util.dispose_resources(device)
+
 
 def reset_device(device: usb.core.Device) -> None:
     device.reset()
