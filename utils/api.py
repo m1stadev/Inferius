@@ -22,8 +22,10 @@ class API:
     def fetch_api(self) -> Optional[dict]:
         try:
             return requests.get(f'https://api.ipsw.me/v4/device/{self.device}').json()
-        except requests.exceptions.JSONDecodeError as e:
-            raise errors.NotFoundError(f"Device does not exist: {self.device}.") from e
+        except requests.exceptions.JSONDecodeError:
+            raise errors.NotFoundError(
+                f"Device does not exist: {self.device}."
+            ) from None
 
     def fetch_board(self) -> Optional[str]:
         boards = [
@@ -45,10 +47,10 @@ class API:
             try:
                 board = int(board) - 1
             except:
-                raise TypeError(f'Invalid choice given: {board}.')
+                raise TypeError(f'Invalid choice given: {board}.') from None
             else:
                 if board not in range(len(boards)):
-                    raise ValueError(f'Incorrect choice given: {board}.')
+                    raise ValueError(f'Incorrect choice given: {board}.') from None
 
             return boards[board]
 
@@ -65,8 +67,8 @@ class API:
         with manifest.open('wb') as f:
             try:
                 f.write(r.content)
-            except OSError as e:
-                raise IOError(f'Failed to write OTA manifest to: {manifest}.') from e
+            except OSError:
+                raise IOError(f'Failed to write OTA manifest to: {manifest}.') from None
 
         return manifest
 
@@ -77,10 +79,10 @@ class API:
                 for firm in self.api['firmwares']
                 if firm['buildid'] == buildid
             )
-        except StopIteration as e:
+        except StopIteration:
             raise errors.NotFoundError(
                 f'Firmware does not exist with buildid: {buildid}.'
-            ) from e
+            ) from None
 
         return sha1
 
@@ -93,20 +95,20 @@ class API:
                 for firm in self.api['firmwares']
                 if firm['buildid'] == buildid
             )
-        except StopIteration as e:
+        except StopIteration:
             raise errors.NotFoundError(
                 f'Firmware does not exist with buildid: {buildid}.'
-            ) from e
+            ) from None
 
         with RemoteZip(url) as ipsw:
             try:
                 ipsw.extract(component, path)
-            except KeyError as e:
+            except KeyError:
                 raise errors.NotFoundError(
                     f'Component does not exist: {component}.'
-                ) from e
-            except OSError as e:
-                raise IOError(f'Failed to partialzip component: {component}.') from e
+                ) from None
+            except OSError:
+                raise IOError(f'Failed to partialzip component: {component}.') from None
 
         return path / component
 
@@ -117,15 +119,15 @@ class API:
                 for firm in self.api['firmwares']
                 if firm['buildid'] == buildid
             )
-        except StopIteration as e:
+        except StopIteration:
             raise errors.NotFoundError(
                 f'Firmware does not exist with buildid: {buildid}.'
-            ) from e
+            ) from None
 
         with RemoteZip(url) as ipsw:
             try:
                 return ipsw.read(component)
-            except KeyError as e:
+            except KeyError:
                 raise errors.NotFoundError(
                     f'File does not exist in IPSW: {component}.'
-                ) from e
+                ) from None

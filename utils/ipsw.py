@@ -30,37 +30,35 @@ class IPSW:
         try:
             shutil.make_archive(ipsw, 'zip', path)
         except:
-            raise OSError(f'Failed to create custom IPSW at path: {ipsw}.')
+            raise OSError(f'Failed to create custom IPSW at path: {ipsw}.') from None
 
         return ipsw.with_suffix(ipsw.suffix + '.zip').rename(ipsw.with_suffix('.ipsw'))
 
     def extract_file(self, file: str, output: Path) -> Path:
         try:
-            with zipfile.ZipFile(self.ipsw, 'r') as ipsw, output.open(
-                'wb'
-            ) as f:
+            with zipfile.ZipFile(self.ipsw, 'r') as ipsw, output.open('wb') as f:
                 f.write(ipsw.read(file))
 
-        except KeyError as e:
-            raise errors.NotFoundError(f'File not in IPSW: {file}.') from e
+        except KeyError:
+            raise errors.NotFoundError(f'File not in IPSW: {file}.') from None
 
-        except OSError as e:
-            raise IOError(f'Failed to extract file from IPSW: {file}.')
+        except OSError:
+            raise IOError(f'Failed to extract file from IPSW: {file}.') from None
 
     def extract_ipsw(self, path: Path) -> None:
         with zipfile.ZipFile(self.ipsw, 'r') as ipsw:
             try:
                 ipsw.extractall(path)
-            except OSError as e:
-                raise OSError(f'Failed to extract IPSW: {self.ipsw}.') from e
+            except OSError:
+                raise OSError(f'Failed to extract IPSW: {self.ipsw}.') from None
 
     def read_file(self, file: str) -> Optional[bytes]:
         try:
             with zipfile.ZipFile(self.ipsw, 'r') as ipsw:
                 return ipsw.read(file)
 
-        except KeyError as e:
-            raise errors.NotFoundError(f'File not in IPSW: {file}.') from e
+        except KeyError:
+            raise errors.NotFoundError(f'File not in IPSW: {file}.') from None
 
     def verify_ipsw(self, sha1: str) -> None:
         if not self.ipsw.is_file():

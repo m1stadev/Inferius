@@ -1,7 +1,6 @@
 from pathlib import Path
 from remotezip import RemoteZip, RemoteIOError
 from typing import Optional
-from utils.api import API
 from utils import errors
 
 import bsdiff4
@@ -10,7 +9,7 @@ import zipfile
 
 
 class Bundle:
-    def __init__(self, bundle: Optional[Path]=None):
+    def __init__(self, bundle: Optional[Path] = None):
         self.bundle = bundle
 
     def apply_patches(self, ipsw: Path) -> None:
@@ -54,15 +53,15 @@ class Bundle:
             ) as rz:
                 try:
                     rz.extractall(bundle)
-                except OSError as e:
+                except OSError:
                     raise IOError(
                         f'Failed to download firmware bundle to: {bundle}.'
-                    ) from e
+                    ) from None
 
-        except RemoteIOError as e:
+        except RemoteIOError:
             raise errors.NotFoundError(
                 f"A firmware bundle does not exist for device: {device}, OS: {'.'.join([str(_) for _ in version])}."
-            ) from e
+            ) from None
 
         self.bundle = bundle
 
@@ -70,7 +69,9 @@ class Bundle:
         self, path: Path, api: dict, buildid: str, boardconfig: str
     ) -> None:
         if not self.bundle.exists():
-            raise errors.NotFoundError(f'Firmware bundle does not exist: {self.bundle}.')
+            raise errors.NotFoundError(
+                f'Firmware bundle does not exist: {self.bundle}.'
+            )
 
         if not zipfile.is_zipfile(self.bundle):
             raise errors.CorruptError(f'Firmware bundle is corrupt: {self.bundle}.')

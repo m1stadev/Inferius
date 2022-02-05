@@ -16,6 +16,9 @@ import sys
 import tempfile
 
 
+sys.tracebacklimit = 0
+
+
 def create_ipsw(
     api: API, buildmanifest: Manifest, bundle: Bundle, ipsw: IPSW, tmpdir: Path
 ):

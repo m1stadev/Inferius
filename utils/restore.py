@@ -17,7 +17,9 @@ class Restore:
                 ('irecovery', '-f', str(file)), stdout=subprocess.DEVNULL
             )
         except:
-            raise errors.RestoreError(f"Failed to send file to device: {file}.")
+            raise errors.RestoreError(
+                f"Failed to send file to device: {file}."
+            ) from None
 
     def _irecv_send_cmd(self, cmd: str) -> None:
         try:
@@ -63,7 +65,7 @@ class Restore:
 
             raise errors.RestoreError(
                 "[ERROR] Restore failed. Log written to 'restore.log'. Exiting."
-            ) from process
+            ) from None
 
         if Path(ipsw.stem).is_dir():
             shutil.rmtree(ipsw.stem)
@@ -132,4 +134,4 @@ class Restore:
         try:
             subprocess.check_call(args, stdout=subprocess.DEVNULL)
         except subprocess.CalledProcessError:
-            raise errors.RestoreError(f"Failed to sign component: {file}.")
+            raise errors.RestoreError(f'Failed to sign image: {image}.') from None
