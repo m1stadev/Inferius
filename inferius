@@ -48,12 +48,8 @@ def create_ipsw(
 
     buildid = api.api['firmwares'][0]['buildid']
     latest_manifest = Manifest(api.partialzip_read(buildid, 'BuildManifest.plist'))
-    api.partialzip_extract(
-        buildid, latest_manifest.get_path(api.board, 'LLB'), extracted_ipsw
-    )
-    api.partialzip_extract(
-        buildid, latest_manifest.get_path(api.board, 'iBoot'), extracted_ipsw
-    )
+    api.partialzip_extract(buildid, latest_manifest.get_path('LLB'), extracted_ipsw)
+    api.partialzip_extract(buildid, latest_manifest.get_path('iBoot'), extracted_ipsw)
 
     print('[5] Repacking IPSW...')
     ipsw.ipsw = ipsw.create_ipsw(
@@ -73,6 +69,9 @@ def restore_ipsw(api: API, buildmanifest: Manifest, ipsw: IPSW, updating: bool, 
     device = Device(api.device)
     restore = Restore(device)
 
+    # Make new instance of buildmanifest
+    buildmanifest = Manifest(buildmanifest.dump(), device.board)
+
     print('[1] Verifying custom IPSW...')
     ipsw.verify_custom_ipsw(api, updating)
 
@@ -83,10 +82,10 @@ def restore_ipsw(api: API, buildmanifest: Manifest, ipsw: IPSW, updating: bool, 
         )
 
     print('[3] Extracting bootchain...')
-    ibss = buildmanifest.get_path(device.board, 'iBSS')
+    ibss = buildmanifest.get_path('iBSS')
     ipsw.extract_file(ibss, tmpdir / 'ibss.im4p')
 
-    ibec = buildmanifest.get_path(device.board, 'iBEC')
+    ibec = buildmanifest.get_path('iBEC')
     ipsw.extract_file(ibec, tmpdir / 'ibec.im4p')
 
     print('[4] Signing bootchain...')
@@ -120,9 +119,7 @@ def restore_ipsw(api: API, buildmanifest: Manifest, ipsw: IPSW, updating: bool, 
     if buildmanifest.version[0] == 10:
         manifest = Manifest(api.partialzip_read('14G60', 'BuildManifest.plist'))
 
-        sep = api.partialzip_extract(
-            '14G60', manifest.get_path(api.board, 'RestoreSEP'), tmpdir
-        )
+        sep = api.partialzip_extract('14G60', manifest.get_path('RestoreSEP'), tmpdir)
 
         restore.restore(
             ipsw.ipsw, device.baseband, updating, sep=sep, manifest=otamanifest
@@ -194,7 +191,7 @@ def main() -> None:
     ):
         sys.exit(f"[ERROR] '{api.device}' is not supported by Inferius. Exiting.")
 
-    buildmanifest = Manifest(ipsw.read_file('BuildManifest.plist'))
+    buildmanifest = Manifest(ipsw.read_file('BuildManifest.plist'), api.board)
 
     if not 10 <= buildmanifest.version[0] <= 13:
         sys.exit(
