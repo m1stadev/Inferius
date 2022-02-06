@@ -22,7 +22,7 @@ sys.tracebacklimit = 0
 def create_ipsw(
     api: API, buildmanifest: Manifest, bundle: Bundle, ipsw: IPSW, tmpdir: Path
 ):
-    print('Creating custom IPSW')
+    print('\nCreating custom IPSW\n')
 
     print('[1] Grabbing Firmware Bundle...')
     if bundle.bundle is not None:
@@ -50,7 +50,10 @@ def create_ipsw(
     bundle.apply_patches(extracted_ipsw)
 
     buildid = api.api['firmwares'][0]['buildid']
-    latest_manifest = Manifest(api.partialzip_read(buildid, 'BuildManifest.plist'))
+    latest_manifest = Manifest(
+        api.partialzip_read(buildid, 'BuildManifest.plist'), api.board
+    )
+
     api.partialzip_extract(buildid, latest_manifest.get_path('LLB'), extracted_ipsw)
     api.partialzip_extract(buildid, latest_manifest.get_path('iBoot'), extracted_ipsw)
 
@@ -61,7 +64,7 @@ def create_ipsw(
         bundle.check_update_support(),
         api.api['firmwares'][0]['version'],
     )
-    print(f"Finished creating custom IPSW: '{ipsw.ipsw}'.")
+    print(f"Finished creating custom IPSW: '{ipsw.ipsw}'.\n")
 
     return ipsw
 
