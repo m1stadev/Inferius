@@ -29,6 +29,9 @@ class Bundle:
                     continue
 
             for patch in bundle_data['patches'][patches]:
+                if any(_ in patch['file'] for _ in ('iBSS', 'iBEC')):
+                    continue
+
                 bsdiff4.file_patch_inplace(
                     ipsw / patch['file'], self.bundle / patch['patch']
                 )
