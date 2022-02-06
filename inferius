@@ -144,8 +144,12 @@ def main() -> None:
         description='Inferius - Create & Restore 64-bit custom IPSWs',
         usage="inferius -d 'identifier' -f 'IPSW' [-c/-r] [-b 'BUNDLE']",
     )
-    parser.add_argument('-d', '--device', help='Device identifier', nargs=1)
-    parser.add_argument('-f', '--ipsw', help='Path to IPSW', nargs=1, type=Path)
+    parser.add_argument(
+        '-d', '--device', help='Device identifier', nargs=1, required=True
+    )
+    parser.add_argument(
+        '-f', '--ipsw', help='Path to IPSW', nargs=1, type=Path, required=True
+    )
     parser.add_argument(
         '-c', '--create', help='Create custom IPSW', action='store_true'
     )
@@ -162,7 +166,7 @@ def main() -> None:
     parser.add_argument(
         '-u',
         '--update',
-        help='Keep data while restoring custom IPSW',
+        help='(Optional) Keep data while restoring custom IPSW',
         action='store_true',
     )
     args = parser.parse_args()
