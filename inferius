@@ -203,9 +203,9 @@ def main() -> None:
 
     buildmanifest = Manifest(ipsw.read_file('BuildManifest.plist'), api.board)
 
-    if not 10 <= buildmanifest.version[0] <= 13:
+    if not 10 <= buildmanifest.version[0] <= 14:
         sys.exit(
-            f'[ERROR] iOS {buildmanifest.version} is not supported by Inferius. Exiting.'
+            f"[ERROR] iOS {'.'.join(str(_) for _ in buildmanifest.version)} is not supported by Inferius. Exiting."
         )
 
     if buildmanifest.version[0] == 10 and restoremanifest.platform != 0x8960:
