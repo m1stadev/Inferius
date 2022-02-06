@@ -30,7 +30,7 @@ def create_ipsw(
         try:
             bundle.verify_bundle(tmpdir, api.api, buildmanifest.buildid, api.board)
         except:
-            sys.exit(f"[ERROR] Bundle is invalid: {bundle.bundle}. Exiting.")
+            sys.exit(f'[ERROR] Bundle is invalid: {bundle.bundle}. Exiting.')
 
     else:
         bundle.fetch_bundle(
