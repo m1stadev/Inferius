@@ -22,7 +22,7 @@ sys.tracebacklimit = 0
 def create_ipsw(
     api: API, buildmanifest: Manifest, bundle: Bundle, ipsw: IPSW, tmpdir: Path
 ):
-    print('\nCreating custom IPSW\n')
+    print('Creating custom IPSW')
 
     print('[1] Grabbing Firmware Bundle...')
     if bundle.bundle is not None:
@@ -72,7 +72,7 @@ def create_ipsw(
 def restore_ipsw(
     api: API, buildmanifest: Manifest, ipsw: IPSW, updating: bool, tmpdir: Path
 ):
-    print('\nRestoring custom IPSW\n')
+    print('Restoring custom IPSW')
 
     Checks()
     device = Device(api.device)
@@ -103,18 +103,14 @@ def restore_ipsw(
     else:
         otamanifest = None
 
+    shsh_path = tmpdir / 'shsh'
+    shsh_path.mkdir()
     if buildmanifest.version[0] == 10:
         restore.save_blobs(
-            device.data['ECID'],
-            device.board,
-            tmpdir,
-            manifest=otamanifest,
-            apnonce=device.data['NONC'],
+            device.data['ECID'], device.board, shsh_path, manifest=otamanifest
         )
     else:
-        restore.save_blobs(
-            device.data['ECID'], device.board, tmpdir, apnonce=device.data['NONC']
-        )
+        restore.save_blobs(device.data['ECID'], device.board, shsh_path)
 
     print('[5] Signing bootchain...')
     rdsk_img = tmpdir / 'rdsk.dmg.img4'
@@ -140,7 +136,7 @@ def restore_ipsw(
     )
 
     print(
-        f'Finished restoring custom IPSW to your device. Please boot your device using one of the tools listed in the README.'
+        f'Finished restoring custom IPSW to your device. Please boot your device using one of the tools listed in the README.\n'
     )
 
 
@@ -186,6 +182,8 @@ def main() -> None:
 
     if platform.system() == 'Windows':
         sys.exit('[ERROR] Inferius does not support Windows. Exiting.')
+
+    print('Inferius - Create & Restore 64-bit custom IPSWs\n')
 
     api = API(args.device[0])
     api.fetch_api()
