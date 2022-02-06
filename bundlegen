@@ -38,7 +38,7 @@ def create_im4p(file, output, tag=None, patch=None):
         args.append('-P')
         args.append(patch)
 
-    img4 = subprocess.run(args, stdout=subprocess.DEVNULL)
+    img4 = subprocess.run(args, stdout=subprocess.DEVNULL, stderr=subprocess.STDOUT)
     if img4.returncode != 0:
         sys.exit(f"[ERROR] Packing '{file}' into im4p container failed. Exiting.")
 
