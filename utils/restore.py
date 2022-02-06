@@ -121,7 +121,7 @@ class Restore:
         self._irecv_send_file(ibss)
         self._irecv_send_file(ibec)
 
-        if 0x8010 <= self.device.data['CPID'] <= 0x8015:
+        if 0x8010 <= self.device.data['CPID']:
             device = usb.get_device(usb.RECOVERY)
             usb.send_cmd('go')
             usb.release_device(device)
