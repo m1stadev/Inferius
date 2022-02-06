@@ -68,8 +68,11 @@ def create_ipsw(
 
     return ipsw
 
-def restore_ipsw(api: API, buildmanifest: Manifest, ipsw: IPSW, updating: bool, tmpdir: Path):
-    print('Restoring custom IPSW')
+
+def restore_ipsw(
+    api: API, buildmanifest: Manifest, ipsw: IPSW, updating: bool, tmpdir: Path
+):
+    print('\nRestoring custom IPSW\n')
 
     Checks()
     device = Device(api.device)
@@ -88,26 +91,18 @@ def restore_ipsw(api: API, buildmanifest: Manifest, ipsw: IPSW, updating: bool, 
         )
 
     print('[3] Extracting bootchain...')
-    ibss = buildmanifest.get_path('iBSS')
-    ipsw.extract_file(ibss, tmpdir / 'ibss.im4p')
+    ramdisk = tmpdir / 'rdsk.dmg'
+    ipsw.extract_file(buildmanifest.get_path('RestoreRamDisk'), tmpdir / 'rdsk.dmg')
 
-    ibec = buildmanifest.get_path('iBEC')
-    ipsw.extract_file(ibec, tmpdir / 'ibec.im4p')
+    kernel = tmpdir / 'krnl.im4p'
+    ipsw.extract_file(buildmanifest.get_path('KernelCache'), tmpdir / 'krnl.im4p')
 
-    print('[4] Signing bootchain...')
+    print('[4] Saving SHSH blobs...')
     if buildmanifest.version[0] == 10:
         otamanifest = api.fetch_ota_manifest(api.device, tmpdir)
-        restore.save_blobs(device.data['ECID'], device.board, tmpdir, manifest=otamanifest)
     else:
-        restore.save_blobs(device.data['ECID'], device.board, tmpdir)
+        otamanifest = None
 
-    restore.sign_component(tmpdir / 'ibss.im4p', tmpdir / 'ibss.img4')
-    restore.sign_component(tmpdir / 'ibec.im4p', tmpdir / 'ibec.img4')
-
-    print('[5] Sending bootchain...')
-    restore.send_bootchain(tmpdir / 'ibss.img4', tmpdir / 'ibec.img4')
-
-    print('[6] Saving SHSH blobs...')
     if buildmanifest.version[0] == 10:
         restore.save_blobs(
             device.data['ECID'],
@@ -121,18 +116,28 @@ def restore_ipsw(api: API, buildmanifest: Manifest, ipsw: IPSW, updating: bool, 
             device.data['ECID'], device.board, tmpdir, apnonce=device.data['NONC']
         )
 
-    print('[7] Restoring...')
+    print('[5] Signing bootchain...')
+    rdsk_img = tmpdir / 'rdsk.dmg.img4'
+    kern_img = tmpdir / 'rkrn.img4'
+    restore.sign_image(ramdisk, rdsk_img)
+    restore.sign_image(kernel, kern_img, tag='rkrn')
+
+    print('[6] Restoring...')
     if buildmanifest.version[0] == 10:
         manifest = Manifest(api.partialzip_read('14G60', 'BuildManifest.plist'))
-
         sep = api.partialzip_extract('14G60', manifest.get_path('RestoreSEP'), tmpdir)
-
-        restore.restore(
-            ipsw.ipsw, device.baseband, updating, sep=sep, manifest=otamanifest
-        )
-
     else:
-        restore.restore(ipsw.ipsw, device.baseband, updating)
+        sep = None
+
+    restore.restore(
+        ipsw.ipsw,
+        rdsk_img,
+        kern_img,
+        device.baseband,
+        updating,
+        sep=sep,
+        manifest=otamanifest,
+    )
 
     print(
         f'Finished restoring custom IPSW to your device. Please boot your device using one of the tools listed in the README.'
