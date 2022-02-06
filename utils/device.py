@@ -8,10 +8,10 @@ import json
 class Device:
     def __init__(self, identifier):
         self.identifier = identifier
-        self.data = self._get_dfu_data()
+        self.data = self._get_data()
         self.board = self.fetch_board()
 
-    def _get_dfu_data(self) -> Optional[dict]:
+    def _get_data(self) -> Optional[dict]:
         device = usb.get_device(usb.DFU)
 
         device_data = dict()
