@@ -24,7 +24,7 @@ class Restore:
         args = [
             'futurerestore',
             '-t',
-            str(self.signing_blob),
+            str(self.blob),
             '--use-pwndfu',
             '--no-cache',
             '--skip-blob',
@@ -70,7 +70,7 @@ class Restore:
                 f.write(process.stdout)
 
             raise errors.RestoreError(
-                f"[ERROR] Restore failed. Log written to '{log.stem}'. Exiting."
+                f"[ERROR] Restore failed. Log written to '{log.name}'. Exiting."
             ) from None
 
         if Path(ipsw.stem).is_dir():
@@ -82,17 +82,11 @@ class Restore:
                 f.write(futurerestore)
 
             raise errors.RestoreError(
-                f"[ERROR] Restore failed. Log written to '{log.stem}'. Exiting."
+                f"[ERROR] Restore failed. Log written to '{log.name}'. Exiting."
             )
 
     def save_blobs(
-        self,
-        ecid: str,
-        boardconfig: str,
-        path: Path,
-        *,
-        manifest: Path = None,
-        apnonce: str = None,
+        self, ecid: str, boardconfig: str, path: Path, *, manifest: Path = None
     ) -> None:
         args = [
             'tsschecker',
@@ -114,10 +108,6 @@ class Restore:
             args.append('-l')
             args.append('--nocache')
 
-        if apnonce:
-            args.append('--apnonce')
-            args.append(apnonce)
-
         try:
             if 'Saved shsh blobs!' not in subprocess.check_output(
                 args, stderr=subprocess.STDOUT, universal_newlines=True
@@ -126,13 +116,7 @@ class Restore:
         except subprocess.CalledProcessError:
             raise errors.RestoreError('Failed to save SHSH blobs.') from None
 
-        if apnonce:
-            for blob in path.glob('*.shsh*'):
-                if blob != self.signing_blob:
-                    self.blob = blob
-                    break
-        else:
-            self.signing_blob = tuple(path.glob('*.shsh*'))[0]
+        self.blob = tuple(path.glob('*.shsh*'))[0]
 
     def sign_image(self, image: Path, output: Path, tag: str = None) -> None:
         args = [
@@ -142,7 +126,7 @@ class Restore:
             '-p',
             str(image),
             '-s',
-            str(self.signing_blob),
+            str(self.blob),
         ]
 
         if tag:
