@@ -19,7 +19,7 @@ class Checks:
             fr_ver = subprocess.run(
                 (binary), stdout=subprocess.PIPE, universal_newlines=True
             ).stdout
-            if '266' not in fr_ver.splitlines()[0]:  # TODO: Make this check less ass
+            if int(fr_ver.splitlines()[0][-3:]) <= 266:
                 raise errors.DependencyError(
                     'This FutureRestore build cannot be used with Inferius.'
                 )
