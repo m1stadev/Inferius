@@ -1,12 +1,15 @@
 #!/usr/bin/env python3
 
 from pathlib import Path
+from pymobiledevice3.restore.device import Device
+from pymobiledevice3.restore.ipsw.ipsw import IPSW
+from pymobiledevice3.irecv import IRecv
 
 from utils.api import API
 from utils.bundle import Bundle
-from utils.dependencies import Checks
-from utils.device import Device
-from utils.ipsw import IPSW
+
+# from utils.device import Device
+# from utils.ipsw import IPSW
 from utils.manifest import Manifest, RestoreManifest
 from utils.restore import Restore
 
@@ -70,32 +73,21 @@ def create_ipsw(
 
 
 def restore_ipsw(
-    api: API, buildmanifest: Manifest, ipsw: IPSW, updating: bool, tmpdir: Path
+    api: API, buildmanifest: Manifest, ipsw: Path, updating: bool, tmpdir: Path
 ):
     print('Restoring custom IPSW')
 
-    Checks()
-    device = Device(api.device)
-    restore = Restore(device)
-
-    # Make new instance of buildmanifest
-    buildmanifest = Manifest(buildmanifest.dump(), device.board)
-
     print('[1] Verifying custom IPSW...')
-    ipsw.verify_custom_ipsw(api, updating)
+    # ipsw.verify_custom_ipsw(api, updating)
 
     print('[2] Checking for device in pwned DFU...')
-    if 'PWND' not in device.data.keys():
+    device = Device(irecv=IRecv())
+    if 'PWND' not in device.irecv._device_info.keys():
         sys.exit(
             '[ERROR] Attempting to restore a device not in Pwned DFU mode. Exiting.'
         )
 
-    print('[3] Extracting bootchain...')
-    ramdisk = tmpdir / 'rdsk.dmg'
-    ipsw.extract_file(buildmanifest.get_path('RestoreRamDisk'), tmpdir / 'rdsk.dmg')
-
-    kernel = tmpdir / 'krnl.im4p'
-    ipsw.extract_file(buildmanifest.get_path('KernelCache'), tmpdir / 'krnl.im4p')
+    sys.exit('im out!')
 
     print('[4] Saving SHSH blobs...')
     if buildmanifest.version[0] == 10:
@@ -230,7 +222,7 @@ def main() -> None:
             custom_ipsw = ipsw
 
         if args.restore:
-            restore_ipsw(api, buildmanifest, custom_ipsw, args.update, tmpdir)
+            restore_ipsw(api, buildmanifest, args.ipsw[0], args.update, tmpdir)
 
 
 if __name__ == '__main__':
