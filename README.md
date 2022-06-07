@@ -2,7 +2,7 @@
 [![License](https://img.shields.io/github/license/m1stadev/Inferius)](https://github.com/m1stadev/Inferius)
 [![Stars](https://img.shields.io/github/stars/m1stadev/Inferius)]((https://github.com/m1stadev/Inferius))
 
-Inferius is an [xpwn](https://github.com/m1stadev/xpwn)-like tool to create & restore custom IPSWs to 64-bit devices.
+Inferius is an [xpwn](https://github.com/OothecaPickle/xpwn)-like tool to create & restore custom IPSWs to 64-bit devices.
 
 Its current purpose is to downgrade devices (vulnerable to [checkm8](https://github.com/axi0mX/ipwndfu)) to previous iOS versions. However, there are other possible uses for this tool as well.
 
@@ -44,6 +44,7 @@ By default, firmware bundles are automatically downloaded from an [external repo
 - [libusb](https://libusb.info/)
 - [futurerestore](https://github.com/m1stadev/futurerestore)
     - futurerestore must be compiled with [my fork of img4tool](https://github.com/m1stadev/img4tool), or else it can't be used with Inferius.
+- [img4tool](https://github.com/tihmstar/img4tool)
 - [libirecovery](https://github.com/libimobiledevice/libirecovery)
 - [tsschecker](https://github.com/1Conan/tsschecker)
 - Python dependencies:

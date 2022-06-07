@@ -4,4 +4,4 @@ FirmwareBundles/
 IPSW/
 
 .DS_Store
-futurerestore_error.log
+restore.log

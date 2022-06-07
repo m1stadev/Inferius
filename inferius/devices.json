@@ -1,0 +1,320 @@
+[
+    {
+        "identifier": "AppleTV5,3",
+        "boardconfig": "j42dap",
+        "bdid": 52,
+        "cpid": 28672
+    },
+    {
+        "identifier": "AppleTV6,2",
+        "boardconfig": "j105aap",
+        "bdid": 2,
+        "cpid": 32785
+    },
+    {
+        "identifier": "iPad4,1",
+        "boardconfig": "j71ap",
+        "bdid": 16,
+        "cpid": 35168
+    },
+    {
+        "identifier": "iPad4,2",
+        "boardconfig": "j72ap",
+        "bdid": 18,
+        "cpid": 35168
+    },
+    {
+        "identifier": "iPad4,3",
+        "boardconfig": "j73ap",
+        "bdid": 20,
+        "cpid": 35168
+    },
+    {
+        "identifier": "iPad4,4",
+        "boardconfig": "j85ap",
+        "bdid": 10,
+        "cpid": 35168
+    },
+    {
+        "identifier": "iPad4,5",
+        "boardconfig": "j86ap",
+        "bdid": 12,
+        "cpid": 35168
+    },
+    {
+        "identifier": "iPad4,6",
+        "boardconfig": "j87ap",
+        "bdid": 14,
+        "cpid": 35168
+    },
+    {
+        "identifier": "iPad4,7",
+        "boardconfig": "j85map",
+        "bdid": 50,
+        "cpid": 35168
+    },
+    {
+        "identifier": "iPad4,8",
+        "boardconfig": "j86map",
+        "bdid": 52,
+        "cpid": 35168
+    },
+    {
+        "identifier": "iPad4,9",
+        "boardconfig": "j87map",
+        "bdid": 54,
+        "cpid": 35168
+    },
+    {
+        "identifier": "iPad5,1",
+        "boardconfig": "j96ap",
+        "bdid": 8,
+        "cpid": 28672
+    },
+    {
+        "identifier": "iPad5,2",
+        "boardconfig": "j97ap",
+        "bdid": 10,
+        "cpid": 28672
+    },
+    {
+        "identifier": "iPad5,3",
+        "boardconfig": "j81ap",
+        "bdid": 6,
+        "cpid": 28673
+    },
+    {
+        "identifier": "iPad5,4",
+        "boardconfig": "j82ap",
+        "bdid": 2,
+        "cpid": 28673
+    },
+    {
+        "identifier": "iPad6,11",
+        "boardconfig": "j71sap",
+        "bdid": 16,
+        "cpid": 32768
+    },
+    {
+        "identifier": "iPad6,11",
+        "boardconfig": "j71tap",
+        "bdid": 16,
+        "cpid": 32771
+    },
+    {
+        "identifier": "iPad6,12",
+        "boardconfig": "j72sap",
+        "bdid": 18,
+        "cpid": 32768
+    },
+    {
+        "identifier": "iPad6,12",
+        "boardconfig": "j72tap",
+        "bdid": 18,
+        "cpid": 32771
+    },
+    {
+        "identifier": "iPad6,3",
+        "boardconfig": "j127ap",
+        "bdid": 8,
+        "cpid": 32769
+    },
+    {
+        "identifier": "iPad6,4",
+        "boardconfig": "j128ap",
+        "bdid": 10,
+        "cpid": 32769
+    },
+    {
+        "identifier": "iPad6,7",
+        "boardconfig": "j98aap",
+        "bdid": 16,
+        "cpid": 32769
+    },
+    {
+        "identifier": "iPad6,8",
+        "boardconfig": "j99aap",
+        "bdid": 18,
+        "cpid": 32769
+    },
+    {
+        "identifier": "iPad7,1",
+        "boardconfig": "j120ap",
+        "bdid": 12,
+        "cpid": 32785
+    },
+    {
+        "identifier": "iPad7,11",
+        "boardconfig": "j171ap",
+        "bdid": 28,
+        "cpid": 32784
+    },
+    {
+        "identifier": "iPad7,12",
+        "boardconfig": "j172ap",
+        "bdid": 30,
+        "cpid": 32784
+    },
+    {
+        "identifier": "iPad7,2",
+        "boardconfig": "j121ap",
+        "bdid": 14,
+        "cpid": 32785
+    },
+    {
+        "identifier": "iPad7,3",
+        "boardconfig": "j207ap",
+        "bdid": 4,
+        "cpid": 32785
+    },
+    {
+        "identifier": "iPad7,4",
+        "boardconfig": "j208ap",
+        "bdid": 6,
+        "cpid": 32785
+    },
+    {
+        "identifier": "iPad7,5",
+        "boardconfig": "j71bap",
+        "bdid": 24,
+        "cpid": 32784
+    },
+    {
+        "identifier": "iPad7,6",
+        "boardconfig": "j72bap",
+        "bdid": 26,
+        "cpid": 32784
+    },
+    {
+        "identifier": "iPhone10,1",
+        "boardconfig": "d20ap",
+        "bdid": 2,
+        "cpid": 32789
+    },
+    {
+        "identifier": "iPhone10,2",
+        "boardconfig": "d21ap",
+        "bdid": 4,
+        "cpid": 32789
+    },
+    {
+        "identifier": "iPhone10,3",
+        "boardconfig": "d22ap",
+        "bdid": 6,
+        "cpid": 32789
+    },
+    {
+        "identifier": "iPhone10,4",
+        "boardconfig": "d201ap",
+        "bdid": 10,
+        "cpid": 32789
+    },
+    {
+        "identifier": "iPhone10,5",
+        "boardconfig": "d211ap",
+        "bdid": 12,
+        "cpid": 32789
+    },
+    {
+        "identifier": "iPhone10,6",
+        "boardconfig": "d221ap",
+        "bdid": 14,
+        "cpid": 32789
+    },
+    {
+        "identifier": "iPhone6,1",
+        "boardconfig": "n51ap",
+        "bdid": 0,
+        "cpid": 35168
+    },
+    {
+        "identifier": "iPhone6,2",
+        "boardconfig": "n53ap",
+        "bdid": 2,
+        "cpid": 35168
+    },
+    {
+        "identifier": "iPhone7,1",
+        "boardconfig": "n56ap",
+        "bdid": 4,
+        "cpid": 28672
+    },
+    {
+        "identifier": "iPhone7,2",
+        "boardconfig": "n61ap",
+        "bdid": 6,
+        "cpid": 28672
+    },
+    {
+        "identifier": "iPhone8,1",
+        "boardconfig": "n71ap",
+        "bdid": 4,
+        "cpid": 32768
+    },
+    {
+        "identifier": "iPhone8,1",
+        "boardconfig": "n71map",
+        "bdid": 4,
+        "cpid": 32771
+    },
+    {
+        "identifier": "iPhone8,2",
+        "boardconfig": "n66ap",
+        "bdid": 6,
+        "cpid": 32768
+    },
+    {
+        "identifier": "iPhone8,2",
+        "boardconfig": "n66map",
+        "bdid": 6,
+        "cpid": 32771
+    },
+    {
+        "identifier": "iPhone8,4",
+        "boardconfig": "n69ap",
+        "bdid": 2,
+        "cpid": 32771
+    },
+    {
+        "identifier": "iPhone8,4",
+        "boardconfig": "n69uap",
+        "bdid": 2,
+        "cpid": 32768
+    },
+    {
+        "identifier": "iPhone9,1",
+        "boardconfig": "d10ap",
+        "bdid": 8,
+        "cpid": 32784
+    },
+    {
+        "identifier": "iPhone9,2",
+        "boardconfig": "d11ap",
+        "bdid": 10,
+        "cpid": 32784
+    },
+    {
+        "identifier": "iPhone9,3",
+        "boardconfig": "d101ap",
+        "bdid": 12,
+        "cpid": 32784
+    },
+    {
+        "identifier": "iPhone9,4",
+        "boardconfig": "d111ap",
+        "bdid": 14,
+        "cpid": 32784
+    },
+    {
+        "identifier": "iPod7,1",
+        "boardconfig": "n102ap",
+        "bdid": 16,
+        "cpid": 28672
+    },
+    {
+        "identifier": "iPod9,1",
+        "boardconfig": "n112ap",
+        "bdid": 22,
+        "cpid": 32784
+    }
+]
